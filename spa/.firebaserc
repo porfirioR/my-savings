@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "my-savings-dev": {
+      "hosting": {
+        "my-savings": [
+          "my-savings-dev"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "my-savings-dev"
+  }
+}

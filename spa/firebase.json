@@ -1,0 +1,9 @@
+{
+  "hosting": [
+    {
+      "target": "my-savings",
+      "source": ".",
+      "frameworksBackend": {}
+    }
+  ]
+}
