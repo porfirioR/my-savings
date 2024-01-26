@@ -12,6 +12,6 @@ import { environment } from '../environments/environment';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'my-savings';
+  title = 'my-savings'
   protected product = environment.production
 }

@@ -1,9 +1,5 @@
 {
-  "hosting": [
-    {
-      "target": "my-savings",
-      "source": ".",
-      "frameworksBackend": {}
-    }
-  ]
+  "database": {
+    "rules": "database.rules.json"
+  }
 }
