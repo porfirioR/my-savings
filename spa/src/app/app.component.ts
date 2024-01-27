@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
+import { DynamicTableComponent } from './components/dynamic-table/dynamic-table.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet
+    RouterOutlet,
+    DynamicTableComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
