@@ -23,7 +23,33 @@ export class DynamicTableComponent implements OnInit {
     'fecha_creacion',
     'chef'
   ]
-  protected data: any[] = [
+  protected matrix: any[][] = [
+    [
+      1,
+      'Hamburguesa',
+      'Fast Food',
+      'carne de res',
+      550,
+      8.99,
+      null,
+      true,
+      '2024-01-26',
+      'Chef Juan'
+    ],
+    [
+    2,
+    'Ensalada César',
+    'Ensalada',
+    'pollo a la parrilla',
+    350,
+    7.99,
+    0.5,
+    true,
+    '2024-01-26',
+    'Chef Maria']
+  ]
+
+  protected objectList: any[] = [
     {
       'id': 1,
       'nombre': 'Hamburguesa',
