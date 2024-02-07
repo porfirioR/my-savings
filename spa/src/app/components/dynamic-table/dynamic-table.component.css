@@ -1,0 +1,11 @@
+#secondary-table {
+  display: none;
+}
+@media (max-width: 768px) {
+  #secondary-table {
+    display: block;
+  }
+  #principal-table {
+    display: none;
+  }
+}
