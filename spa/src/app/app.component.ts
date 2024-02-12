@@ -16,6 +16,6 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'my-savings'
+  title = 'my-events'
   protected product = environment.production
 }
