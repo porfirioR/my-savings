@@ -1,6 +1,4 @@
-export class name {
-  constructor(
-    public EventId: number,
-    public UserId: number
-  ) {}
+export interface EventFollows {
+  EventId: number
+  UserId: number
 }

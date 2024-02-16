@@ -1,7 +1,5 @@
-export class Users {
-  constructor(
-    public Id: number,
-    public Email: string,
-    public DateCreated: Date
-  ) {}
+export interface Users {
+  Id: number
+  Email: string
+  DateCreated: Date
 }

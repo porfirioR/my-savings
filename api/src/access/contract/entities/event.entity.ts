@@ -1,11 +1,9 @@
 export class Events {
-  constructor(
-    public Id: number,
-    public Name: string,
-    public AuthorId: number,
-    public Description: string,
-    public IsActive: boolean,
-    public Date: Date,
-    public IsPublic: boolean
-  ) {}
+  Id: number
+  Name: string
+  AuthorId: number
+  Description: string
+  IsActive: boolean
+  Date: Date
+  IsPublic: boolean
 }
