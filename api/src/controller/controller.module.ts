@@ -1,12 +1,11 @@
-/*
-https://docs.nestjs.com/modules
-*/
-
 import { Module } from '@nestjs/common';
+import { UsersController } from './users.controller';
 
 @Module({
   imports: [],
-  controllers: [],
+  controllers: [
+    UsersController
+  ],
   providers: [],
 })
 export class ControllerModule {}
