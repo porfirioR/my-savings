@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { DbContextService, EventAccessService, UserAccessService } from './services';
+import { DbContextService, EventAccessService, EventFollowAccessService, UserAccessService } from './services';
 
 @Module({
   imports: [],
   controllers: [],
   providers: [
-    EventAccessService,
     DbContextService,
+    EventAccessService,
+    EventFollowAccessService,
     UserAccessService,
   ],
 })

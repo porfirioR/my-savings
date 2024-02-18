@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EventManagerService } from './services/event-manager.service';
-import { UserManagerService } from './services';
+import { EventFollowManagerService, UserManagerService } from './services';
 import { AccessModule } from '../access/access.module';
 
 @Module({
@@ -8,6 +8,7 @@ import { AccessModule } from '../access/access.module';
   controllers: [],
   providers: [
     EventManagerService,
+    EventFollowManagerService,
     UserManagerService
   ],
 })
