@@ -33,28 +33,32 @@ export class EventAccessService {
     return data?.map(x => ({ ...x, _className: EventAccessModel }));
   };
 
-  public createEvent = async (accessRequest: CreateEventAccessRequest): Promise<boolean> => {
+  public createEvent = async (accessRequest: CreateEventAccessRequest): Promise<EventAccessModel> => {
     const event  = await this.eventContext
       .from(TableEnum.Events)
-      .insert(accessRequest);
+      .insert(accessRequest)
+      .single();
     if (event.error) throw new Error(event.error.message);
-    return true;
+    return this.getEventAccessModel(event.data);
   };
 
   public updateEvent = async (accessRequest: UpdateEventAccessRequest): Promise<EventAccessModel> => {
     const event  = await this.eventContext
       .from(TableEnum.Events)
-      .upsert(accessRequest);
+      .upsert(accessRequest)
+      .single();
     if (event.error) throw new Error(event.error.message);
-    return new EventAccessModel(
-      accessRequest.Id,
-      accessRequest.Name,
-      accessRequest.AuthorId,
-      accessRequest.Description,
-      true,
-      accessRequest.Date,
-      accessRequest.IsPublic
-    );
+    return this.getEventAccessModel(event.data);
   };
+
+  private getEventAccessModel = (accessRequest: any): EventAccessModel => new EventAccessModel(
+    accessRequest.Id,
+    accessRequest.Name,
+    accessRequest.AuthorId,
+    accessRequest.Description,
+    true,
+    accessRequest.Date,
+    accessRequest.IsPublic
+  )
 
 }

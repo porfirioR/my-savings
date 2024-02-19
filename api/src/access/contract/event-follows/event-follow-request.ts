@@ -1,6 +1,6 @@
 export class EventFollowRequest {
   constructor(
-    public EventId: number,
-    public UserId: number
+    public eventId: number,
+    public userId: number
   ) {}
 }

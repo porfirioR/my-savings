@@ -3,9 +3,7 @@ import { AppController } from './app.controller';
 import { ControllerModule } from './controller/controller.module';
 
 @Module({
-  imports: [
-    ControllerModule
-  ],
+  imports: [ControllerModule],
   controllers: [AppController],
   providers: []
 })

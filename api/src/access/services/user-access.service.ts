@@ -4,38 +4,45 @@ import { DbContextService } from './db-context.service';
 import { TableEnum } from '../contract/table.enum';
 import { CreateUserAccessRequest } from '../contract/users/create-user-access-request';
 import { UserAccessModel } from '../contract/users/user-access-model';
+import { UserEntity } from '../contract/entities/user.entity';
 
 @Injectable()
 export class UserAccessService {
-  private eventContext: SupabaseClient<any, 'public', any>;
+  private userContext: SupabaseClient<any, 'public', any>;
 
   constructor(private dbContextService: DbContextService) {
-    this.eventContext = this.dbContextService.getConnection();
+    this.userContext = this.dbContextService.getConnection();
   }
 
   public getUsers = async (): Promise<UserAccessModel[]> => {
-    const { data, error } = await this.eventContext
+    const { data, error } = await this.userContext
       .from(TableEnum.Users)
       .select('*');
     if (error) throw new Error(error.message);
-    return data?.map((x) => ({ ...x, _className: UserAccessModel }));
+    return data.map(this.getUser);
   };
 
   public createUser = async (accessRequest: CreateUserAccessRequest): Promise<UserAccessModel> => {
-    const { error } = await this.eventContext
+    const { data, error } = await this.userContext
       .from(TableEnum.Users)
-      .insert([accessRequest.Email]);
+      .insert({
+        'Email': accessRequest.email,
+        'DateCreated': new Date()
+      })
+      .single<UserEntity>();
     if (error) throw new Error(error.message);
-    return await this.getUserByEmail(accessRequest.Email);
+    return this.getUser(data);
   };
 
   public getUserByEmail = async (email: string): Promise<UserAccessModel> => {
-    const { data, error } = await this.eventContext
+    const { data, error } = await this.userContext
       .from(TableEnum.Users)
       .select()
       .eq('Email', email)
-      .single<UserAccessModel>();
+      .single<UserEntity>();
     if (error) throw new Error(error.message);
-    return data;
+    return this.getUser(data);
   };
+
+  private getUser = (data: UserEntity): UserAccessModel => new UserAccessModel(data.Id, data.Email, data.DateCreated)
 }

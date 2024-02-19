@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { UserManagerService } from '../manager/services';
-import { UserModel } from '../manager/models/users/user-model';
-import { CreateUserRequest } from '../manager/models/users/create-user-request';
-import { CreateUserApiRequest } from './models/users/create-user-api-request';
+import { UserManagerService } from '../../manager/services';
+import { UserModel } from '../../manager/models/users/user-model';
+import { CreateUserRequest } from '../../manager/models/users/create-user-request';
+import { CreateUserApiRequest } from '../models/users/create-user-api-request';
 
 @Controller()
 export class UsersController {
@@ -21,7 +21,7 @@ export class UsersController {
   }
 
   @Post()
-  async createUser(@Body() apiRequest: CreateUserApiRequest) {
+  async createUser(@Body() apiRequest: CreateUserApiRequest): Promise<UserModel> {
     const request = new CreateUserRequest(apiRequest.Email)
     const model = await this.userManagerService.createUser(request);
     return model;

@@ -42,12 +42,12 @@ export class EventFollowAccessService {
     return true;
   };
 
-  public deleteEventFollows = async (accessRequest: EventFollowRequest): Promise<boolean> => {
+  public deleteEventFollow = async (accessRequest: EventFollowRequest): Promise<boolean> => {
     const eventFollow = await this.eventContext
       .from(TableEnum.EventFollows)
       .select('*')
-      .eq('UserId', accessRequest.UserId)
-      .eq('EventId', accessRequest.EventId)
+      .eq('UserId', accessRequest.userId)
+      .eq('EventId', accessRequest.eventId)
       .single();
     if (eventFollow.error) throw new Error(eventFollow.error.message);
 
@@ -57,6 +57,16 @@ export class EventFollowAccessService {
       .eq('Id', eventFollow.data.Id);
     if (deleteEventFollow.error) throw new Error(deleteEventFollow.error.message); 
     return true;
+  };
+  
+  public checkExistEventFollows = async (accessRequest: EventFollowRequest): Promise<boolean> => {
+    const { count, error } = await this.eventContext
+      .from(TableEnum.EventFollows)
+      .select('*', {count: 'exact', head: true})
+      .eq('UserId', accessRequest.userId)
+      .eq('EventId', accessRequest.eventId);
+    if (error) throw error;
+    return count > 0;
   };
 
   private getEventAccessModel = (x: any): EventAccessModel => new EventAccessModel(
