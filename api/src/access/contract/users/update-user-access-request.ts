@@ -2,9 +2,9 @@ import { CreateUserAccessRequest } from "./create-user-access-request";
 
 export class UpdateUserAccessRequest extends CreateUserAccessRequest {
   constructor(
-    public Id: number,
+    public id: number,
     public email: string,
-    public DateCreated: Date
+    public dateCreated: Date
   ) {
     super(email)
   }

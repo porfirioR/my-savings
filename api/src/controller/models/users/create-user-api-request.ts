@@ -1,3 +1,3 @@
 export interface CreateUserApiRequest {
-  Email: string
+  email: string
 }

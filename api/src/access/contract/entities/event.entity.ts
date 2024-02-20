@@ -1,9 +1,9 @@
 export interface EventEntity {
-  Id: number
-  Name: string
-  AuthorId: number
-  Description: string
-  IsActive: boolean
-  Date: Date
-  IsPublic: boolean
+  id: number
+  name: string
+  authorid: number
+  description: string
+  isactive: boolean
+  date: Date
+  ispublic: boolean
 }

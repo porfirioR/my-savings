@@ -5,6 +5,7 @@ import { TableEnum } from '../contract/table.enum';
 import { CreateEventAccessRequest } from '../contract/events/create-event-access-request';
 import { EventAccessModel } from '../contract/events/event-access-model';
 import { UpdateEventAccessRequest } from '../contract/events/update-event-access-request';
+import { EventEntity } from '../contract/entities/event.entity';
 
 @Injectable()
 export class EventAccessService {
@@ -18,8 +19,8 @@ export class EventAccessService {
     const { data, error } = await this.eventContext
       .from(TableEnum.Events)
       .select('*')
-      .eq('IsActive', true)
-      .eq('IsPublic', true);
+      .eq('isactive', true)
+      .eq('ispublic', true);
     if (error) throw new Error(error.message);
     return data?.map(x => ({ ...x, _className: EventAccessModel }));
   };
@@ -28,7 +29,7 @@ export class EventAccessService {
     const { data, error } = await this.eventContext
       .from(TableEnum.Events)
       .select('*')
-      .eq('AuthorId', id);
+      .eq('authorid', id);
     if (error) throw new Error(error.message);
     return data?.map(x => ({ ...x, _className: EventAccessModel }));
   };
@@ -37,7 +38,8 @@ export class EventAccessService {
     const event  = await this.eventContext
       .from(TableEnum.Events)
       .insert(accessRequest)
-      .single();
+      .select()
+      .single<EventEntity>();
     if (event.error) throw new Error(event.error.message);
     return this.getEventAccessModel(event.data);
   };
@@ -46,19 +48,20 @@ export class EventAccessService {
     const event  = await this.eventContext
       .from(TableEnum.Events)
       .upsert(accessRequest)
-      .single();
+      .select()
+      .single<EventEntity>();
     if (event.error) throw new Error(event.error.message);
     return this.getEventAccessModel(event.data);
   };
 
-  private getEventAccessModel = (accessRequest: any): EventAccessModel => new EventAccessModel(
-    accessRequest.Id,
-    accessRequest.Name,
-    accessRequest.AuthorId,
-    accessRequest.Description,
-    true,
-    accessRequest.Date,
-    accessRequest.IsPublic
+  private getEventAccessModel = (accessRequest: EventEntity): EventAccessModel => new EventAccessModel(
+    accessRequest.id,
+    accessRequest.name,
+    accessRequest.authorid,
+    accessRequest.description,
+    accessRequest.isactive,
+    accessRequest.date,
+    accessRequest.ispublic
   )
 
 }

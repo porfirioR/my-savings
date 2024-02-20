@@ -1,5 +1,5 @@
 export interface UserEntity {
-  Id: number
-  Email: string
-  DateCreated: Date
+  id: number
+  email: string
+  datecreated: Date
 }

@@ -4,7 +4,7 @@ import { EventManagerService } from '../../manager/services';
 import { CreateEventApiRequest } from '../models/events/create-event-api-request';
 import { UpdateEventApiRequest } from '../models/events/update-event-api-request';
   
-  @Controller()
+  @Controller('events')
   export class EventsController {
     constructor(private eventManagerService: EventManagerService) {}
 

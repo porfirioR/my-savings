@@ -5,6 +5,7 @@ import { TableEnum } from '../contract/table.enum';
 import { CreateUserAccessRequest } from '../contract/users/create-user-access-request';
 import { UserAccessModel } from '../contract/users/user-access-model';
 import { UserEntity } from '../contract/entities/user.entity';
+import { BadRequestException } from 'src/controller/services/bad-request.exception';
 
 @Injectable()
 export class UserAccessService {
@@ -26,11 +27,17 @@ export class UserAccessService {
     const { data, error } = await this.userContext
       .from(TableEnum.Users)
       .insert({
-        'Email': accessRequest.email,
-        'DateCreated': new Date()
+        'email': accessRequest.email,
+        'datecreated': new Date()
       })
+      .select()
       .single<UserEntity>();
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.code === '23505') {
+        throw new BadRequestException(error.details);
+      }
+      throw new Error(error.message);
+    }
     return this.getUser(data);
   };
 
@@ -38,11 +45,15 @@ export class UserAccessService {
     const { data, error } = await this.userContext
       .from(TableEnum.Users)
       .select()
-      .eq('Email', email)
+      .eq('email', email)
       .single<UserEntity>();
     if (error) throw new Error(error.message);
     return this.getUser(data);
   };
 
-  private getUser = (data: UserEntity): UserAccessModel => new UserAccessModel(data.Id, data.Email, data.DateCreated)
+  private getUser = (data: UserEntity): UserAccessModel => new UserAccessModel(
+    data.id,
+    data.email,
+    data.datecreated
+  )
 }

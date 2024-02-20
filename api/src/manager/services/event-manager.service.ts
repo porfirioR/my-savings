@@ -6,7 +6,7 @@ import { CreateEventAccessRequest } from '../../access/contract/events/create-ev
 import { EventAccessModel } from '../../access/contract/events/event-access-model';
 import { UpdateEventAccessRequest } from '../../access/contract/events/update-event-access-request';
 import { UpdateEventRequest } from '../models/events/update-event-request';
-import { EventFollowRequest } from 'src/access/contract/event-follows/event-follow-request';
+import { EventFollowRequest } from '../../access/contract/event-follows/event-follow-request';
 
 @Injectable()
 export class EventManagerService {

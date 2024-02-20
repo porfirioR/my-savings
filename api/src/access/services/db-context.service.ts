@@ -7,10 +7,9 @@ export class DbContextService {
   constructor(private readonly configService: ConfigService) {}
 
   public getConnection = (): SupabaseClient<any, 'public', any> => {
-    const supabase = createClient(
-      this.configService.get<string>('SUPABASE_URL'),
-      this.configService.get<string>('SUPABASE_KEY'),
-    );
+    const url = this.configService.get<string>('SUPABASE_URL')
+    const key = this.configService.get<string>('SUPABASE_KEY')
+    const supabase = createClient(url, key);
     return supabase;
   };
 }

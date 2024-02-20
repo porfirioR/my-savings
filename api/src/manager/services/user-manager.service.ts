@@ -17,7 +17,7 @@ export class UserManagerService {
   };
 
   public createUser = async (request: CreateUserRequest): Promise<UserModel> => {
-    const accessModel = await this.userAccessService.createUser(new CreateUserAccessRequest(request.Email));
+    const accessModel = await this.userAccessService.createUser(new CreateUserAccessRequest(request.email));
     return this.getUserModel(accessModel);
   };
 

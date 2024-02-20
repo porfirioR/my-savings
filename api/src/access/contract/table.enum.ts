@@ -1,5 +1,5 @@
 export enum TableEnum {
-  Events = 'Events',
-  Users = 'Users',
-  EventFollows = 'EventFollows',
+  Events = 'events',
+  Users = 'users',
+  EventFollows = 'eventfollows',
 }

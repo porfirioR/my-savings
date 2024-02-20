@@ -4,7 +4,7 @@ import { UserModel } from '../../manager/models/users/user-model';
 import { CreateUserRequest } from '../../manager/models/users/create-user-request';
 import { CreateUserApiRequest } from '../models/users/create-user-api-request';
 
-@Controller()
+@Controller('users')
 export class UsersController {
   constructor(private userManagerService: UserManagerService) { }
 
@@ -22,7 +22,7 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() apiRequest: CreateUserApiRequest): Promise<UserModel> {
-    const request = new CreateUserRequest(apiRequest.Email)
+    const request = new CreateUserRequest(apiRequest.email)
     const model = await this.userManagerService.createUser(request);
     return model;
   }

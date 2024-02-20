@@ -1,5 +1,5 @@
 export class CreateUserRequest {
   constructor(
-    public Email: string,
+    public email: string,
   ) {}
 }

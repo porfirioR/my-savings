@@ -1,4 +1,4 @@
 export interface EventFollowEntity {
-  EventId: number
-  UserId: number
+  eventid: number
+  userid: number
 }
