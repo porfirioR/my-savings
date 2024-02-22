@@ -8,7 +8,7 @@ import { UpdateEventApiRequest } from '../models/events/update-event-api-request
   export class EventsController {
     constructor(private eventManagerService: EventManagerService) {}
 
-    @Get()
+    @Get('public')
     async getPublicEvents(): Promise<EventModel[]> {
       return await this.eventManagerService.getPublicEvents();
     }
