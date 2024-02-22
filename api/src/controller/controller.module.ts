@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { UsersController } from './services/users.controller';
 import { EventsController } from './services/events.controller';
-import { AllExceptionsFilter } from './services/exception.filter';
+import { AllExceptionsFilter } from './filters/exception.filter';
 import { ManagerModule } from '../manager/manager.module';
 
 @Module({

@@ -5,7 +5,7 @@ import { TableEnum } from '../contract/table.enum';
 import { CreateUserAccessRequest } from '../contract/users/create-user-access-request';
 import { UserAccessModel } from '../contract/users/user-access-model';
 import { UserEntity } from '../contract/entities/user.entity';
-import { BadRequestException } from 'src/controller/services/bad-request.exception';
+import { BadRequestException } from 'src/controller/exceptions/bad-request.exception';
 
 @Injectable()
 export class UserAccessService {
