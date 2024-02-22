@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { UserAccessService } from '../../access/services';
 import { CreateUserAccessRequest } from '../../access/contract/users/create-user-access-request';
 import { UserAccessModel } from '../../access/contract/users/user-access-model';
-import { UserModel } from '../models/users/user-model';
 import { CreateUserRequest } from '../models/users/create-user-request';
+import { UserModel } from '../models/users/user-model';
 
 @Injectable()
 export class UserManagerService {
@@ -26,5 +26,5 @@ export class UserManagerService {
     return this.getUserModel(accessModel)
   };
 
-  private getUserModel = (accessModel: UserAccessModel): UserModel => new UserModel(accessModel.Id, accessModel.Email, accessModel.DateCreated);
+  private getUserModel = (accessModel: UserAccessModel): UserModel => new UserModel(accessModel.id, accessModel.email, accessModel.dateCreated);
 }

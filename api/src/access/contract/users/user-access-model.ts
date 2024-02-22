@@ -1,7 +1,7 @@
 export class UserAccessModel {
   constructor(
-    public Id: number,
-    public Email: string,
-    public DateCreated: Date
+    public id: number,
+    public email: string,
+    public dateCreated: Date
   ) {}
 }

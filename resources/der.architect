@@ -27,7 +27,7 @@
     <column id="COL3" populated="true" UUID="8b55474a-1cd5-4bcc-ad6c-4309d3c47d13" autoIncrement="false" autoIncrementSequenceName="Events_Name_seq" defaultValue="" name="Name" nullable="0" physicalName="Name" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="12" userDefinedTypeUUID="831ac2d4-0e65-47ec-a0b7-62b7f6b8760a" >
      <remarks></remarks>
     </column>
-    <column id="COL4" populated="true" UUID="8402e768-bc99-46bf-ae52-fb2306d10589" autoIncrement="false" autoIncrementSequenceName="Events_UserId_seq" defaultValue="" name="AutorId" nullable="0" physicalName="AutorId" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
+    <column id="COL4" populated="true" UUID="8402e768-bc99-46bf-ae52-fb2306d10589" autoIncrement="false" autoIncrementSequenceName="Events_UserId_seq" defaultValue="" name="AuthorId" nullable="0" physicalName="AuthorId" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
      <remarks></remarks>
     </column>
     <column id="COL5" populated="true" UUID="3844be31-43c2-49d1-b65b-7bfa3e7de833" autoIncrement="false" autoIncrementSequenceName="Events_Description_seq" defaultValue="" name="Description" nullable="0" physicalName="Description" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="12" userDefinedTypeUUID="831ac2d4-0e65-47ec-a0b7-62b7f6b8760a" >
@@ -98,18 +98,18 @@
    </folder>
   </table>
   <relationships>
-   <relationship id="REL23" populated="true" UUID="a62de11d-0928-41f8-a42d-860e8520af58" deferrability="7" deleteRule="3" fk-table-ref="TAB17" fkCardinality="7" identifying="true" name="Events_EventFollows_fk" physicalName="events_eventfollows_fk" pk-table-ref="TAB1" pkCardinality="2" updateRule="3" >
+   <relationship id="REL23" populated="true" UUID="a62de11d-0928-41f8-a42d-860e8520af58" deferrability="7" deleteRule="3" fk-table-ref="TAB17" fkCardinality="7" identifying="true" name="Events_EventFollows_fk" physicalName="Events_EventFollows_fk" pk-table-ref="TAB1" pkCardinality="2" updateRule="3" >
     <column-mapping id="CMP24" populated="true" UUID="3da5f3a7-053d-4158-b721-10d6557016c2" fk-column-ref="COL18" name="Column Mapping" physicalName="Column Mapping" pk-column-ref="COL2" />
    </relationship>
-   <relationship id="REL25" populated="true" UUID="19b45846-cc3f-406b-b19b-018abe42b726" deferrability="7" deleteRule="3" fk-table-ref="TAB1" fkCardinality="6" identifying="true" name="Users_Events_fk" physicalName="users_events_fk" pk-table-ref="TAB11" pkCardinality="2" updateRule="3" >
+   <relationship id="REL25" populated="true" UUID="19b45846-cc3f-406b-b19b-018abe42b726" deferrability="7" deleteRule="3" fk-table-ref="TAB1" fkCardinality="6" identifying="true" name="Users_Events_fk" physicalName="Users_Events_fk" pk-table-ref="TAB11" pkCardinality="2" updateRule="3" >
     <column-mapping id="CMP26" populated="true" UUID="aecd3385-1582-48e8-b696-639cb3cbd2c8" fk-column-ref="COL4" name="Column Mapping" physicalName="Column Mapping" pk-column-ref="COL12" />
    </relationship>
-   <relationship id="REL27" populated="true" UUID="a143ed18-7cae-41c7-ad2c-745bb8919c57" deferrability="7" deleteRule="3" fk-table-ref="TAB17" fkCardinality="7" identifying="true" name="Users_EventFollows_fk" physicalName="users_eventfollows_fk" pk-table-ref="TAB11" pkCardinality="2" updateRule="3" >
+   <relationship id="REL27" populated="true" UUID="a143ed18-7cae-41c7-ad2c-745bb8919c57" deferrability="7" deleteRule="3" fk-table-ref="TAB17" fkCardinality="7" identifying="true" name="Users_EventFollows_fk" physicalName="Users_EventFollows_fk" pk-table-ref="TAB11" pkCardinality="2" updateRule="3" >
     <column-mapping id="CMP28" populated="true" UUID="68c17467-3e70-4d69-928a-854504ac7931" fk-column-ref="COL19" name="Column Mapping" physicalName="Column Mapping" pk-column-ref="COL12" />
    </relationship>
   </relationships>
  </target-database>
- <ddl-generator type="ca.sqlpower.architect.ddl.PostgresDDLGenerator" allow-connection="false" target-schema="public"> </ddl-generator>
+ <ddl-generator type="ca.sqlpower.architect.ddl.PostgresDDLGenerator" allow-connection="true" target-schema="public"> </ddl-generator>
  <liquibase-settings useSeparateChangeSets="false" generateId="false" idStart="1"/>
  <create-kettle-job-settings filePath="" jobName="" schemaName="" kettleJoinType="0" savingToFile="true" />
  <play-pen zoom="1.6817928305074288" viewportX="0" viewportY="0" relationship-style="rectilinear" names-displayLogicalNames="true" showPrimaryTag="true" showForeignTag="true" showAlternateTag="true" columnVisibility="ALL" relationshipLabelVisibility="true">

@@ -1,9 +1,9 @@
 export class CreateEventAccessRequest {
   constructor(
-    public Name: string,
-    public AuthorId: number,
-    public Description: string,
-    public Date: Date,
-    public IsPublic: boolean
+    public name: string,
+    public authorId: number,
+    public description: string,
+    public date: Date,
+    public isPublic: boolean
   ) {}
 }

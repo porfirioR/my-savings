@@ -1,9 +1,11 @@
-export interface EventEntity {
-  id: number
-  name: string
-  authorid: number
-  description: string
-  isactive: boolean
-  date: Date
-  ispublic: boolean
+export class EventEntity {
+  public id: number
+  constructor(
+    public name: string,
+    public authorid: number,
+    public description: string,
+    public isactive: boolean,
+    public date: Date,
+    public ispublic: boolean
+  ) {}
 }

@@ -5,6 +5,7 @@ import { DbContextService } from './db-context.service';
 import { EventAccessModel } from '../contract/events/event-access-model';
 import { EventFollowRequest } from '../contract/event-follows/event-follow-request';
 import { EventEntity } from '../contract/entities/event.entity';
+import { EventFollowEntity } from '../contract/entities/event-follow.entity';
 
 @Injectable()
 export class EventFollowAccessService {
@@ -36,9 +37,10 @@ export class EventFollowAccessService {
   };
 
   public createEventFollow = async (accessRequest: EventFollowRequest): Promise<boolean> => {
+    const entity = this.getEntity(accessRequest)
     const event  = await this.eventContext
       .from(TableEnum.EventFollows)
-      .insert(accessRequest);
+      .insert(entity);
     if (event.error) throw new Error(event.error.message);
     return true;
   };
@@ -79,4 +81,6 @@ export class EventFollowAccessService {
     x.date,
     x.ispublic
   );
+
+  private getEntity = (accessRequest: EventFollowRequest): EventFollowEntity => new EventFollowEntity(accessRequest.eventId, accessRequest.userId)
 }

@@ -1,4 +1,6 @@
-export interface EventFollowEntity {
-  eventid: number
-  userid: number
+export class EventFollowEntity {
+  constructor(
+    public eventid: number,
+    public userid: number
+  ) {}
 }

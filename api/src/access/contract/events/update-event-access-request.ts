@@ -2,13 +2,13 @@ import { CreateEventAccessRequest } from "./create-event-access-request";
 
 export class UpdateEventAccessRequest extends CreateEventAccessRequest {
   constructor(
-    public Id: number,
-    public Name: string,
-    public AuthorId: number,
-    public Description: string,
-    public Date: Date,
-    public IsPublic: boolean
+    public id: number,
+    public name: string,
+    public authorId: number,
+    public description: string,
+    public date: Date,
+    public isPublic: boolean
   ) {
-    super(Name, AuthorId, Description, Date, IsPublic)
+    super(name, authorId, description, date, isPublic)
   }
 }

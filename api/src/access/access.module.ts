@@ -13,9 +13,9 @@ import { ConfigService } from '@nestjs/config';
     UserAccessService,
   ],
   exports: [
-    UserAccessService,
     EventAccessService,
     EventFollowAccessService,
+    UserAccessService,
   ]
 })
 export class AccessModule {}

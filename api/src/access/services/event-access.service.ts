@@ -35,9 +35,10 @@ export class EventAccessService {
   };
 
   public createEvent = async (accessRequest: CreateEventAccessRequest): Promise<EventAccessModel> => {
+    const eventEntity = this.getEntity(accessRequest);
     const event  = await this.eventContext
       .from(TableEnum.Events)
-      .insert(accessRequest)
+      .insert(eventEntity)
       .select()
       .single<EventEntity>();
     if (event.error) throw new Error(event.error.message);
@@ -45,9 +46,10 @@ export class EventAccessService {
   };
 
   public updateEvent = async (accessRequest: UpdateEventAccessRequest): Promise<EventAccessModel> => {
-    const event  = await this.eventContext
+    const eventEntity = this.getEntity(accessRequest);
+    const event = await this.eventContext
       .from(TableEnum.Events)
-      .upsert(accessRequest)
+      .upsert(eventEntity)
       .select()
       .single<EventEntity>();
     if (event.error) throw new Error(event.error.message);
@@ -62,6 +64,14 @@ export class EventAccessService {
     accessRequest.isactive,
     accessRequest.date,
     accessRequest.ispublic
-  )
+  );
+
+  private getEntity = (accessRequest: CreateEventAccessRequest | UpdateEventAccessRequest) => {
+    const eventEntity = new EventEntity(accessRequest.name, accessRequest.authorId, accessRequest.description, true, accessRequest.date, accessRequest.isPublic);
+    if (accessRequest instanceof UpdateEventAccessRequest) {
+      eventEntity.id = accessRequest.id
+    }
+    return eventEntity
+  };
 
 }
