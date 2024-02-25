@@ -1,2 +1,3 @@
-# my-savings
-Web app to record multiple type of savings
+# my-events
+
+Web app to record multiple events
