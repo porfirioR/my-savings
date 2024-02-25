@@ -1,8 +1,10 @@
-  import { Controller, Get, Param, Post, Body, Put } from '@nestjs/common';
+  import { Controller, Get, Param, Post, Body, Put, UseGuards } from '@nestjs/common';
 import { EventModel } from '../../manager/models/events/event-model';
+import { UpdateEventRequest } from '../../manager/models/events/update-event-request';
 import { EventManagerService } from '../../manager/services';
 import { CreateEventApiRequest } from '../models/events/create-event-api-request';
 import { UpdateEventApiRequest } from '../models/events/update-event-api-request';
+import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
   
   @Controller('events')
   export class EventsController {
@@ -14,18 +16,22 @@ import { UpdateEventApiRequest } from '../models/events/update-event-api-request
     }
 
     @Get(':id')
+    @UseGuards(PrivateEndpointGuard)
     async getMyEvents(@Param('id') id: number): Promise<EventModel[]> {
       return await this.eventManagerService.getMyEvents(id);
     }
 
     @Post()
+    @UseGuards(PrivateEndpointGuard)
     async createEvent(@Body() apiRequest: CreateEventApiRequest): Promise<EventModel> {
       return await this.eventManagerService.createEvent(apiRequest);
     }
 
     @Put()
+    @UseGuards(PrivateEndpointGuard)
     async updateEvent(@Body() apiRequest: UpdateEventApiRequest): Promise<EventModel> {
-      return await this.eventManagerService.updateEvent(apiRequest);
+      const request = new UpdateEventRequest(apiRequest.id, apiRequest.name, apiRequest.description, apiRequest.date, apiRequest.isPublic)
+      return await this.eventManagerService.updateEvent(request);
     }
 
     // /**

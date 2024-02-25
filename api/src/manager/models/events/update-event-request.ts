@@ -4,11 +4,10 @@ export class UpdateEventRequest extends CreateEventRequest {
   constructor(
     public id: number,
     public name: string,
-    public authorId: number,
     public description: string,
     public date: Date,
     public isPublic: boolean
   ) {
-    super(name, authorId, description, date, isPublic)
+    super(name, null, description, date, isPublic)
   }
 }
