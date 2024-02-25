@@ -22,7 +22,7 @@ export class EventAccessService {
       .eq('isactive', true)
       .eq('ispublic', true);
     if (error) throw new Error(error.message);
-    return data?.map(x => ({ ...x, _className: EventAccessModel }));
+    return data?.map(this.getEventAccessModel);
   };
 
   public getMyEvents = async (id: number): Promise<EventAccessModel[]> => {
@@ -31,7 +31,7 @@ export class EventAccessService {
       .select('*')
       .eq('authorid', id);
     if (error) throw new Error(error.message);
-    return data?.map(x => ({ ...x, _className: EventAccessModel }));
+    return data?.map(this.getEventAccessModel);
   };
 
   public createEvent = async (accessRequest: CreateEventAccessRequest): Promise<EventAccessModel> => {

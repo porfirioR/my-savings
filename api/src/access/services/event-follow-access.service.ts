@@ -58,7 +58,7 @@ export class EventFollowAccessService {
       .from(TableEnum.EventFollows)
       .delete()
       .eq('id', eventFollow.data.Id);
-    if (deleteEventFollow.error) throw new Error(deleteEventFollow.error.message); 
+    if (deleteEventFollow.error) throw new Error(deleteEventFollow.error.message);
     return true;
   };
   
