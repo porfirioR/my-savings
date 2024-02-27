@@ -9,7 +9,8 @@ import { environment } from '../../environments/environment';
 })
 export class UserApiService {
   private url: string
-  constructor(private httpClient: HttpClient) {
+
+  constructor(private readonly httpClient: HttpClient) {
     this.url = `${environment.baseUrl}users`
   }
 
