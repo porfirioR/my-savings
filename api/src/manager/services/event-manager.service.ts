@@ -49,7 +49,7 @@ export class EventManagerService {
   }
 
   public updateEvent = async (request: UpdateEventRequest): Promise<EventModel> => {
-    const accessRequest = new UpdateEventAccessRequest(request.id, request.name, request.authorId, request.description, request.date, request.isPublic)
+    const accessRequest = new UpdateEventAccessRequest(request.id, request.name, request.description, request.date, request.isPublic)
     const accessModel = await this.eventAccessService.updateEvent(accessRequest);
     const exitEventFollow = await this.eventFollowAccessService.checkExistEventFollows(new EventFollowRequest(accessModel.id, request.authorId))
     if (exitEventFollow && !accessModel.isPublic) {
