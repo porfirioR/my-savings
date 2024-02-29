@@ -21,6 +21,12 @@ import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
       return await this.eventManagerService.getMyEvents(id);
     }
 
+    @Get('follow/:id')
+    @UseGuards(PrivateEndpointGuard)
+    async getMyEventFollows(@Param('id') id: number): Promise<EventModel[]> {
+      return await this.eventManagerService.getMyEventFollows(id);
+    }
+
     @Post()
     @UseGuards(PrivateEndpointGuard)
     async createEvent(@Body() apiRequest: CreateEventApiRequest): Promise<EventModel> {

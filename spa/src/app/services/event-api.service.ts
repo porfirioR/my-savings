@@ -22,6 +22,10 @@ export class EventApiService {
     return this.httpClient.get<EvenApiModel[]>(`${this.url}/${id}`)
   }
 
+  public getMyEventFollows = (id: number): Observable<EvenApiModel[]> => {
+    return this.httpClient.get<EvenApiModel[]>(`${this.url}/follow/${id}`)
+  }
+
   public createEvent = (request: CreateEventApiRequest): Observable<EvenApiModel> => {
     return this.httpClient.post<EvenApiModel>(this.url, request)
   }
