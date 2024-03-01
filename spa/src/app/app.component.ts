@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
 import { DynamicTableComponent } from './components/dynamic-table/dynamic-table.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { HeaderComponent } from './components/header/header.component';
 
 @Component({
   selector: 'app-root',
@@ -10,12 +10,10 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
   imports: [
     RouterOutlet,
     DynamicTableComponent,
-    DashboardComponent
+    HeaderComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'my-events'
-  protected product = environment.production
 }

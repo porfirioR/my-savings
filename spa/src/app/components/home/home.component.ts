@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
-import { EventComponent } from '../event/event.component';
-import { EventViewModel } from '../../models/view/event-view-model';
 import { EventApiService } from '../../services/event-api.service';
+import { EventViewModel } from '../../models/view/event-view-model';
+import { EventComponent } from '../event/event.component';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css'],
   standalone: true,
   imports: [NgIf, NgFor, EventComponent],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit {
+export class HomeComponent implements OnInit {
   protected eventFollows: EventViewModel[] = []
 
   constructor(private readonly eventApiService: EventApiService) { }
@@ -25,4 +25,5 @@ export class DashboardComponent implements OnInit {
       }
     })
   }
+
 }

@@ -1,0 +1,11 @@
+<main>
+  @for (event of eventFollows; track event.id) {
+    @defer {
+      <app-event [eventModel]="event" />
+    } @placeholder {
+      Loading
+    }
+  } @empty {
+    You aren't follow any event
+  }
+</main>
