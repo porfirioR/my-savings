@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { EventModel } from '../models/events/event-model';
 import { EventAccessService, EventFollowAccessService } from '../../access/services';
 import { CreateEventRequest } from '../models/events/create-event-request';
+import { UpdateEventRequest } from '../models/events/update-event-request';
 import { CreateEventAccessRequest } from '../../access/contract/events/create-event-access-request';
 import { EventAccessModel } from '../../access/contract/events/event-access-model';
 import { UpdateEventAccessRequest } from '../../access/contract/events/update-event-access-request';
-import { UpdateEventRequest } from '../models/events/update-event-request';
 import { EventFollowRequest } from '../../access/contract/event-follows/event-follow-request';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class EventManagerService {
 
   constructor(
     private eventAccessService: EventAccessService,
-    private eventFollowAccessService: EventFollowAccessService,
+    private eventFollowAccessService: EventFollowAccessService
   ) { }
 
   public getPublicEvents = async (): Promise<EventModel[]> => {

@@ -11,7 +11,7 @@ export class EventApiService {
   private url: string
 
   constructor(private readonly httpClient: HttpClient) {
-    this.url = `${environment.baseUrl}users`
+    this.url = `${environment.baseUrl}events`
   }
 
   public getPublicEvents = (): Observable<EvenApiModel[]> => {
