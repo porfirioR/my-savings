@@ -1,4 +1,5 @@
 export class EventViewModel {
+  public passDate: boolean
   constructor(
     public id: number,
     public name: string,
@@ -7,6 +8,9 @@ export class EventViewModel {
     public description: string,
     public isActive: boolean,
     public date: Date,
-    public isPublic: boolean
-  ) {}
+    public isPublic: boolean,
+    public currentDate: Date
+  ) {
+    this.passDate = date.getTime() < currentDate.getTime()
+  }
 }

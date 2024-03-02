@@ -4,6 +4,7 @@ import { EventApiService } from '../../services/event-api.service';
 import { EventViewModel } from '../../models/view/event-view-model';
 import { EventComponent } from '../event/event.component';
 import { LocalService } from '../../services/local.service';
+import { debounce, debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -22,8 +23,9 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     const userId = this.localService.getUserId()
-    this.eventApiService.getPublicEvents().subscribe({
+    this.eventApiService.getPublicEvents().pipe(debounceTime(10000)).subscribe({
       next: (eventFollow) => {
+        const currentDate = new Date()
         this.eventFollows = eventFollow.map(x => new EventViewModel(
           x.id,
           x.name,
@@ -31,8 +33,9 @@ export class HomeComponent implements OnInit {
           x.authorId !== userId ? '': this.localService.getEmail()!,
           x.description,
           x.isActive,
-          x.date,
-          x.isPublic
+          new Date(x.date),
+          x.isPublic,
+          currentDate
         ))
       }, error: (e) => {
         throw e

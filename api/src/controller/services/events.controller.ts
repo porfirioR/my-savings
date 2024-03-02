@@ -10,7 +10,7 @@ import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
   export class EventsController {
     constructor(private eventManagerService: EventManagerService) {}
 
-    @Get('public')
+    @Get()
     async getPublicEvents(): Promise<EventModel[]> {
       return await this.eventManagerService.getPublicEvents();
     }
