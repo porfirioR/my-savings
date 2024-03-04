@@ -3,11 +3,11 @@ name: Azure Static Web Apps CI/CD
 on:
   push:
     branches:
-      - 11-show-public-events
+      - main
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - 11-show-public-events
+      - main
 
 jobs:
   build_and_deploy_job:
