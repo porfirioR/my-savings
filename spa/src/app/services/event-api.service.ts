@@ -11,7 +11,7 @@ export class EventApiService {
   private url: string
 
   constructor(private readonly httpClient: HttpClient) {
-    this.url = `${environment.baseUrl}users`
+    this.url = `${environment.baseUrl}events`
   }
 
   public getPublicEvents = (): Observable<EvenApiModel[]> => {
@@ -20,6 +20,10 @@ export class EventApiService {
 
   public getMyEvents = (id: number): Observable<EvenApiModel[]> => {
     return this.httpClient.get<EvenApiModel[]>(`${this.url}/${id}`)
+  }
+
+  public getMyEventFollows = (id: number): Observable<EvenApiModel[]> => {
+    return this.httpClient.get<EvenApiModel[]>(`${this.url}/follow/${id}`)
   }
 
   public createEvent = (request: CreateEventApiRequest): Observable<EvenApiModel> => {

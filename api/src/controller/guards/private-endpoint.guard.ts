@@ -12,7 +12,7 @@ export class PrivateEndpointGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
-    const email = request.headers['email'];
+    const email = request.headers['Authorization'];
     if (!email) {
       return false
     }

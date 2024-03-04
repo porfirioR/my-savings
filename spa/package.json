@@ -8,13 +8,15 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "^17.2.2",
     "@angular/common": "^17.2.2",
     "@angular/compiler": "^17.2.2",
     "@angular/core": "^17.2.2",
-    "@angular/fire": "^17.0.1",
     "@angular/forms": "^17.2.2",
     "@angular/platform-browser": "^17.2.2",
     "@angular/platform-browser-dynamic": "^17.2.2",

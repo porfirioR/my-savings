@@ -1,0 +1,11 @@
+<main>
+  @for (event of eventFollows; track event.id) {
+    @defer {
+      <app-event [eventModel]="event" />
+    } @placeholder {
+      Loading
+    }
+  } @empty {
+    <div class="skeleton w-32 h-32"></div>
+  }
+</main>
