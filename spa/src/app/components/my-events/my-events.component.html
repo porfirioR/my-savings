@@ -1,3 +1,16 @@
-<p>
-  my-events works!
-</p>
+<header>
+
+</header>
+<main>
+  @defer {
+    @for (event of eventFollows; track event.id) {
+      <app-event [eventModel]="event" />
+    } @empty {
+      <app-loading-skeleton />
+      <app-loading-skeleton />
+      <app-loading-skeleton />
+    }
+  } @error {
+    No content
+  }
+</main>
