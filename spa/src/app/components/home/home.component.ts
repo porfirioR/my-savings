@@ -1,17 +1,22 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { EventApiService } from '../../services/event-api.service';
-import { EventViewModel } from '../../models/view/event-view-model';
 import { EventComponent } from '../event/event.component';
+import { EventApiService } from '../../services/event-api.service';
 import { LocalService } from '../../services/local.service';
-import { debounce, debounceTime } from 'rxjs';
+import { EventViewModel } from '../../models/view/event-view-model';
+import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
-  standalone: true,
-  imports: [NgIf, NgFor, EventComponent],
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css'],
+    standalone: true,
+    imports: [
+      NgIf,
+      NgFor,
+      EventComponent,
+      LoadingSkeletonComponent
+    ]
 })
 export class HomeComponent implements OnInit {
   protected eventFollows: EventViewModel[] = []
@@ -23,7 +28,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     const userId = this.localService.getUserId()
-    this.eventApiService.getPublicEvents().pipe(debounceTime(10000)).subscribe({
+    this.eventApiService.getPublicEvents().subscribe({
       next: (eventFollow) => {
         const currentDate = new Date()
         this.eventFollows = eventFollow.map(x => new EventViewModel(

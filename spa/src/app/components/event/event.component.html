@@ -1,4 +1,4 @@
-<section class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl group/item hover:bg-slate-100 mb-2 ms:mx-3">
+<section class="max-w-md m-4 md:mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl group/item hover:bg-slate-100 mb-2 ms:mx-3">
   <section class="md:flex">
     <main class="p-8">
       <article class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">{{eventModel.name}}</article>
@@ -8,9 +8,11 @@
       </a>
       <p class="mt-2 text-slate-500">{{eventModel.description}}</p>
       @if (eventModel.isPublic) {
-        <article role="" class="badge badge-secondary badge-outline hover:badge-secondary">
+        <article role="" class="badge badge-secondary badge-outline hover:bg-secondary hover:text-white">
           <i class="fas fa-info"></i>&nbsp;
-          Public
+          <span>
+            Public
+          </span>
         </article>
       } @else {
         <article class="badge badge-secondary badge-outline">
