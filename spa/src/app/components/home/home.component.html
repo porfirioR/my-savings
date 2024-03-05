@@ -1,11 +1,22 @@
 <main>
   @for (event of eventFollows; track event.id) {
-    @defer {
-      <app-event [eventModel]="event" />
-    } @placeholder {
-      Loading
-    }
+  @defer {
+  <app-event [eventModel]="event" />
+  }
+  @placeholder {
+  Loading
+  }
   } @empty {
-    <div class="skeleton w-32 h-32"></div>
+  <section
+    class="max-w-md m-4 md:mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl group/item hover:bg-slate-100 mb-2 ms:mx-3">
+    <main class="p-8">
+      <section class="flex flex-col gap-4 w-20">
+        <article class="skeleton h-4 w-40"></article>
+        <article class="skeleton h-4 w-full"></article>
+        <article class="skeleton h-4 w-60 ms:w-18"></article>
+        <article class="skeleton h-4 w-full"></article>
+      </section>
+    </main>
+  </section>
   }
 </main>
