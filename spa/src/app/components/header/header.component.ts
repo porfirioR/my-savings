@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ProfileComponent } from "../profile/profile.component";
 
@@ -13,8 +13,10 @@ import { ProfileComponent } from "../profile/profile.component";
     ]
 })
 export class HeaderComponent {
+  @ViewChild(ProfileComponent) profile: ProfileComponent | undefined;
+
   protected openProfile = (): void => {
-    throw new Error('Method not implemented.');
+    this.profile?.openDialog()
   }
 
 
