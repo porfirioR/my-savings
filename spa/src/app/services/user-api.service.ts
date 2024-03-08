@@ -27,4 +27,8 @@ export class UserApiService {
     return this.httpClient.post<UserApiModel>(this.url, request)
   }
 
+  public getUserInformation = (userId: number): Observable<unknown> => {
+    return this.httpClient.get<unknown>(`${this.url}/user-information/${userId}`)
+  }
+
 }
