@@ -1,12 +1,36 @@
 <dialog class="modal" role="none" id="profileModal" #profileModal>
-  <div class="modal-box">
+  <main class="modal-box">
     <h3 class="font-bold text-lg">Hello!</h3>
+    @if (hasEmail) {
     <p class="py-4">Your email is: {{email}}</p>
     <p class="py-4">This modal works with a hidden checkbox!</p>
     <p class="py-4">This modal works with a hidden checkbox!</p>
     <p class="py-4">This modal works with a hidden checkbox!</p>
-    <div class="modal-action">
+    } @else {
+      <p class="py-4">
+        You are disconnected, click on one of the following buttons
+      </p>
+      <div class="flex items-center">
+        <a
+          class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+          [routerLink]="'login'"
+          (click)="closeDialog()"
+        >
+          <i class="fas fa-right-to-bracket"></i>
+          Login
+        </a>
+        <a
+          class="w-full ml-4 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+          [routerLink]="'signup'"
+          (click)="closeDialog()"
+        >
+          <i class="fas fa-user-plus"></i>
+          Signup
+        </a>
+      </div>
+    }
+    <footer class="modal-action">
       <label class="modal-backdrop" for="profileModal" class="btn" (click)="closeDialog()">Close!</label>
-    </div>
-  </div>
+    </footer>
+  </main>
 </dialog>

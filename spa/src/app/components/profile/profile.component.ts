@@ -2,13 +2,17 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { LocalService } from '../../services/local.service';
 import { Observable, of } from 'rxjs';
 import { UserApiService } from '../../services/user-api.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
   standalone: true,
-  imports: []
+  imports: [
+    RouterModule,
+
+  ]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   @ViewChild('profileModal', { static: true }) profileModal!: ElementRef<HTMLDialogElement>;
@@ -33,7 +37,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.profileModal.nativeElement.close()
+    this.closeDialog()
     // this.cdr.detectChanges();
   }
 
