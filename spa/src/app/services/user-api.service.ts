@@ -22,8 +22,7 @@ export class UserApiService {
     return this.httpClient.get<UserApiModel[]>(`${this.url}/${id}`)
   }
 
-  public createUser = (email: string): Observable<UserApiModel> => {
-    const request = new CreateUserApiRequest(email)
+  public createUser = (request: CreateUserApiRequest): Observable<UserApiModel> => {
     return this.httpClient.post<UserApiModel>(this.url, request)
   }
 
