@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  protected save = (): void => {
+  protected loginUser = (): void => {
     if (!this.formGroup.valid) {
       return
     }
