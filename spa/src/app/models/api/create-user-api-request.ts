@@ -1,4 +1,4 @@
-import { LoginUserApiRequest } from "./login-user-api-request copy";
+import { LoginUserApiRequest } from "./login-user-api-request";
 
 export class CreateUserApiRequest extends LoginUserApiRequest {
   constructor(
