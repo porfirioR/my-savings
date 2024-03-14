@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { LoginFormGroup } from '../../models/forms';
 import { CreateUserApiRequest } from '../../models/api';
 import { UserApiService } from '../../services/user-api.service';
+import { LocalService } from '../../services/local.service';
 
 @Component({
   selector: 'app-signup',
@@ -20,7 +21,8 @@ export class SignupComponent implements OnInit {
 
   constructor(
     private readonly router: Router,
-    private readonly userApiService: UserApiService
+    private readonly userApiService: UserApiService,
+    private readonly localService: LocalService
   ) {
     this.formGroup = new FormGroup<LoginFormGroup>({
       email: new FormControl(null, [Validators.required, Validators.email]),
@@ -38,7 +40,8 @@ export class SignupComponent implements OnInit {
     const request: CreateUserApiRequest = new CreateUserApiRequest(this.formGroup.value.email!, this.formGroup.value.password!)
     this.userApiService.createUser(request).subscribe({
       next: (user) => {
-        //todo set to local storage
+        this.localService.setEmail(user.email)
+        this.localService.setUserId(user.id)
         this.router.navigate([''])
       }
     })

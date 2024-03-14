@@ -3,7 +3,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { LoginFormGroup } from '../../models/forms';
 import { UserApiService } from '../../services/user-api.service';
-import { CreateUserApiRequest } from '../../models/api';
+import { LoginUserApiRequest } from '../../models/api';
+import { LocalService } from '../../services/local.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,8 @@ export class LoginComponent implements OnInit {
   protected formGroup: FormGroup<LoginFormGroup>
   constructor(
     private readonly router: Router,
-    private readonly userApiService: UserApiService
+    private readonly userApiService: UserApiService,
+    private readonly localService: LocalService
   ) {
     this.formGroup = new FormGroup<LoginFormGroup>({
       email: new FormControl(null, [Validators.required, Validators.email]),
@@ -31,13 +33,14 @@ export class LoginComponent implements OnInit {
   }
 
   protected loginUser = (): void => {
-    if (!this.formGroup.valid) {
+    if (this.formGroup.invalid) {
       return
     }
-    const request: CreateUserApiRequest = new CreateUserApiRequest(this.formGroup.value.email!, this.formGroup.value.password!)
-    this.userApiService.createUser(request).subscribe({
+    const request: LoginUserApiRequest = new LoginUserApiRequest(this.formGroup.value.email!, this.formGroup.value.password!)
+    this.userApiService.loginUser(request).subscribe({
       next: (user) => {
-        //todo set to local storage
+        this.localService.setEmail(user.email)
+        this.localService.setUserId(user.id)
         this.router.navigate([''])
       }
     })
