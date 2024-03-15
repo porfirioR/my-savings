@@ -4,7 +4,7 @@ export class CreateUserApiRequest extends LoginUserApiRequest {
   constructor(
     email: string,
     password: string
-  ) { 
+  ) {
     super(email, password)
   }
 }

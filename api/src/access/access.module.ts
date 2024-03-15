@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { DbContextService, EventAccessService, EventFollowAccessService, UserAccessService } from './services';
 import { ConfigService } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [],
+  imports: [AuthModule],
   controllers: [],
   providers: [
     ConfigService,
