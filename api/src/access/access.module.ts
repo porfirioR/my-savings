@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { DbContextService, EventAccessService, EventFollowAccessService, UserAccessService } from './services';
 import { ConfigService } from '@nestjs/config';
+import { DbContextService, EventAccessService, EventFollowAccessService, UserAccessService } from './services';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
