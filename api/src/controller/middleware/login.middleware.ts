@@ -1,7 +1,3 @@
-/*
-https://docs.nestjs.com/middleware#middleware
-*/
-
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { UserManagerService } from '../../manager/services';
