@@ -26,7 +26,7 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() apiRequest: CreateUserApiRequest): Promise<UserModel> {
-    const request = new CreateUserRequest(apiRequest.email)
+    const request = new CreateUserRequest(apiRequest.email, apiRequest.password)
     const model = await this.userManagerService.createUser(request);
     return model;
   }

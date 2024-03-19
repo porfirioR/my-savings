@@ -7,7 +7,7 @@ export class PrivateEndpointGuard implements CanActivate {
 
   constructor(
     private readonly eventManager: EventManagerService,
-    private readonly UserManager: UserManagerService
+    private readonly userManager: UserManagerService
   ) { }
 
   async canActivate(context: ExecutionContext) {
@@ -16,7 +16,7 @@ export class PrivateEndpointGuard implements CanActivate {
     if (!email) {
       return false
     }
-    const user = await this.UserManager.getUserByEmail(email)
+    const user = await this.userManager.getUserByEmail(email)
     if (request.method === 'PUT') {
       const body: UpdateEventApiRequest = request.body
       const myEvents = await this.eventManager.getMyEvents(user.id)

@@ -28,7 +28,8 @@ export class UserAccessService {
       .from(TableEnum.Users)
       .insert({
         'email': accessRequest.email,
-        'datecreated': new Date()
+        'datecreated': new Date(),
+        'password': accessRequest.password
       })
       .select()
       .single<UserEntity>();
