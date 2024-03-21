@@ -1,4 +1,4 @@
-export class UserModel {
+export class AuthUserModel {
   constructor(
     public id: number,
     public email: string,

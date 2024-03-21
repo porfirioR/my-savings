@@ -1,6 +1,6 @@
-import { CreateUserRequest } from "./create-user-request";
+import { UserRequest } from "./user-request";
 
-export class UpdateUserRequest extends CreateUserRequest {
+export class UpdateUserRequest extends UserRequest {
   constructor(
     public Id: number,
     public email: string,

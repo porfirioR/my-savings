@@ -1,16 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserModel } from './models/user-model';
+import { AuthUserModel } from './models/auth-user-model';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AuthAccessRequest } from './models/auth-access-request';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {
-    
-  }
+  constructor(private jwtService: JwtService) { }
 
-  public getToken = async (payload: UserModel): Promise<string> => {
+  public getToken = async (payload: AuthUserModel): Promise<string> => {
     return await this.jwtService.signAsync({ id: payload.id, email: payload.email })
   }
 
@@ -20,12 +18,12 @@ export class AuthService {
     return hash
   }
 
-  public checkUser = async (request: AuthAccessRequest, userModel: UserModel): Promise<boolean> => {
+  public checkUser = async (request: AuthAccessRequest, userModel: AuthUserModel): Promise<boolean> => {
     const passwordMatch = await bcrypt.compare(request.passwordHash, userModel.passwordHash)
     const emailMatch = request.email === userModel.email
     if(passwordMatch && emailMatch) {
       return true
     }
-    throw new UnauthorizedException('Error to login.')
+    throw new UnauthorizedException('The email and/or password is incorrect')
   }
 }

@@ -55,6 +55,7 @@ export class UserAccessService {
   private getUser = (data: UserEntity): UserAccessModel => new UserAccessModel(
     data.id,
     data.email,
-    data.datecreated
+    data.datecreated,
+    data.password
   );
 }
