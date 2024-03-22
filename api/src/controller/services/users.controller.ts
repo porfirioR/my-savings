@@ -5,7 +5,6 @@ import { UserRequest } from '../../manager/models/users/user-request';
 import { CreateUserApiRequest } from '../models/users/create-user-api-request';
 import { AdminGuard } from '../guards/admin.guard';
 import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
-import { LoginApiRequest } from '../models/users/login-api-request';
 
 @Controller('users')
 export class UsersController {
@@ -25,16 +24,16 @@ export class UsersController {
     return model;
   }
 
-  @Post('signup')
+  @Post('sign-up')
   async registerUser(@Body() apiRequest: CreateUserApiRequest): Promise<UserModel> {
-    const request = new UserRequest(apiRequest.email, apiRequest.password)
+    const request = new UserRequest(apiRequest.email, apiRequest.password);
     const model = await this.userManagerService.registerUser(request);
     return model;
   }
 
   @Post('login')
-  async login(@Headers() apiRequest: LoginApiRequest): Promise<string> {
-    const model = await this.userManagerService.loginUser(apiRequest.authorization);
+  async login(@Headers('authorization') authorization: string): Promise<string> {
+    const model = await this.userManagerService.loginUser(authorization);
     return model;
   }
 }
