@@ -1,11 +1,8 @@
-import { UserRequest } from "./user-request";
 
-export class UpdateUserRequest extends UserRequest {
+export class UpdateUserRequest {
   constructor(
-    public Id: number,
+    public id: number,
     public email: string,
-    public DateCreated: Date
-  ) {
-    super(email)
-  }
+    public dateCreated: Date
+  ) { }
 }

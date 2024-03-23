@@ -1,4 +1,5 @@
+
 export interface CreateUserApiRequest {
-  email: string,
+  email: string;
   password: string
 }
