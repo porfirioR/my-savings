@@ -7,10 +7,11 @@ export class LoginMiddleware implements NestMiddleware {
   constructor(private userManager: UserManagerService) { }
   async use(req: Request, res: Response, next: NextFunction) {
     const authorization: string = req.headers['authorization']
-    if (!authorization.startsWith('basic ')) {
+    if (!authorization.startsWith('Basic ')) {
       throw new UnauthorizedException()
     }
-    const [email, password] = atob(authorization.substring(authorization.indexOf('basic '))).split(':')
+    const key = authorization.split('Basic ').at(1)
+    const [email, password] = atob(key).split(':')
     const emails = (await this.userManager.getUsers()).map(x => x.email.toLocaleLowerCase())
     const isInvalid = !emails.includes(email.toLocaleLowerCase())
     if (isInvalid || password.length <= 8 ) {

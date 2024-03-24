@@ -29,7 +29,8 @@ export class UserManagerService {
   };
 
   public loginUser = async (request: string): Promise<string> => {
-    const [email, password] = atob(request.substring(request.indexOf('basic '))).split(':');
+    const key = request.split('Basic ').at(1)
+    const [email, password] = atob(key).split(':')
     const accessModel = await this.userAccessService.getUserByEmail(email);
     const authModel = new AuthUserModel(accessModel.id, accessModel.email, accessModel.password);
     await this.authService.checkUser(new AuthAccessRequest(email, password), authModel);

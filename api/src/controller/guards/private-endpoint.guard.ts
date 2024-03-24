@@ -21,16 +21,17 @@ export class PrivateEndpointGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    const jwtToken = this.configService.get<string>('JWT_TOKEN')
     try {
       const payload = await this.jwtService.verifyAsync(
         token,
         {
-          secret: this.configService.get<string>('JWT_TOKEN')
+          secret: jwtToken
         }
       );
       request['user'] = payload;
-    } catch {
-      throw new UnauthorizedException();
+    } catch(ex) {
+      throw new UnauthorizedException(ex);
     }
 
     const email = request.headers['email'];
