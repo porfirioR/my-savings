@@ -1,20 +1,28 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { UpdateEventApiRequest } from '../models/events/update-event-api-request';
 import { EventManagerService, UserManagerService } from '../../manager/services';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class PrivateEndpointGuard implements CanActivate {
+  @Inject()
+  private readonly eventManager: EventManagerService
+  @Inject()
+  private readonly userManager: UserManagerService
+  @Inject()
+  private readonly jwtService: JwtService
+  @Inject()
+  private readonly configService: ConfigService
 
-  constructor(
-    private readonly eventManager: EventManagerService,
-    private readonly userManager: UserManagerService,
-    private jwtService: JwtService,
-    private readonly configService: ConfigService
-  ) { }
+  constructor(private reflector: Reflector) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [context.getHandler(), context.getClass()])
+    if (isPublic) {
+      return isPublic
+    }
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
@@ -22,28 +30,24 @@ export class PrivateEndpointGuard implements CanActivate {
     }
 
     const jwtToken = this.configService.get<string>('JWT_TOKEN')
-    try {
-      const payload = await this.jwtService.verifyAsync(
-        token,
-        {
-          secret: jwtToken
-        }
-      );
-      const email = payload['email'];
-      if (!email) {
-        return false
+    const payload = await this.jwtService.verifyAsync(
+      token,
+      {
+        secret: jwtToken
       }
-      const user = await this.userManager.getUserByEmail(email)
-      if (request.method === 'PUT') {
-        const body: UpdateEventApiRequest = request.body
-        const myEvents = await this.eventManager.getMyEvents(user.id)
-        const eventToUpdateIsMine = myEvents.some(x => x.authorId === body.id)
-        return eventToUpdateIsMine
-      }
-      return true;
-    } catch(ex) {
-      throw new UnauthorizedException(ex);
+    );
+    const email = payload['email'];
+    if (!email) {
+      return false
     }
+    const user = await this.userManager.getUserByEmail(email)
+    if (request.method === 'PUT') {
+      const body: UpdateEventApiRequest = request.body
+      const myEvents = await this.eventManager.getMyEvents(user.id)
+      const eventToUpdateIsMine = myEvents.some(x => x.authorId === body.id)
+      return eventToUpdateIsMine
+    }
+    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
