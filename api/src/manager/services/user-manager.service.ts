@@ -5,8 +5,8 @@ import { CreateUserAccessRequest } from '../../access/contract/users/create-user
 import { UserAccessModel } from '../../access/contract/users/user-access-model';
 import { UserRequest } from '../models/users/user-request';
 import { UserModel } from '../models/users/user-model';
-import { AuthAccessRequest } from 'src/auth/models/auth-access-request';
-import { AuthUserModel } from 'src/auth/models/auth-user-model';
+import { AuthAccessRequest } from '../../auth/models/auth-access-request';
+import { AuthUserModel } from '../../auth/models/auth-user-model';
 
 @Injectable()
 export class UserManagerService {

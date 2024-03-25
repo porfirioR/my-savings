@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
+import { JWT_TOKEN } from '../utility/constants';
 
 @Module({
   providers: [AuthService],
@@ -11,7 +12,7 @@ import { AuthService } from './auth.service';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         global: true,
-        secretOrPrivateKey: configService.get<string>('JWT_TOKEN'),
+        secretOrPrivateKey: configService.get<string>(JWT_TOKEN),
         signOptions: { expiresIn: '30m' },
       }),
       inject: [ConfigService]

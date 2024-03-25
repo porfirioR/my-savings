@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { DbContextService } from './db-context.service';
-import { TableEnum } from '../contract/table.enum';
+import { TableEnum, DatabaseColumns } from '../../utility/enums';
 import { CreateEventAccessRequest } from '../contract/events/create-event-access-request';
 import { EventAccessModel } from '../contract/events/event-access-model';
 import { UpdateEventAccessRequest } from '../contract/events/update-event-access-request';
@@ -18,9 +18,9 @@ export class EventAccessService {
   public getPublicEvents = async (): Promise<EventAccessModel[]> => {
     const { data, error } = await this.eventContext
       .from(TableEnum.Events)
-      .select('*')
-      .eq('isactive', true)
-      .eq('ispublic', true);
+      .select(DatabaseColumns.All)
+      .eq(DatabaseColumns.IsActive, true)
+      .eq(DatabaseColumns.IsPublic, true);
     if (error) throw new Error(error.message);
     return data?.map(this.getEventAccessModel);
   };
@@ -28,8 +28,8 @@ export class EventAccessService {
   public getMyEvents = async (id: number): Promise<EventAccessModel[]> => {
     const { data, error } = await this.eventContext
       .from(TableEnum.Events)
-      .select('*')
-      .eq('authorid', id);
+      .select(DatabaseColumns.All)
+      .eq(DatabaseColumns.AuthorId, id);
     if (error) throw new Error(error.message);
     return data?.map(this.getEventAccessModel);
   };
@@ -47,7 +47,7 @@ export class EventAccessService {
 
   public updateEvent = async (accessRequest: UpdateEventAccessRequest): Promise<EventAccessModel> => {
     const eventEntity = this.getEntity(accessRequest);
-    delete eventEntity['authorid']
+    delete eventEntity[DatabaseColumns.AuthorId]
     const event = await this.eventContext
       .from(TableEnum.Events)
       .upsert(eventEntity)

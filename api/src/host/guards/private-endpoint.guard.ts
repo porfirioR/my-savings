@@ -1,9 +1,11 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Reflector } from '@nestjs/core';
 import { UpdateEventApiRequest } from '../models/events/update-event-api-request';
 import { EventManagerService, UserManagerService } from '../../manager/services';
-import { Reflector } from '@nestjs/core';
+import { JWT_TOKEN } from '../../utility/constants';
+import { DatabaseColumns } from '../../utility/enums';
 
 @Injectable()
 export class PrivateEndpointGuard implements CanActivate {
@@ -19,7 +21,7 @@ export class PrivateEndpointGuard implements CanActivate {
   constructor(private reflector: Reflector) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [context.getHandler(), context.getClass()])
+    const isPublic = this.reflector.getAllAndOverride<boolean>(DatabaseColumns.IsPublic, [context.getHandler(), context.getClass()])
     if (isPublic) {
       return isPublic
     }
@@ -29,14 +31,14 @@ export class PrivateEndpointGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const jwtToken = this.configService.get<string>('JWT_TOKEN')
+    const jwtToken = this.configService.get<string>(JWT_TOKEN)
     const payload = await this.jwtService.verifyAsync(
       token,
       {
         secret: jwtToken
       }
     );
-    const email = payload['email'];
+    const email = payload[DatabaseColumns.Email];
     if (!email) {
       return false
     }

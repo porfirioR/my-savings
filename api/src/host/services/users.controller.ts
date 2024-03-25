@@ -5,6 +5,7 @@ import { UserRequest } from '../../manager/models/users/user-request';
 import { CreateUserApiRequest } from '../models/users/create-user-api-request';
 import { Public } from '../decorators/public.decorator';
 import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
+import { DatabaseColumns } from '../../utility/enums';
 
 @Controller('users')
 @UseGuards(PrivateEndpointGuard)
@@ -18,7 +19,7 @@ export class UsersController {
   }
 
   @Get()
-  async getUserByEmail(@Headers('email') email: string): Promise<UserModel> {
+  async getUserByEmail(@Headers(DatabaseColumns.Email) email: string): Promise<UserModel> {
     const model = await this.userManagerService.getUserByEmail(email);
     return model;
   }
