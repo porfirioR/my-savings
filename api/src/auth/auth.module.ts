@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
       useFactory: async (configService: ConfigService) => ({
         global: true,
         secretOrPrivateKey: configService.get<string>('JWT_TOKEN'),
-        signOptions: { expiresIn: '3600' },
+        signOptions: { expiresIn: '30m' },
       }),
       inject: [ConfigService]
     }),

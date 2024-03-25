@@ -29,23 +29,21 @@ export class PrivateEndpointGuard implements CanActivate {
           secret: jwtToken
         }
       );
-      request['user'] = payload;
+      const email = payload['email'];
+      if (!email) {
+        return false
+      }
+      const user = await this.userManager.getUserByEmail(email)
+      if (request.method === 'PUT') {
+        const body: UpdateEventApiRequest = request.body
+        const myEvents = await this.eventManager.getMyEvents(user.id)
+        const eventToUpdateIsMine = myEvents.some(x => x.authorId === body.id)
+        return eventToUpdateIsMine
+      }
+      return true;
     } catch(ex) {
       throw new UnauthorizedException(ex);
     }
-
-    const email = request.headers['email'];
-    if (!email) {
-      return false
-    }
-    const user = await this.userManager.getUserByEmail(email)
-    if (request.method === 'PUT') {
-      const body: UpdateEventApiRequest = request.body
-      const myEvents = await this.eventManager.getMyEvents(user.id)
-      const eventToUpdateIsMine = myEvents.some(x => x.authorId === body.id)
-      return eventToUpdateIsMine
-    }
-    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
