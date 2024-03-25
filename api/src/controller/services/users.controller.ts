@@ -10,7 +10,7 @@ import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
 export class UsersController {
   constructor(private userManagerService: UserManagerService) { }
 
-  @Get()
+  @Get('admin')
   @UseGuards(AdminGuard, PrivateEndpointGuard)
   async getUsers(): Promise<UserModel[]> {
     const modelList = await this.userManagerService.getUsers();
