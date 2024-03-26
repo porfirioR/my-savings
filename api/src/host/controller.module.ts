@@ -1,13 +1,13 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
 import { UsersController } from './services/users.controller';
 import { EventsController } from './services/events.controller';
 import { AllExceptionsFilter } from './filters/exception.filter';
 import { ManagerModule } from '../manager/manager.module';
 import { LoginMiddleware } from './middleware/login.middleware';
 import { SignupMiddleware } from './middleware/signup.middleware';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [

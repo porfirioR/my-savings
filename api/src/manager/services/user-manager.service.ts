@@ -3,10 +3,9 @@ import { UserAccessService } from '../../access/services';
 import { AuthService } from '../../auth/auth.service';
 import { CreateUserAccessRequest } from '../../access/contract/users/create-user-access-request';
 import { UserAccessModel } from '../../access/contract/users/user-access-model';
-import { UserRequest } from '../models/users/user-request';
-import { UserModel } from '../models/users/user-model';
 import { AuthAccessRequest } from '../../auth/models/auth-access-request';
 import { AuthUserModel } from '../../auth/models/auth-user-model';
+import { SignModel, UserModel, UserRequest } from '../models/users';
 
 @Injectable()
 export class UserManagerService {
@@ -20,22 +19,22 @@ export class UserManagerService {
     return accessModelList.map(x => this.getUserModel(x));
   };
 
-  public registerUser = async (request: UserRequest): Promise<UserModel> => {
+  public registerUser = async (request: UserRequest): Promise<SignModel> => {
     const password = await this.authService.getHash(request.password)
     const accessModel = await this.userAccessService.createUser(new CreateUserAccessRequest(request.email, password));
     const authModel = new AuthUserModel(accessModel.id, accessModel.email, accessModel.password)
-    const token = await this.authService.getToken(authModel)
-    return this.getUserModel(accessModel, token);
+    const jwtToken = await this.authService.getToken(authModel)
+    return new SignModel(accessModel.email, jwtToken);
   };
 
-  public loginUser = async (request: string): Promise<string> => {
+  public loginUser = async (request: string): Promise<SignModel> => {
     const key = request.split('Basic ').at(1)
     const [email, password] = atob(key).split(':')
     const accessModel = await this.userAccessService.getUserByEmail(email);
     const authModel = new AuthUserModel(accessModel.id, accessModel.email, accessModel.password);
     await this.authService.checkUser(new AuthAccessRequest(email, password), authModel);
     const jwtToken = await this.authService.getToken(authModel);
-    return jwtToken;
+    return new SignModel(email, jwtToken);
   };
 
   public getUserByEmail = async (email: string): Promise<UserModel> => {

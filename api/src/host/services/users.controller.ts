@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Headers, Post, UseGuards } from '@nestjs/common';
 import { UserManagerService } from '../../manager/services';
-import { UserModel } from '../../manager/models/users/user-model';
-import { UserRequest } from '../../manager/models/users/user-request';
+import { SignModel, UserModel, UserRequest } from '../../manager/models/users';
 import { CreateUserApiRequest } from '../models/users/create-user-api-request';
 import { Public } from '../decorators/public.decorator';
 import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
@@ -26,7 +25,7 @@ export class UsersController {
 
   @Post('sign-up')
   @Public()
-  async registerUser(@Body() apiRequest: CreateUserApiRequest): Promise<UserModel> {
+  async registerUser(@Body() apiRequest: CreateUserApiRequest): Promise<SignModel> {
     const request = new UserRequest(apiRequest.email, apiRequest.password);
     const model = await this.userManagerService.registerUser(request);
     return model;
@@ -34,7 +33,7 @@ export class UsersController {
 
   @Post('login')
   @Public()
-  async login(@Headers('authorization') authorization: string): Promise<string> {
+  async login(@Headers('authorization') authorization: string): Promise<SignModel> {
     const model = await this.userManagerService.loginUser(authorization);
     return model;
   }
