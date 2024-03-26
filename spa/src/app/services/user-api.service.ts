@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CreateUserApiRequest, UserApiModel } from '../models/api';
+import { CreateUserApiRequest, LoginUserApiRequest, UserApiModel } from '../models/api';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -22,9 +22,16 @@ export class UserApiService {
     return this.httpClient.get<UserApiModel[]>(`${this.url}/${id}`)
   }
 
-  public createUser = (email: string): Observable<UserApiModel> => {
-    const request = new CreateUserApiRequest(email)
+  public createUser = (request: CreateUserApiRequest): Observable<UserApiModel> => {
     return this.httpClient.post<UserApiModel>(this.url, request)
+  }
+
+  public loginUser = (request: LoginUserApiRequest): Observable<UserApiModel> => {
+    return this.httpClient.post<UserApiModel>(this.url, request)
+  }
+
+  public getUserInformation = (userId: number): Observable<unknown> => {
+    return this.httpClient.get<unknown>(`${this.url}/user-information/${userId}`)
   }
 
 }

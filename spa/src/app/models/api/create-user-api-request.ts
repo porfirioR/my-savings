@@ -1,5 +1,10 @@
-export class CreateUserApiRequest {
+import { LoginUserApiRequest } from "./login-user-api-request";
+
+export class CreateUserApiRequest extends LoginUserApiRequest {
   constructor(
-    public email: string
-  ) { }
+    email: string,
+    password: string
+  ) {
+    super(email, password)
+  }
 }

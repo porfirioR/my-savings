@@ -1,41 +1,36 @@
-<div class="md oj rg uo yr acc acf adj bxo" role="none">
-  <div class="uo aqu avk" role="none"><img
-      src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
-      alt="" class="gx nl rn ads" role="none">
-    <h2 class="lf awf axu" role="none">
-      Name
-    </h2>
-    <p class="avz awo axq" role="none">
-      Details
-    </p>
-  </div>
-  <div class="lx un yr zf aqu" role="none">
-    <dl class="mb yg aai aar avz axs" role="none">
-      <dt class="fg awf axu" role="none">
-        Phone
-      </dt>
-      <dd role="none">
-        Phone number
-      </dd>
-      <dt class="fg awf axu" role="none">
-        URL
-      </dt>
-      <dd class="adl" role="none">
-        <a href="https://example.com" class="ayg bar" role="none">
-          https://example.com
+<dialog class="modal" role="none" id="profileModal" #profileModal>
+  <main class="modal-box">
+    <h3 class="font-bold text-lg">Hello!</h3>
+    @if (hasEmail) {
+    <p class="py-4">Your email is: {{email}}</p>
+    <p class="py-4">This modal works with a hidden checkbox!</p>
+    <p class="py-4">This modal works with a hidden checkbox!</p>
+    <p class="py-4">This modal works with a hidden checkbox!</p>
+    } @else {
+      <p class="py-4">
+        You are disconnected, click on one of the following buttons
+      </p>
+      <div class="flex items-center">
+        <a
+          class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+          [routerLink]="'login'"
+          (click)="closeDialog()"
+        >
+          <i class="fas fa-right-to-bracket"></i>
+          Login
         </a>
-      </dd>
-      <dt class="fg awf axu" role="none">
-        Email
-      </dt>
-      <dd class="adl" role="none">
-        <a href="mailto:emilyselman@example.com" class="ayg bar" role="none">
-          email
+        <a
+          class="w-full ml-4 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+          [routerLink]="'signup'"
+          (click)="closeDialog()"
+        >
+          <i class="fas fa-user-plus"></i>
+          Signup
         </a>
-      </dd>
-    </dl>
-    <button type="button" class="lk tn adu ajp are aru avz awf bag bbm bir box boy bpa bph" role="none">
-      Send message
-    </button>
-  </div>
-</div>
+      </div>
+    }
+    <footer class="modal-action">
+      <label class="modal-backdrop" for="profileModal" class="btn" (click)="closeDialog()">Close!</label>
+    </footer>
+  </main>
+</dialog>
