@@ -38,10 +38,10 @@ export class SignupComponent implements OnInit {
       return
     }
     const request: CreateUserApiRequest = new CreateUserApiRequest(this.formGroup.value.email!, this.formGroup.value.password!)
-    this.userApiService.createUser(request).subscribe({
+    this.userApiService.signUpUser(request).subscribe({
       next: (user) => {
         this.localService.setEmail(user.email)
-        this.localService.setUserId(user.id)
+        this.localService.setJwtToken(user.token)
         this.router.navigate([''])
       }
     })

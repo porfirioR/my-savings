@@ -1,7 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { LocalService } from '../services/local.service';
 import { retry } from 'rxjs';
+import { LocalService } from '../services/local.service';
 
 export const headerInterceptor: HttpInterceptorFn = (req, next) => {
   const localService = inject(LocalService)
@@ -10,7 +10,7 @@ export const headerInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
   const requestCopy = req.clone({
-    headers: req.headers.set('Authorization', email)
+    headers: req.headers.set('email', email)
   })
   return next(requestCopy).pipe(retry(1));
 };
