@@ -1,4 +1,5 @@
 export interface SignApiModel {
-  email: string,
+  id: number
+  email: string
   token: string
 }

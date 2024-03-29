@@ -29,8 +29,7 @@ export class LoginComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
   protected loginUser = (): void => {
     if (this.formGroup.invalid) {

@@ -1,9 +1,9 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { retry } from 'rxjs';
 import { LocalService } from '../services/local.service';
 
-export const headerInterceptor: HttpInterceptorFn = (req, next) => {
+export const headerInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const localService = inject(LocalService)
   const email = localService.getEmail()
   if (req.url.includes('public') || (req.method === 'post' && req.url.includes('users')) || !email) {

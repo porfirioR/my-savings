@@ -24,7 +24,7 @@ export class UserManagerService {
     const accessModel = await this.userAccessService.createUser(new CreateUserAccessRequest(request.email, password));
     const authModel = new AuthUserModel(accessModel.id, accessModel.email, accessModel.password)
     const jwtToken = await this.authService.getToken(authModel)
-    return new SignModel(accessModel.email, jwtToken);
+    return new SignModel(accessModel.id, accessModel.email, jwtToken);
   };
 
   public loginUser = async (request: string): Promise<SignModel> => {
@@ -34,7 +34,7 @@ export class UserManagerService {
     const authModel = new AuthUserModel(accessModel.id, accessModel.email, accessModel.password);
     await this.authService.checkUser(new AuthAccessRequest(email, password), authModel);
     const jwtToken = await this.authService.getToken(authModel);
-    return new SignModel(email, jwtToken);
+    return new SignModel(accessModel.id, email, jwtToken);
   };
 
   public getUserByEmail = async (email: string): Promise<UserModel> => {
