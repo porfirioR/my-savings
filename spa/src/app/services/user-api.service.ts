@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { CreateUserApiRequest, LoginUserApiRequest, SignApiModel, UserApiModel } from '../models/api';
 import { environment } from '../../environments/environment';
 import { LocalService } from './local.service';
@@ -26,19 +26,20 @@ export class UserApiService {
     return this.httpClient.get<UserApiModel[]>(`${this.url}/${id}`)
   }
 
-  public signUpUser = (request: CreateUserApiRequest): Observable<SignApiModel> => {
-    const httpHeader = new HttpHeaders();
-    httpHeader.append('Content-Type', 'application/json')
-    httpHeader.append("Authorization", "Basic " + btoa(`${request.email}:${request.password}`))
-
+  public loginUser = (request: CreateUserApiRequest): Observable<SignApiModel> => {
+    const credentials = `${request.email}:${request.password}`
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'authorization': `Basic ${btoa(credentials)}`
+    })
     const httpOptions = {
-      headers: httpHeader
-    };
-    return this.httpClient.post<SignApiModel>(`${this.url}/sign-up`, request, httpOptions)
+      headers: headers
+    }
+    return this.httpClient.post<SignApiModel>(`${this.url}/login`, null, httpOptions).pipe(tap(this.setInLocaleStorage))
   }
 
-  public loginUser = (request: LoginUserApiRequest): Observable<SignApiModel> => {
-    return this.httpClient.post<SignApiModel>(`${this.url}/login`, request)
+  public signUpUser = (request: LoginUserApiRequest): Observable<SignApiModel> => {
+    return this.httpClient.post<SignApiModel>(`${this.url}/sign-up`, request).pipe(tap(this.setInLocaleStorage))
   }
 
   public getUserInformation = (userId: number): Observable<unknown> => {

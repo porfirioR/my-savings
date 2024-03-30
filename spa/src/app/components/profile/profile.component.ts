@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { LocalService } from '../../services/local.service';
-import { Observable, of } from 'rxjs';
-import { UserApiService } from '../../services/user-api.service';
 import { RouterModule } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { LocalService } from '../../services/local.service';
+import { UserApiService } from '../../services/user-api.service';
 
 @Component({
   selector: 'app-profile',
@@ -11,7 +11,6 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [
     RouterModule,
-
   ]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
