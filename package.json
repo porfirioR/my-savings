@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start:both": "concurrently \"cd ./spa && npm run start\" \"cd ./api && npm run start\""
+    "start:both": "concurrently \"cd ./spa && npm run start\" \"cd ./api && npm run start:debug\""
   },
   "dependencies": {
     "concurrently": "^8.2.2"
