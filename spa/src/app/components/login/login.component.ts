@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { LoginFormGroup } from '../../models/forms';
-import { UserApiService } from '../../services/user-api.service';
 import { LoginUserApiRequest } from '../../models/api';
-import { LocalService } from '../../services/local.service';
+import { AlertService, LocalService, UserApiService } from '../../services';
 
 @Component({
   selector: 'app-login',
@@ -18,10 +17,12 @@ import { LocalService } from '../../services/local.service';
 })
 export class LoginComponent implements OnInit {
   protected formGroup: FormGroup<LoginFormGroup>
+
   constructor(
     private readonly router: Router,
     private readonly userApiService: UserApiService,
-    private readonly localService: LocalService
+    private readonly localService: LocalService,
+    private readonly alertService: AlertService,
   ) {
     this.formGroup = new FormGroup<LoginFormGroup>({
       email: new FormControl(null, [Validators.required, Validators.email]),
@@ -29,8 +30,7 @@ export class LoginComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
   protected loginUser = (): void => {
     if (this.formGroup.invalid) {
@@ -39,6 +39,7 @@ export class LoginComponent implements OnInit {
     const request: LoginUserApiRequest = new LoginUserApiRequest(this.formGroup.value.email!, this.formGroup.value.password!)
     this.userApiService.loginUser(request).subscribe({
       next: (user) => {
+        this.alertService.showSuccess(`Welcome ${user.email}`)
         this.localService.setEmail(user.email)
         this.localService.setUserId(user.id)
         this.router.navigate([''])

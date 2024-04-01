@@ -2,10 +2,8 @@
   <main class="modal-box">
     <h3 class="font-bold text-lg">Hello!</h3>
     @if (hasEmail) {
-    <p class="py-4">Your email is: {{email}}</p>
-    <p class="py-4">This modal works with a hidden checkbox!</p>
-    <p class="py-4">This modal works with a hidden checkbox!</p>
-    <p class="py-4">This modal works with a hidden checkbox!</p>
+      <p class="py-4">Your user id is: {{email}}</p>
+      <p class="py-4">Your email is: {{email}}</p>
     } @else {
       <p class="py-4">
         You are disconnected, click on one of the following buttons
@@ -30,7 +28,14 @@
       </div>
     }
     <footer class="modal-action">
-      <label class="modal-backdrop" for="profileModal" class="btn" (click)="closeDialog()">Close!</label>
+      <label
+        class="modal-backdrop"
+        for="profileModal"
+        class="btn"
+        (click)="closeDialog()"
+      >
+        Close
+      </label>
     </footer>
   </main>
 </dialog>
