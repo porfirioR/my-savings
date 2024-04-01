@@ -11,7 +11,7 @@ export class LocalService {
   public getEmail = (): string | null => localStorage.getItem(this.emailKey) ?? ''
   public setEmail = (email: string): void => localStorage.setItem(this.emailKey, email)
 
-  public getUserId = (): number=> +(localStorage.getItem(this.userKey) ?? -1)
+  public getUserId = (): number => +(localStorage.getItem(this.userKey) ?? -1)
   public setUserId = (id: number): void => localStorage.setItem(this.userKey, id.toString())
 
   public getJwtToken = (): string | null => localStorage.getItem(this.jwtToken)

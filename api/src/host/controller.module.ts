@@ -2,8 +2,8 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { ConfigService } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { UsersController } from './services/users.controller';
-import { EventsController } from './services/events.controller';
+import { UsersController } from './controllers/users.controller';
+import { EventsController } from './controllers/events.controller';
 import { AllExceptionsFilter } from './filters/exception.filter';
 import { ManagerModule } from '../manager/manager.module';
 import { LoginMiddleware } from './middleware/login.middleware';

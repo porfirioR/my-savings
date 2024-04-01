@@ -1,7 +1,7 @@
 import { HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { retry } from 'rxjs';
-import { LocalService } from '../services/local.service';
+import { LocalService } from '../services';
 
 export const headerInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const localService = inject(LocalService)

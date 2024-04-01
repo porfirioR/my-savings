@@ -3,8 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { LoginFormGroup } from '../../models/forms';
 import { CreateUserApiRequest } from '../../models/api';
-import { UserApiService } from '../../services/user-api.service';
-import { LocalService } from '../../services/local.service';
+import { LocalService, UserApiService } from '../../services';
 
 @Component({
   selector: 'app-signup',

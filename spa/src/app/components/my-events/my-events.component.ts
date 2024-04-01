@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EventComponent } from "../event/event.component";
-import { EventApiService } from '../../services/event-api.service';
-import { LocalService } from '../../services/local.service';
+import { EventApiService, LocalService } from '../../services';
 import { EventViewModel } from '../../models/view/event-view-model';
 import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
 

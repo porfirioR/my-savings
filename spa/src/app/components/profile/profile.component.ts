@@ -1,8 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { LocalService } from '../../services/local.service';
-import { UserApiService } from '../../services/user-api.service';
+import { LocalService, UserApiService } from '../../services';
 
 @Component({
   selector: 'app-profile',
@@ -17,6 +15,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   @ViewChild('profileModal', { static: true }) profileModal!: ElementRef<HTMLDialogElement>;
   protected hasEmail = false
   protected email?: string | null;
+  protected userId?: number | null;
 
   constructor(
     private readonly localService: LocalService,
@@ -25,22 +24,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkHasEmail()
-    this.getUserInformation().subscribe({
-      next: (value) => {
-        
-      }, error: (e) => {
-        
-        throw e
-      }
-    })
   }
 
   ngOnDestroy(): void {
     this.closeDialog()
-    // this.cdr.detectChanges();
   }
 
   public openDialog = (): void => {
+    this.checkHasEmail()
     this.profileModal.nativeElement.showModal()
   }
 
@@ -50,12 +41,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private checkHasEmail = (): void => {
     this.email = this.localService.getEmail()
-    if (this.email) {
-      this.hasEmail = true
-    }
-  }
-  
-  private getUserInformation = (): Observable<unknown | undefined> => {
-    return this.hasEmail ? this.userService.getUserInformation(this.localService.getUserId()) : of(undefined);
+    this.userId = this.localService.getUserId()
+    this.hasEmail = !!this.email
   }
 }
