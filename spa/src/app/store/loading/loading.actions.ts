@@ -5,5 +5,6 @@ export const loginActionGroup = createActionGroup({
   events: {
     'Loading': emptyProps(),
     'Loading Failed': emptyProps(),
+    'Loading Success': emptyProps(),
   }
 })
