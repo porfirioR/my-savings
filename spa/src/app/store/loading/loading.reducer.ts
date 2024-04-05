@@ -16,7 +16,7 @@ export const loginReducer = createReducer(
   on(loginActionGroup.loading,
     (state) => ({
       ...state,
-      isLoading: state.isLoading
+      isLoading: true
     })
   ),
   on(loginActionGroup.loadingFailed,
