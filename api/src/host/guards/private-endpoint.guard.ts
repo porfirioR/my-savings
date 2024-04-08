@@ -13,12 +13,12 @@ export class PrivateEndpointGuard implements CanActivate {
   private readonly eventManager: EventManagerService
   @Inject()
   private readonly userManager: UserManagerService
-  @Inject()
-  private readonly jwtService: JwtService
-  @Inject()
-  private readonly configService: ConfigService
 
-  constructor(private reflector: Reflector) { }
+  constructor(
+    private reflector: Reflector,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(DatabaseColumns.IsPublic, [context.getHandler(), context.getClass()])
