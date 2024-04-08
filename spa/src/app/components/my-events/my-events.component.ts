@@ -7,6 +7,7 @@ import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.c
 import { EventApiService, LocalService } from '../../services';
 import { EventViewModel } from '../../models/view/event-view-model';
 import { selectIsLoading } from '../../store/loading/loading.selectors';
+import { loadingActionGroup } from '../../store/loading/loading.actions';
 
 @Component({
   selector: 'app-my-events',
@@ -33,6 +34,7 @@ export class MyEventsComponent implements OnInit {
     const userId = this.localService.getUserId()
     this.eventFollows = this.eventApiService.getMyEvents(userId).pipe(map((eventFollow) => {
       const currentDate = new Date()
+      this.store.dispatch(loadingActionGroup.loadingSuccess())
       return eventFollow.map(x => new EventViewModel(
         x.id,
         x.name,

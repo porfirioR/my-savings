@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store'
-import { loginActionGroup } from './loading.actions'
+import { loadingActionGroup } from './loading.actions'
 
 export const loadingFeatureKey = 'logins'
 
@@ -13,14 +13,14 @@ export const initialState: LoadingState = {
 
 export const loginReducer = createReducer(
   initialState,
-  on(loginActionGroup.loading,
+  on(loadingActionGroup.loading,
     (state) => ({
       ...state,
       isLoading: true
     })
   ),
-  on(loginActionGroup.loadingFailed,
-    loginActionGroup.loadingSuccess,
+  on(loadingActionGroup.loadingFailed,
+    loadingActionGroup.loadingSuccess,
     (state) => ({
       ...state,
       isLoading: false

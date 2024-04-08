@@ -1,10 +1,10 @@
-import { createActionGroup, emptyProps, props } from '@ngrx/store'
+import { createActionGroup, emptyProps } from '@ngrx/store'
 
-export const loginActionGroup = createActionGroup({
+export const loadingActionGroup = createActionGroup({
   source: 'Loading Actions',
   events: {
     'Loading': emptyProps(),
-    'Loading Failed': emptyProps(),
     'Loading Success': emptyProps(),
+    'Loading Failed': emptyProps(),
   }
 })

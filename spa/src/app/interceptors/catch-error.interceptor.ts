@@ -3,13 +3,13 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { catchError, retry } from 'rxjs';
 import { AppState } from '../store';
-import * as fromLoadingActions from '../store/loading/loading.actions'
+import { loadingActionGroup } from '../store/loading/loading.actions';
 
 export const catchErrorInterceptor: HttpInterceptorFn = (request, next) =>  {
   const store = inject(Store<AppState>)
 
   return next(request).pipe(retry(3), catchError(error => {
-    store.dispatch(fromLoadingActions.loginActionGroup.loadingFailed())
+    store.dispatch(loadingActionGroup.loadingFailed())
     throw error
   }))
 }
