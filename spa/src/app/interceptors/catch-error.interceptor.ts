@@ -1,9 +1,7 @@
 import { inject } from '@angular/core';
-import {
-  HttpInterceptorFn
-} from '@angular/common/http';
-import { catchError, retry } from 'rxjs';
+import { HttpInterceptorFn } from '@angular/common/http';
 import { Store } from '@ngrx/store';
+import { catchError, retry } from 'rxjs';
 import { AppState } from '../store';
 import * as fromLoadingActions from '../store/loading/loading.actions'
 
