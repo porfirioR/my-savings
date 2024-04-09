@@ -7,9 +7,10 @@ import { ControllerModule } from './host/controller.module';
   imports: [
     UtilityModule,
     ConfigModule.forRoot(),
-    ControllerModule
+    ControllerModule,
   ],
   controllers: [],
-  providers: []
+  providers: [
+  ]
 })
 export class AppModule {}

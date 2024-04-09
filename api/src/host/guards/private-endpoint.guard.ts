@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
@@ -9,15 +9,12 @@ import { DatabaseColumns } from '../../utility/enums';
 
 @Injectable()
 export class PrivateEndpointGuard implements CanActivate {
-  @Inject()
-  private readonly eventManager: EventManagerService
-  @Inject()
-  private readonly userManager: UserManagerService
-
   constructor(
     private reflector: Reflector,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly eventManager: EventManagerService,
+    private readonly userManager: UserManagerService
   ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
