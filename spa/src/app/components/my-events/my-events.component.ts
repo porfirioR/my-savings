@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { EMPTY, Observable, map } from 'rxjs';
+import { EMPTY, Observable, catchError, map, throwError } from 'rxjs';
 import { EventComponent } from "../event/event.component";
 import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
 import { EventApiService, LocalService } from '../../services';
@@ -46,7 +46,7 @@ export class MyEventsComponent implements OnInit {
         x.isPublic,
         currentDate
       ))
-    }))
+    }, catchError(x => {throw  x})))
   }
 
 }
