@@ -46,7 +46,9 @@ export class MyEventsComponent implements OnInit {
         x.isPublic,
         currentDate
       ))
-    }, catchError(x => {throw  x})))
+    }, catchError(x => {
+      throw  x
+    })))
   }
 
 }

@@ -6,16 +6,16 @@ import { EventViewModel } from '../../models/view/event-view-model';
 import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.css'],
-    standalone: true,
-    imports: [
-      NgIf,
-      NgFor,
-      EventComponent,
-      LoadingSkeletonComponent
-    ]
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css'],
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    EventComponent,
+    LoadingSkeletonComponent
+  ]
 })
 export class HomeComponent implements OnInit {
   protected eventFollows: EventViewModel[] = []
@@ -46,5 +46,4 @@ export class HomeComponent implements OnInit {
       }
     })
   }
-
 }

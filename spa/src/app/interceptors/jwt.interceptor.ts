@@ -13,5 +13,5 @@ export const jwtInterceptor: HttpInterceptorFn = (request, next) => {
       }
     })
   }
-  return next(request).pipe(retry(1))
+  return next(request)
 }

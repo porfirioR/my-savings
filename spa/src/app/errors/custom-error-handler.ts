@@ -28,10 +28,12 @@ export class CustomErrorHandler implements ErrorHandler {
           }
         } else if (error.title) {
           additionalMessage = error.title
+        } else if (error.message) {
+          additionalMessage = error.message
         }
         this.alertService.showError(`${error.status} ${additionalMessage}`);
       }
-    } else if (error.status === 403) {
+    } else if (error.status === 403 || error.status === 401) {
       this.alertService.showError(`FORBIDDEN - ${error.message}`);
     } else {
       this.alertService.showError(`ERROR - ${JSON.stringify(error)}`)

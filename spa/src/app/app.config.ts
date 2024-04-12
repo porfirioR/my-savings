@@ -14,7 +14,11 @@ import { CustomErrorHandler } from './errors/custom-error-handler'
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptors([headerInterceptor, jwtInterceptor, catchErrorInterceptor])),
+    provideHttpClient(withInterceptors([
+      headerInterceptor,
+      jwtInterceptor,
+      catchErrorInterceptor,
+    ])),
     provideStore(reducers, { metaReducers }),
     provideEffects(),
     {

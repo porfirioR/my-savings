@@ -12,5 +12,5 @@ export const headerInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, 
   const requestCopy = req.clone({
     headers: req.headers.set('email', email)
   })
-  return next(requestCopy).pipe(retry(1));
+  return next(requestCopy)
 };
