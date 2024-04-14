@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, tap } from 'rxjs';
+import { Observable, first, tap } from 'rxjs';
 import { EventComponent } from "../event/event.component";
 import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
 import { EventApiService, LocalService } from '../../services';
@@ -32,6 +32,7 @@ export class MyEventsComponent {
     this.loading$ = this.store.select(selectIsLoading)
     const userId = this.localService.getUserId()
     this.eventApiService.getMyEvents(userId).pipe(
+      first(),
       tap((eventFollow) => {
         const currentDate = new Date()
         this.eventFollows = eventFollow.map(x => new EventViewModel(
