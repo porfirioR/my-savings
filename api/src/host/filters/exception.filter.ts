@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { JsonWebTokenError } from '@nestjs/jwt';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -12,13 +13,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
-
-    const status = exception instanceof HttpException ?
-      exception.getStatus() :
-      HttpStatus.INTERNAL_SERVER_ERROR;
+    let status: number = 0
+    switch (true) {
+      case exception instanceof HttpException:
+        status = exception.getStatus();
+        break;
+      case exception instanceof JsonWebTokenError:
+        status = HttpStatus.UNAUTHORIZED;
+        break;
+      default:
+        status = HttpStatus.INTERNAL_SERVER_ERROR;
+        break;
+    }
 
     response.status(status).json({
-      statusCode: status,
+      status: status,
       timestamp: new Date().toISOString(),
       path: request.url,
       message: (exception as any).message

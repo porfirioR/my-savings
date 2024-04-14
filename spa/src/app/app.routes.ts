@@ -4,6 +4,7 @@ import { MyEventsComponent } from './components/my-events/my-events.component'
 import { LoginComponent } from './components/login/login.component'
 import { SignupComponent } from './components/signup/signup.component'
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component'
+import { loadingResolver } from './resolvers/loading.resolver'
 
 export const routes: Routes = [
   {
@@ -18,7 +19,8 @@ export const routes: Routes = [
       {
         path: 'my-events',
         title: 'My events',
-        loadComponent: () => MyEventsComponent
+        loadComponent: () => MyEventsComponent,
+        resolve: { loading: loadingResolver }
       },
       {
         path: 'login',

@@ -1,28 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable, first, tap } from 'rxjs';
 import { EventComponent } from "../event/event.component";
+import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
 import { EventApiService, LocalService } from '../../services';
 import { EventViewModel } from '../../models/view/event-view-model';
-import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
+import { selectIsLoading } from '../../store/loading/loading.selectors';
+import { loadingActionGroup } from '../../store/loading/loading.actions';
 
 @Component({
-    selector: 'app-my-events',
-    templateUrl: './my-events.component.html',
-    styleUrls: ['./my-events.component.css'],
-    standalone: true,
-    imports: [EventComponent, LoadingSkeletonComponent]
+  selector: 'app-my-events',
+  templateUrl: './my-events.component.html',
+  styleUrls: ['./my-events.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    EventComponent,
+    LoadingSkeletonComponent
+  ]
 })
-export class MyEventsComponent implements OnInit {
+export class MyEventsComponent {
   protected eventFollows: EventViewModel[] = []
+  protected loading$: Observable<boolean>
 
   constructor(
     private readonly eventApiService: EventApiService,
-    private readonly localService: LocalService
-  ) { }
-
-  ngOnInit(): void {
+    private readonly localService: LocalService,
+    private store: Store,
+  ) {
+    this.loading$ = this.store.select(selectIsLoading)
     const userId = this.localService.getUserId()
-    this.eventApiService.getMyEvents(userId).subscribe({
-      next: (eventFollow) => {
+    this.eventApiService.getMyEvents(userId).pipe(
+      first(),
+      tap((eventFollow) => {
         const currentDate = new Date()
         this.eventFollows = eventFollow.map(x => new EventViewModel(
           x.id,
@@ -35,10 +46,9 @@ export class MyEventsComponent implements OnInit {
           x.isPublic,
           currentDate
         ))
-      }, error: (e) => {
-        throw e
+        this.store.dispatch(loadingActionGroup.loadingSuccess())
       }
-    })
+    )).subscribe()
   }
 
 }

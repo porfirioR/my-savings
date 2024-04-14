@@ -12,7 +12,7 @@ import { JWT_TOKEN } from '../utility/constants';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         global: true,
-        secretOrPrivateKey: configService.get<string>(JWT_TOKEN),
+        secret: configService.get<string>(JWT_TOKEN),
         signOptions: { expiresIn: '1h' },
       }),
       inject: [ConfigService]

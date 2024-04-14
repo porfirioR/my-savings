@@ -1,16 +1,13 @@
-<header>
-
-</header>
 <main>
-  @defer {
+  @if (loading$ | async) {
+    <app-loading-skeleton/>
+    <app-loading-skeleton/>
+    <app-loading-skeleton/>
+  } @else {
     @for (event of eventFollows; track event.id) {
-      <app-event [eventModel]="event" />
+      <app-event [eventModel]="event"/>
     } @empty {
-      <app-loading-skeleton />
-      <app-loading-skeleton />
-      <app-loading-skeleton />
+      <article>No data</article>
     }
-  } @error {
-    No content
   }
 </main>
