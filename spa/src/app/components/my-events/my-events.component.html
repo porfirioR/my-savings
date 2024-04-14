@@ -1,9 +1,10 @@
-<main *ngIf="loading$ | async as loading">
-  @if (loading) {
+<main>
+  @if (loading$ | async) {
     <app-loading-skeleton/>
     <app-loading-skeleton/>
     <app-loading-skeleton/>
-    @for (event of eventFollows | async; track event.id) {
+  } @else {
+    @for (event of eventFollows; track event.id) {
       <app-event [eventModel]="event"/>
     } @empty {
       <article>No data</article>

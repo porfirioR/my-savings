@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { EMPTY, Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { EventComponent } from "../event/event.component";
 import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
 import { EventApiService, LocalService } from '../../services';
@@ -20,35 +20,34 @@ import { loadingActionGroup } from '../../store/loading/loading.actions';
     LoadingSkeletonComponent
   ]
 })
-export class MyEventsComponent implements OnInit {
-  protected eventFollows: Observable<EventViewModel[]> = EMPTY
-  protected loading$ = this.store.select(selectIsLoading)
+export class MyEventsComponent {
+  protected eventFollows: EventViewModel[] = []
+  protected loading$: Observable<boolean>
 
   constructor(
     private readonly eventApiService: EventApiService,
     private readonly localService: LocalService,
     private store: Store,
-  ) { }
-
-  ngOnInit(): void {
+  ) {
+    this.loading$ = this.store.select(selectIsLoading)
     const userId = this.localService.getUserId()
-    this.eventFollows = this.eventApiService.getMyEvents(userId).pipe(map((eventFollow) => {
-      const currentDate = new Date()
-      this.store.dispatch(loadingActionGroup.loadingSuccess())
-      return eventFollow.map(x => new EventViewModel(
-        x.id,
-        x.name,
-        x.authorId,
-        x.authorId !== userId ? '': this.localService.getEmail()!,
-        x.description,
-        x.isActive,
-        new Date(x.date),
-        x.isPublic,
-        currentDate
-      ))
-    }, catchError(x => {
-      throw  x
-    })))
+    this.eventApiService.getMyEvents(userId).pipe(
+      tap((eventFollow) => {
+        const currentDate = new Date()
+        this.eventFollows = eventFollow.map(x => new EventViewModel(
+          x.id,
+          x.name,
+          x.authorId,
+          x.authorId !== userId ? '': this.localService.getEmail()!,
+          x.description,
+          x.isActive,
+          new Date(x.date),
+          x.isPublic,
+          currentDate
+        ))
+        this.store.dispatch(loadingActionGroup.loadingSuccess())
+      }
+    )).subscribe()
   }
 
 }
