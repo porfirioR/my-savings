@@ -3,4 +3,5 @@ export interface UserEntity {
   email: string
   password: string
   datecreated: Date
+  code: string
 }

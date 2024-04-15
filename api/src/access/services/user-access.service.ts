@@ -5,6 +5,8 @@ import { CreateUserAccessRequest } from '../contract/users/create-user-access-re
 import { UserAccessModel } from '../contract/users/user-access-model';
 import { UserEntity } from '../contract/entities/user.entity';
 import { TableEnum, DatabaseColumns } from '../../utility/enums';
+import { ForgotPasswordAccessRequest } from '../contract/users/forgot-password-access-request';
+import { ResetUserAccessRequest } from '../contract/users/reset-user-password-access-request';
 
 @Injectable()
 export class UserAccessService {
@@ -43,6 +45,38 @@ export class UserAccessService {
     return this.getUser(data);
   };
 
+  public resetPassword = async (accessRequest: ResetUserAccessRequest): Promise<UserAccessModel> => {
+    const userEntity = await this.getUserByEmail(accessRequest.email)
+    const { data, error } = await this.userContext
+      .from(TableEnum.Users)
+      .upsert({ id: userEntity.id, code: null, password: accessRequest.password })
+      .select()
+      .single<UserEntity>();
+    if (error) {
+      if (error.code === '23505') {
+        throw new BadRequestException(error.details);
+      }
+      throw new Error(error.message);
+    }
+    return this.getUser(data);
+  };
+
+  public addForgotCodePassword = async (accessRequest: ForgotPasswordAccessRequest): Promise<UserAccessModel> => {
+    const userEntity = await this.getUserByEmail(accessRequest.email);
+    const { data, error } = await this.userContext
+      .from(TableEnum.Users)
+      .upsert({ id: userEntity.id, code: accessRequest.code })
+      .select()
+      .single<UserEntity>();
+    if (error) {
+      if (error.code === '23505') {
+        throw new BadRequestException(error.details);
+      }
+      throw new Error(error.message);
+    }
+    return this.getUser(data);
+  };
+
   public getUserByEmail = async (email: string): Promise<UserAccessModel> => {
     const { data, error } = await this.userContext
       .from(TableEnum.Users)
@@ -53,10 +87,11 @@ export class UserAccessService {
     return this.getUser(data);
   };
 
-  private getUser = (data: UserEntity): UserAccessModel => new UserAccessModel(
-    data.id,
-    data.email,
-    data.datecreated,
-    data.password
+  private getUser = (entity: UserEntity): UserAccessModel => new UserAccessModel(
+    entity.id,
+    entity.email,
+    entity.datecreated,
+    entity.password,
+    entity.code
   );
 }

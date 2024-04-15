@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { EventManagerService, UserManagerService } from './services';
+import { EventManagerService, MailManagerService, UserManagerService } from './services';
 import { AccessModule } from '../access/access.module';
 import { AuthModule } from '../auth/auth.module';
 
@@ -11,11 +11,13 @@ import { AuthModule } from '../auth/auth.module';
   controllers: [],
   providers: [
     EventManagerService,
-    UserManagerService
+    UserManagerService,
+    MailManagerService
   ],
   exports: [
     EventManagerService,
-    UserManagerService
+    UserManagerService,
+    MailManagerService
   ]
 })
 export class ManagerModule {}

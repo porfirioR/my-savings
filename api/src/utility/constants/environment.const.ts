@@ -1,3 +1,7 @@
 export const SUPA_BASE_URL = 'SUPABASE_URL'
 export const SUPA_BASE_KEY = 'SUPABASE_KEY'
 export const JWT_TOKEN = 'JWT_TOKEN'
+export const MAIL_USER = 'MAIL_USER'
+export const MAIL_PASSWORD = 'MAIL_PASSWORD'
+export const MAIL_HOST = 'MAIL_HOST'
+export const SPA_URL = 'URL'

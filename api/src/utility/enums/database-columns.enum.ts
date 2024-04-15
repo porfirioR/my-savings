@@ -8,5 +8,6 @@ export enum DatabaseColumns {
   Email = 'email',
   DateCreated = 'datecreated',
   Password = 'password',
+  Code = 'code',
   All = '*'
 }

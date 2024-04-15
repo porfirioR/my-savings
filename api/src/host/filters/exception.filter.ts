@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { JsonWebTokenError } from '@nestjs/jwt';
 
@@ -23,6 +24,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
         break;
       default:
         status = HttpStatus.INTERNAL_SERVER_ERROR;
+        break;
+      case exception instanceof BadRequestException:
+        status = HttpStatus.BAD_REQUEST;
         break;
     }
 
