@@ -65,7 +65,8 @@ export class UserAccessService {
     const userEntity = await this.getUserByEmail(accessRequest.email);
     const { data, error } = await this.userContext
       .from(TableEnum.Users)
-      .upsert({ id: userEntity.id, code: accessRequest.code })
+      .update({ code: accessRequest.code })
+      .eq('id', userEntity.id)
       .select()
       .single<UserEntity>();
     if (error) {
