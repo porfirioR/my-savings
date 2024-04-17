@@ -10,7 +10,6 @@ import { LoginMiddleware } from './middleware/login.middleware';
 import { SignupMiddleware } from './middleware/signup.middleware';
 import { PrivateEndpointGuard } from './guards/private-endpoint.guard';
 import { ResetPasswordMiddleware } from './middleware/reset-password.middleware';
-import { ForgotPasswordEndpointGuard } from './guards/forgot-password-endpoint.guard';
 
 @Module({
   imports: [
@@ -30,10 +29,6 @@ import { ForgotPasswordEndpointGuard } from './guards/forgot-password-endpoint.g
     {
       provide: APP_GUARD,
       useClass: PrivateEndpointGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: ForgotPasswordEndpointGuard,
     },
   ],
 })

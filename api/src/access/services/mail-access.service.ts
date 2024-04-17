@@ -12,7 +12,7 @@ export class MailAccessService {
   ) {}
 
   public async forgotPassword(request: ForgotPasswordAccessRequest) {
-    const url = `${this.configService.get<string>(SPA_URL)}/reset-password`
+    const url = `${this.configService.get<string>(SPA_URL)}reset-password`
     const template = `
       <!DOCTYPE html>
       <html lang="en">
@@ -24,12 +24,18 @@ export class MailAccessService {
         <body>
           <h1>Reset your Password</h1>
           <h3>Hey ${request.email} the code to reset your password is: </h3>
-          <p><b>${request.code}</b></p>
-
-          <p>Please click go to <b>${url}</b> to reset your password or click below to redirect</p>
-          <a href="${url}?code=${request.code}" target="_blank" rel="reset password">Reset Password</a>
-
-          <p>If you did not request this email you can safely ignore it.</p>
+          <p>
+            <b>${request.code}</b>
+          </p>
+          <p>
+            Please click on the next link and add the code <b>${url}</b> to reset your password.
+          </p>
+          <p>
+            Or click <b>${url}?code=${request.code}</b> to the next link to with the code include in the link and change your password
+          </p>
+          <p>
+            If you did not request this email you can safely ignore it.
+          </p>
         </body>
       </html>
     `;
