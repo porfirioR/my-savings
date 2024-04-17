@@ -46,7 +46,7 @@ export class UserManagerService {
   public resetUserPassword = async (request: ResetUserPasswordRequest): Promise<SignModel> => {
     const password = await this.authService.getHash(request.password)
     const accessModel = await this.userAccessService.resetPassword(new ResetUserAccessRequest(request.email, password));
-    const authModel = new AuthUserModel(accessModel.id, accessModel.email, accessModel.password)
+    const authModel = new AuthUserModel(accessModel.id, accessModel.email, '')
     const jwtToken = await this.authService.getToken(authModel)
     return new SignModel(accessModel.id, accessModel.email, jwtToken);
   };
