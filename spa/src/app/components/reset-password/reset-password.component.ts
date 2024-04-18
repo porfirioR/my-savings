@@ -28,11 +28,18 @@ export class ResetPasswordComponent implements OnInit {
     this.formGroup = new FormGroup<ResetPasswordFormGroup>({
       email: new FormControl(null, [Validators.required, Validators.email]),
       newPassword: new FormControl(null, [Validators.required]),
+      repeatPassword: new FormControl(null, [Validators.required]),
       code: new FormControl(code ? code : null, [Validators.required]),
     })
   }
 
   ngOnInit() {
+    this.formGroup.controls.repeatPassword.valueChanges.subscribe({
+      next: (value) => {
+        
+      }
+    })
+
   }
 
   protected changePassword = (): void => {
