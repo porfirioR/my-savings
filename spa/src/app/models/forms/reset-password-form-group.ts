@@ -4,4 +4,5 @@ export interface ResetPasswordFormGroup {
   email: FormControl<null | string>
   code: FormControl<null | string>
   newPassword: FormControl<null | string>
+  repeatPassword: FormControl<null | string>
 }
