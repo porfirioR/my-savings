@@ -4,8 +4,10 @@ import { MyEventsComponent } from './components/my-events/my-events.component'
 import { LoginComponent } from './components/login/login.component'
 import { SignupComponent } from './components/signup/signup.component'
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component'
-import { ResetPasswordComponent } from './components/reset-password/reset-password.component'
 import { loadingResolver } from './resolvers/loading.resolver'
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component'
+import { UpsertEventComponent } from './components/upsert-event/upsert-event.component'
+import { eventResolver } from './resolvers/event.resolver'
 
 export const routes: Routes = [
   {
@@ -42,6 +44,18 @@ export const routes: Routes = [
         path: 'reset-password',
         title: 'Reset password',
         loadComponent: () => ResetPasswordComponent
+      },
+      {
+        path: 'create-event',
+        title: 'Create Event',
+        loadComponent: () => UpsertEventComponent,
+        resolve: { event: eventResolver }
+      },
+      {
+        path: 'update-event/:id',
+        title: 'Update Event',
+        loadComponent: () => UpsertEventComponent,
+        resolve: { event: eventResolver }
       },
     ]
   }

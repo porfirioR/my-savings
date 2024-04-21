@@ -18,9 +18,14 @@ import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
       return await this.eventManagerService.getPublicEvents();
     }
 
+    @Get('my-events/:authorId')
+    async getMyEvents(@Param('authorId') authorId: number): Promise<EventModel[]> {
+      return await this.eventManagerService.getMyEvents(authorId);
+    }
+
     @Get(':id')
-    async getMyEvents(@Param('id') id: number): Promise<EventModel[]> {
-      return await this.eventManagerService.getMyEvents(id);
+    async getMyEvent(@Param('id') authorId: number): Promise<EventModel> {
+      return await this.eventManagerService.getMyEvent(authorId);
     }
 
     @Get('follow/:id')
