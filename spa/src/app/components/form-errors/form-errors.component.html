@@ -1,0 +1,9 @@
+<footer *ngIf="control && (control.dirty || control.touched)">
+  <ul class="error-list">
+    <li *ngFor="let error of errors">
+      <span class="invalid:text-pink-600" *ngIf="hasError(error)">
+        {{ getErrorMessage(error) }}
+      </span>
+    </li>
+  </ul>
+</footer>

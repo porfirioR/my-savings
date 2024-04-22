@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { UserApiService } from '../../services';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ResetPasswordFormGroup } from '../../models/forms';
 import { ResetPasswordApiRequest } from '../../models/api/reset-password-api-request';
+import { FormErrorsComponent } from "../form-errors/form-errors.component";
 
 @Component({
   selector: 'app-reset-password',
@@ -14,7 +15,8 @@ import { ResetPasswordApiRequest } from '../../models/api/reset-password-api-req
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
+    FormErrorsComponent
   ]
 })
 export class ResetPasswordComponent implements OnInit {
@@ -27,8 +29,8 @@ export class ResetPasswordComponent implements OnInit {
     const code = this.activeRoute.snapshot.queryParams['code']
     this.formGroup = new FormGroup<ResetPasswordFormGroup>({
       email: new FormControl(null, [Validators.required, Validators.email]),
-      newPassword: new FormControl(null, [Validators.required]),
-      repeatPassword: new FormControl(null, [Validators.required]),
+      newPassword: new FormControl(null, [Validators.required, Validators.minLength(4)]),
+      repeatPassword: new FormControl(null, [Validators.required, this.repeatPasswordValidator()]),
       code: new FormControl(code ? code : null, [Validators.required]),
     })
   }
@@ -52,5 +54,17 @@ export class ResetPasswordComponent implements OnInit {
         throw e
       }
     })
+  }
+
+  
+  private repeatPasswordValidator = (): ValidatorFn => {
+    return (control: AbstractControl): { [key: string]: unknown } | null => {
+      const password = this.formGroup?.controls?.newPassword.value
+      const repeatPassword = control.value
+      if (repeatPassword && password?.localeCompare(repeatPassword)) {
+        return { invalidRepeatPassword: true }
+      }
+      return null
+    }
   }
 }

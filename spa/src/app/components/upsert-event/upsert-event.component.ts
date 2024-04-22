@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { EventFormGroup } from '../../models/forms/event-form-group';
-import { tap } from 'rxjs';
 import { EventViewModel } from '../../models/view/event-view-model';
 
 @Component({
@@ -19,11 +18,13 @@ import { EventViewModel } from '../../models/view/event-view-model';
 })
 export class UpsertEventComponent {
   protected formGroup: FormGroup<EventFormGroup>
+  protected title: string
 
   constructor(
     private readonly activatedRoute: ActivatedRoute
   ) {
     const event: EventViewModel | null = this.activatedRoute.snapshot.data['event']
+    this.title = event ? 'Update Event' : 'Create Event'
     this.formGroup = new FormGroup<EventFormGroup>({
       description: new FormControl(event?.description ?? null, [Validators.required]),
       name: new FormControl(event?.name ?? null, [Validators.required]),

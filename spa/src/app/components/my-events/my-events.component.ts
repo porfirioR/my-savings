@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, first, tap } from 'rxjs';
 import { EventComponent } from "../event/event.component";
@@ -16,6 +17,7 @@ import { loadingActionGroup } from '../../store/loading/loading.actions';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     EventComponent,
     LoadingSkeletonComponent
   ]
