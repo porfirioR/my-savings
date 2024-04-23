@@ -1,6 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, Input, Self } from '@angular/core';
+import { ControlValueAccessor, NgControl } from '@angular/forms';
 
 @Component({
   selector: 'app-form-errors',
@@ -13,28 +13,31 @@ import { FormControl } from '@angular/forms';
   templateUrl: './form-errors.component.html',
   styleUrl: './form-errors.component.css'
 })
-export class FormErrorsComponent {
-  @Input() control: FormControl | null = null
-  @Input() Name: string = ''
-  protected errors: string[] = []
+export class FormErrorsComponent implements ControlValueAccessor {
+  @Input() label: string = ''
 
-  constructor() {
-    const validationErrors = this.control?.errors
-    this.errors = validationErrors ? Object.keys(validationErrors) : []
+  constructor(@Self() public ngControl: NgControl) {
+    this.ngControl.valueAccessor = this
+    // const validationErrors = this.control?.errors
+    // this.errors = validationErrors ? Object.keys(validationErrors) : []
   }
 
-  hasError(errorCode: string): boolean {
-    return this.control?.errors?.hasOwnProperty(errorCode) ?? false
-  }
+  writeValue(obj: any): void { }
 
-  getErrorMessage(errorCode: string): string {
-    const errorMessages: {[index: string]: string} = {
-      required: 'This field is required.',
-      minlength: 'Minimum length is not met.',
-      maxlength: 'Maximum length exceeded.',
-      invalidRepeatPassword: 'The password not is the same.',
-    }
+  registerOnChange(fn: any): void { }
 
-    return errorMessages[errorCode] || 'An error occurred.';
-  }
+  registerOnTouched(fn: any): void { }
+
+  setDisabledState?(isDisabled: boolean): void { }
+
+  // getErrorMessage(errorCode: string): string {
+  //   const errorMessages: {[index: string]: string} = {
+  //     required: 'This field is required.',
+  //     minlength: 'Minimum length is not met.',
+  //     maxlength: 'Maximum length exceeded.',
+  //     invalidRepeatPassword: 'The password not is the same.',
+  //   }
+
+  //   return errorMessages[errorCode] || 'An error occurred.';
+  // }
 }

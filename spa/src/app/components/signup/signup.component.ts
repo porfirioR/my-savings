@@ -4,16 +4,18 @@ import { Router, RouterModule } from '@angular/router';
 import { LoginFormGroup } from '../../models/forms';
 import { CreateUserApiRequest } from '../../models/api';
 import { LocalService, UserApiService } from '../../services';
+import { FormErrorsComponent } from "../form-errors/form-errors.component";
 
 @Component({
-  selector: 'app-signup',
-  templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.css'],
-  standalone: true,
-  imports: [
-    RouterModule,
-    ReactiveFormsModule,
-  ]
+    selector: 'app-signup',
+    templateUrl: './signup.component.html',
+    styleUrls: ['./signup.component.css'],
+    standalone: true,
+    imports: [
+        RouterModule,
+        ReactiveFormsModule,
+        FormErrorsComponent
+    ]
 })
 export class SignupComponent implements OnInit {
   protected formGroup: FormGroup<LoginFormGroup>
