@@ -1,4 +1,4 @@
-<footer class="my-1" *ngIf="ngControl.control?.touched">
+<footer *ngIf="ngControl.control?.touched">
   <span class="text-pink-600" *ngIf="ngControl.control?.errors as error">
     @if (error['required']) {
       {{label}} is required
