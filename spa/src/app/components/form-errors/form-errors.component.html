@@ -1,4 +1,4 @@
-<footer class="my-1">
+<footer class="my-1" *ngIf="ngControl.control?.touched">
   <span class="text-pink-600" *ngIf="ngControl.control?.errors as error">
     @if (error['required']) {
       {{label}} is required
@@ -10,10 +10,10 @@
       {{label}} must be less than {{error['maxlength']?.requiredLength}}
     }
     @if (error['invalidRepeatPassword']) {
-      La contraseña no coincide
+      The Password is not equals.
     }
     @if (error['email']) {
-      Correo inválido
+      Invalid Email
     }
     @if (error['min']) {
       {{label}} must be greater than or equal to {{error['min']?.min}}

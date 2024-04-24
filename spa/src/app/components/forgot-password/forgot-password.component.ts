@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { ForgotPasswordFormGroup } from '../../models/forms';
 import { AlertService, UserApiService } from '../../services';
 import { ForgotPasswordApiRequest } from '../../models/api';
+import { FormErrorsComponent } from '../form-errors/form-errors.component';
 
 @Component({
   selector: 'app-forgot-password',
@@ -13,6 +14,7 @@ import { ForgotPasswordApiRequest } from '../../models/api';
   imports: [
     RouterModule,
     ReactiveFormsModule,
+    FormErrorsComponent,
   ]
 })
 export class ForgotPasswordComponent implements OnInit {

@@ -18,8 +18,6 @@ export class FormErrorsComponent implements ControlValueAccessor {
 
   constructor(@Self() public ngControl: NgControl) {
     this.ngControl.valueAccessor = this
-    // const validationErrors = this.control?.errors
-    // this.errors = validationErrors ? Object.keys(validationErrors) : []
   }
 
   writeValue(obj: any): void { }
@@ -30,14 +28,4 @@ export class FormErrorsComponent implements ControlValueAccessor {
 
   setDisabledState?(isDisabled: boolean): void { }
 
-  // getErrorMessage(errorCode: string): string {
-  //   const errorMessages: {[index: string]: string} = {
-  //     required: 'This field is required.',
-  //     minlength: 'Minimum length is not met.',
-  //     maxlength: 'Maximum length exceeded.',
-  //     invalidRepeatPassword: 'The password not is the same.',
-  //   }
-
-  //   return errorMessages[errorCode] || 'An error occurred.';
-  // }
 }
