@@ -25,13 +25,23 @@ export class EventAccessService {
     return data?.map(this.getEventAccessModel);
   };
 
-  public getMyEvents = async (id: number): Promise<EventAccessModel[]> => {
+  public getMyEvents = async (authorId: number): Promise<EventAccessModel[]> => {
     const { data, error } = await this.eventContext
       .from(TableEnum.Events)
       .select(DatabaseColumns.All)
-      .eq(DatabaseColumns.AuthorId, id);
+      .eq(DatabaseColumns.AuthorId, authorId);
     if (error) throw new Error(error.message);
     return data?.map(this.getEventAccessModel);
+  };
+
+  public getMyEvent = async (id: number): Promise<EventAccessModel> => {
+    const { data, error } = await this.eventContext
+      .from(TableEnum.Events)
+      .select(DatabaseColumns.All)
+      .eq(DatabaseColumns.EntityId, id)
+      .single();
+    if (error) throw new Error(error.message);
+    return this.getEventAccessModel(data);
   };
 
   public createEvent = async (accessRequest: CreateEventAccessRequest): Promise<EventAccessModel> => {

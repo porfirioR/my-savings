@@ -5,7 +5,8 @@ import { CreateUserAccessRequest } from '../../access/contract/users/create-user
 import { UserAccessModel } from '../../access/contract/users/user-access-model';
 import { AuthAccessRequest } from '../../auth/models/auth-access-request';
 import { AuthUserModel } from '../../auth/models/auth-user-model';
-import { SignModel, UserModel, UserRequest } from '../models/users';
+import { ResetUserPasswordRequest, SignModel, UserModel, UserRequest } from '../models/users';
+import { ResetUserAccessRequest } from 'src/access/contract/users/reset-user-password-access-request';
 
 @Injectable()
 export class UserManagerService {
@@ -42,5 +43,13 @@ export class UserManagerService {
     return this.getUserModel(accessModel);
   };
 
-  private getUserModel = (accessModel: UserAccessModel, token: string = ''): UserModel => new UserModel(accessModel.id, accessModel.email, accessModel.dateCreated, token);
+  public resetUserPassword = async (request: ResetUserPasswordRequest): Promise<SignModel> => {
+    const password = await this.authService.getHash(request.password)
+    const accessModel = await this.userAccessService.resetPassword(new ResetUserAccessRequest(request.email, password));
+    const authModel = new AuthUserModel(accessModel.id, accessModel.email, '')
+    const jwtToken = await this.authService.getToken(authModel)
+    return new SignModel(accessModel.id, accessModel.email, jwtToken);
+  };
+
+  private getUserModel = (accessModel: UserAccessModel, token: string = ''): UserModel => new UserModel(accessModel.id, accessModel.email, accessModel.dateCreated, token.length ? token : accessModel.code);
 }

@@ -21,9 +21,14 @@ export class EventManagerService {
     return accessModelList.map(x => ({ ...x, _className: EventModel }))
   }
 
-  public getMyEvents = async (id: number): Promise<EventModel[]> => {
-    const accessModelList = await this.eventAccessService.getMyEvents(id);
+  public getMyEvents = async (authorId: number): Promise<EventModel[]> => {
+    const accessModelList = await this.eventAccessService.getMyEvents(authorId);
     return accessModelList.map(this.getModel)
+  }
+
+  public getMyEvent = async (id: number): Promise<EventModel> => {
+    const accessModel = await this.eventAccessService.getMyEvent(id);
+    return this.getModel(accessModel)
   }
 
   public getMyEventFollows = async (id: number): Promise<EventModel[]> => {

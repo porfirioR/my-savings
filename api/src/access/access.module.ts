@@ -1,10 +1,33 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { DbContextService, EventAccessService, EventFollowAccessService, UserAccessService } from './services';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DbContextService, EventAccessService, EventFollowAccessService, MailAccessService, UserAccessService } from './services';
 import { AuthModule } from '../auth/auth.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { MAIL_HOST, MAIL_PASSWORD, MAIL_USER } from '../utility/constants';
 
 @Module({
-  imports: [AuthModule],
+  imports: [
+    AuthModule,
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>(MAIL_HOST),
+          port: 587,
+          ignoreTLS: true,
+          secure: false,
+          auth: {
+            user: configService.get<string>(MAIL_USER),
+            pass: configService.get<string>(MAIL_PASSWORD),
+          },
+        },
+        defaults: {
+          from: '"My Events" noreply@my-events.com',
+        },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
   controllers: [],
   providers: [
     ConfigService,
@@ -12,11 +35,13 @@ import { AuthModule } from '../auth/auth.module';
     EventAccessService,
     EventFollowAccessService,
     UserAccessService,
+    MailAccessService,
   ],
   exports: [
     EventAccessService,
     EventFollowAccessService,
     UserAccessService,
+    MailAccessService,
   ]
 })
 export class AccessModule {}

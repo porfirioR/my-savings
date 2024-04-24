@@ -9,6 +9,7 @@ import { ManagerModule } from '../manager/manager.module';
 import { LoginMiddleware } from './middleware/login.middleware';
 import { SignupMiddleware } from './middleware/signup.middleware';
 import { PrivateEndpointGuard } from './guards/private-endpoint.guard';
+import { ResetPasswordMiddleware } from './middleware/reset-password.middleware';
 
 @Module({
   imports: [
@@ -31,11 +32,15 @@ import { PrivateEndpointGuard } from './guards/private-endpoint.guard';
     },
   ],
 })
-export class ControllerModule  implements NestModule {
+export class ControllerModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoginMiddleware)
       .forRoutes({ path: 'users/login', method: RequestMethod.POST });
+
+    consumer
+      .apply(ResetPasswordMiddleware)
+      .forRoutes({ path: 'users/reset-password', method: RequestMethod.POST });
 
     consumer
       .apply(SignupMiddleware)

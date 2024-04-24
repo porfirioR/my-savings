@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { CreateUserApiRequest, LoginUserApiRequest, SignApiModel, UserApiModel } from '../models/api';
+import { CreateUserApiRequest, ForgotPasswordApiRequest, LoginUserApiRequest, SignApiModel, UserApiModel } from '../models/api';
 import { environment } from '../../environments/environment';
 import { LocalService } from './local.service';
+import { ResetPasswordApiRequest } from '../models/api/reset-password-api-request';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,14 @@ export class UserApiService {
 
   public signUpUser = (request: LoginUserApiRequest): Observable<SignApiModel> => {
     return this.httpClient.post<SignApiModel>(`${this.url}/sign-up`, request).pipe(tap(this.setInLocaleStorage))
+  }
+
+  public forgotPassword = (request: ForgotPasswordApiRequest): Observable<boolean> => {
+    return this.httpClient.post<boolean>(`${this.url}/forgot-password`, request)
+  }
+
+  public resetPassword = (request: ResetPasswordApiRequest): Observable<SignApiModel> => {
+    return this.httpClient.post<SignApiModel>(`${this.url}/reset-password`, request).pipe(tap(this.setInLocaleStorage))
   }
 
   public getUserInformation = (userId: number): Observable<unknown> => {

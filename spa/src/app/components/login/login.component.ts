@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { LoginFormGroup } from '../../models/forms';
 import { LoginUserApiRequest } from '../../models/api';
 import { AlertService, LocalService, UserApiService } from '../../services';
+import { FormErrorsComponent } from '../form-errors/form-errors.component';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +14,7 @@ import { AlertService, LocalService, UserApiService } from '../../services';
   imports: [
     RouterModule,
     ReactiveFormsModule,
+    FormErrorsComponent,
   ]
 })
 export class LoginComponent implements OnInit {
