@@ -5,7 +5,7 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validator
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ResetPasswordFormGroup } from '../../models/forms';
 import { ResetPasswordApiRequest } from '../../models/api/reset-password-api-request';
-import { FormErrorsComponent } from "../form-errors/form-errors.component";
+import { TextComponent } from '../inputs/text/text.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -16,7 +16,7 @@ import { FormErrorsComponent } from "../form-errors/form-errors.component";
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    FormErrorsComponent
+    TextComponent
   ]
 })
 export class ResetPasswordComponent implements OnInit {
@@ -36,15 +36,19 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.formGroup.controls.repeatPassword.valueChanges.subscribe({
+    this.formGroup.controls.newPassword.valueChanges.subscribe({
       next: (value) => {
-        
+        this.formGroup.controls.repeatPassword.updateValueAndValidity()
       }
     })
 
   }
 
-  protected changePassword = (): void => {
+  protected changePassword = (event: Event): void => {
+    event.preventDefault();
+    if (this.formGroup.invalid) {
+      return
+    }
     const request = new ResetPasswordApiRequest(this.formGroup.value.email!, this.formGroup.value.code!, this.formGroup.value.newPassword!)
     this.userApiService.resetPassword(request).subscribe({
       next: (value) => {

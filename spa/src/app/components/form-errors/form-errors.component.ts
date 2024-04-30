@@ -8,7 +8,6 @@ import { ControlValueAccessor, NgControl } from '@angular/forms';
   imports: [
     NgIf,
     NgFor,
-
   ],
   templateUrl: './form-errors.component.html',
   styleUrl: './form-errors.component.css'

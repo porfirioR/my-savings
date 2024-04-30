@@ -1,11 +1,13 @@
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, OnChanges, SimpleChanges } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { EventFormGroup } from '../../models/forms/event-form-group';
 import { EventViewModel } from '../../models/view/event-view-model';
-import { FormErrorsComponent } from '../form-errors/form-errors.component';
-import { BaseComponent } from '../base/base.component';
+import { TextComponent } from '../inputs/text/text.component';
+import { TextAreaInputComponent } from '../inputs/text-area-input/text-area-input.component';
+import { DateInputComponent } from '../inputs/date-input/date-input.component';
+import { CheckBoxInputComponent } from '../inputs/check-box-input/check-box-input.component';
 
 @Component({
   selector: 'app-upsert-event',
@@ -16,17 +18,19 @@ import { BaseComponent } from '../base/base.component';
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    FormErrorsComponent,
+    TextComponent,
+    TextAreaInputComponent,
+    CheckBoxInputComponent,
+    DateInputComponent,
   ]
 })
-export class UpsertEventComponent extends BaseComponent {
+export class UpsertEventComponent {
   protected formGroup: FormGroup<EventFormGroup>
   protected title: string
 
   constructor(
     private readonly activatedRoute: ActivatedRoute
   ) {
-    super()
     const event: EventViewModel | null = this.activatedRoute.snapshot.data['event']
     this.title = event ? 'Update Event' : 'Create Event'
     this.formGroup = new FormGroup<EventFormGroup>({

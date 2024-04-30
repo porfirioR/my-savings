@@ -8,80 +8,10 @@
         {{title}}
       </h1>
       <form [formGroup]="formGroup">
-        <fieldset>
-          <label for="name">Name</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            id="name"
-            formControlName="name"
-            class="px-3 py-2 bg-white border shadow-sm
-              placeholder-slate-400
-              disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200
-              focus:outline-none block w-full rounded-md sm:text-sm
-              disabled:shadow-none"
-            [ngClass]="{
-              'border-pink-500 focus:border-pink-500 focus:ring-1 ring-pink-500 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500': formGroup.controls.name.invalid && formGroup.controls.name.touched,
-              'focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 mb-6': formGroup.controls.name.valid,
-              'border-slate-300 mb-6': formGroup.controls.name && !formGroup.controls.name.touched
-            }"
-          />
-          <app-form-errors formControlName="name" [label]="'Name'"/>
-        </fieldset>
-        <fieldset>
-          <label for="description">Description</label>
-          <textarea
-            name="description"
-            id="description"
-            formControlName="description"
-            class="textarea textarea-bordered textarea-lg textarea-indigo-500
-              px-3 py-2 bg-white border shadow-sm
-            placeholder-slate-400
-            disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200
-              focus:outline-none block w-full rounded-md sm:text-sm
-              disabled:shadow-none"
-            [ngClass]="{
-              'border-pink-500 focus:border-pink-500 focus:ring-1 ring-pink-500 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500': formGroup.controls.description.invalid && formGroup.controls.description.touched ,
-              'focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 mb-6': formGroup.controls.description.valid,
-              'border-slate-300 mb-6': formGroup.controls.description && !formGroup.controls.description.touched
-            }"
-          ></textarea>
-          <app-form-errors formControlName="description" [label]="'Description'"/>
-        </fieldset>
-        <fieldset>
-          <label for="name">Date</label>
-          <input
-            type="date"
-            name="date"
-            placeholder="Date"
-            id="date"
-            formControlName="date"
-            #date
-            (click)="date.showPicker()"
-            class="px-3 py-2 bg-white border shadow-sm
-              placeholder-slate-400
-              disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200
-              focus:outline-none block w-full rounded-md sm:text-sm
-              disabled:shadow-none"
-            [ngClass]="{
-              'border-pink-500 focus:border-pink-500 focus:ring-1 ring-pink-500 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500': formGroup.controls.date.invalid ,
-              'focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 mb-6': formGroup.controls.date.valid,
-              'border-slate-300 mb-6': formGroup.controls.date && !formGroup.controls.date.touched
-            }"
-          />
-          <app-form-errors formControlName="date" [label]="'Date'"/>
-        </fieldset>
-        <fieldset class="form-control">
-          <label class="label cursor-pointer">
-            <span class="label-text">Is Public</span> 
-            <input
-              type="checkbox"
-              formControlName="isPublic"
-              class="checkbox checkbox-primary"
-            />
-          </label>
-        </fieldset>
+        <app-text formControlName="name" type="text" label="Name" id="name" name="name" />
+        <app-text-area-input formControlName="description" label="Description" id="description" name="description" />
+        <app-date-input formControlName="date" label="Date" id="date" name="date" />
+        <app-check-box-input formControlName="isPublic" label="Is Public" />
         <button type="submit" (click)="save">Save </button>
       </form>
     </main>
