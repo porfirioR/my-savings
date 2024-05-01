@@ -1,4 +1,4 @@
-<fieldset>
+<fieldset class="mb-6" [ngClass]="{'mb-0': ngControl.control?.invalid && ngControl.control?.touched}">
   <label [for]="name">Description</label>
   <textarea
     [name]="name"

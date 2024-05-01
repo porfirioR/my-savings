@@ -27,17 +27,18 @@ export class ResetPasswordComponent implements OnInit {
     private readonly userApiService: UserApiService
   ) {
     const code = this.activeRoute.snapshot.queryParams['code']
+    const email = this.activeRoute.snapshot.queryParams['email']
     this.formGroup = new FormGroup<ResetPasswordFormGroup>({
-      email: new FormControl(null, [Validators.required, Validators.email]),
+      email: new FormControl(email ? email : null, [Validators.required, Validators.email]),
       newPassword: new FormControl(null, [Validators.required, Validators.minLength(4)]),
       repeatPassword: new FormControl(null, [Validators.required, this.repeatPasswordValidator()]),
       code: new FormControl(code ? code : null, [Validators.required]),
     })
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.formGroup.controls.newPassword.valueChanges.subscribe({
-      next: (value) => {
+      next: () => {
         this.formGroup.controls.repeatPassword.updateValueAndValidity()
       }
     })

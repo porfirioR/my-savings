@@ -5,6 +5,7 @@ import { ForgotPasswordFormGroup } from '../../models/forms';
 import { AlertService, UserApiService } from '../../services';
 import { ForgotPasswordApiRequest } from '../../models/api';
 import { FormErrorsComponent } from '../form-errors/form-errors.component';
+import { TextComponent } from '../inputs/text/text.component';
 
 @Component({
   selector: 'app-forgot-password',
@@ -14,7 +15,7 @@ import { FormErrorsComponent } from '../form-errors/form-errors.component';
   imports: [
     RouterModule,
     ReactiveFormsModule,
-    FormErrorsComponent,
+    TextComponent
   ]
 })
 export class ForgotPasswordComponent implements OnInit {
@@ -32,7 +33,11 @@ export class ForgotPasswordComponent implements OnInit {
   ngOnInit() {
   }
 
-  protected sendCode = (): void => {
+  protected sendCode = (event: Event): void => {
+    event.preventDefault();
+    if (!this.formGroup.valid) {
+      return
+    }
     const email = this.formGroup.value.email!
     this.showMessage = false
     this.userApiService.forgotPassword(new ForgotPasswordApiRequest(email)).subscribe({

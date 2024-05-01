@@ -4,18 +4,18 @@ import { Router, RouterModule } from '@angular/router';
 import { LoginFormGroup } from '../../models/forms';
 import { CreateUserApiRequest } from '../../models/api';
 import { LocalService, UserApiService } from '../../services';
-import { FormErrorsComponent } from "../form-errors/form-errors.component";
+import { TextComponent } from '../inputs/text/text.component';
 
 @Component({
-    selector: 'app-signup',
-    templateUrl: './signup.component.html',
-    styleUrls: ['./signup.component.css'],
-    standalone: true,
-    imports: [
-        RouterModule,
-        ReactiveFormsModule,
-        FormErrorsComponent
-    ]
+  selector: 'app-signup',
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.css'],
+  standalone: true,
+  imports: [
+    RouterModule,
+    ReactiveFormsModule,
+    TextComponent
+  ]
 })
 export class SignupComponent implements OnInit {
   protected formGroup: FormGroup<LoginFormGroup>
@@ -34,7 +34,8 @@ export class SignupComponent implements OnInit {
   ngOnInit() {
   }
 
-  protected save = (): void => {
+  protected save = (event: Event): void => {
+    event.preventDefault();
     if (!this.formGroup.valid) {
       return
     }
