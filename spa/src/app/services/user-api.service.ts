@@ -1,10 +1,10 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
-import { CreateUserApiRequest, ForgotPasswordApiRequest, LoginUserApiRequest, SignApiModel, UserApiModel } from '../models/api';
-import { environment } from '../../environments/environment';
-import { LocalService } from './local.service';
-import { ResetPasswordApiRequest } from '../models/api/reset-password-api-request';
+import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { Injectable } from '@angular/core'
+import { Observable, tap } from 'rxjs'
+import { CreateUserApiRequest, ForgotPasswordApiRequest, LoginUserApiRequest, SignApiModel, UserApiModel } from '../models/api'
+import { environment } from '../../environments/environment'
+import { LocalService } from './local.service'
+import { ResetPasswordApiRequest } from '../models/api/reset-password-api-request'
 
 @Injectable({
   providedIn: 'root'

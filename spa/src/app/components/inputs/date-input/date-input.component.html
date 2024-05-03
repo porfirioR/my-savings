@@ -1,5 +1,5 @@
-<fieldset class="mb-6" [ngClass]="{'mb-0': ngControl.control?.invalid && ngControl.control?.touched}">
-  <label [for]="name">Date</label>
+<fieldset [ngClass]="ngControl.control?.invalid && ngControl.control?.touched ? 'mb-0': 'mb-6'">
+  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" [for]="name">Date</label>
   <input
     type="date"
     #date
@@ -17,8 +17,8 @@
       disabled:shadow-none"
     [ngClass]="{
       'border-pink-500 focus:border-pink-500 focus:ring-1 ring-pink-500 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500': ngControl.control?.invalid && ngControl.control?.touched ,
-      'focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1 mb-6': ngControl.control?.valid,
-      'border-slate-300 mb-6': ngControl.control && !ngControl.control.touched
+      'focus:border-indigo-500 focus:ring-indigo-500 focus:ring-1': ngControl.control?.valid,
+      'border-slate-300': ngControl.control && !ngControl.control.touched
     }"
   />
   <app-form-errors [formControl]="$any(ngControl).control" [label]="label"/>

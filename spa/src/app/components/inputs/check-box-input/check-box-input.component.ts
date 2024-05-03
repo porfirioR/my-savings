@@ -1,6 +1,6 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, Self } from '@angular/core';
-import { ControlValueAccessor, NgControl, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common'
+import { Component, Input, Self } from '@angular/core'
+import { ControlValueAccessor, NgControl, ReactiveFormsModule } from '@angular/forms'
 
 @Component({
   selector: 'app-check-box-input',

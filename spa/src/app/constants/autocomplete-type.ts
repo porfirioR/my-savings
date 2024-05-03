@@ -57,4 +57,4 @@ export type AutocompleteType =
   | 'text'
   | 'url'
   | 'new-password'
-  | 'username';
+  | 'username'

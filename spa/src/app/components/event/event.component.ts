@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { EventViewModel } from '../../models/view/event-view-model';
-import { DatePipe, NgClass } from '@angular/common';
+import { Component, Input, OnInit } from '@angular/core'
+import { EventViewModel } from '../../models/view/event-view-model'
+import { DatePipe, NgClass } from '@angular/common'
 
 @Component({
   selector: 'app-event',

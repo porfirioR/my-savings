@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { LoginFormGroup } from '../../models/forms';
-import { LoginUserApiRequest } from '../../models/api';
-import { AlertService, LocalService, UserApiService } from '../../services';
-import { FormErrorsComponent } from '../form-errors/form-errors.component';
+import { Component, OnInit } from '@angular/core'
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
+import { Router, RouterModule } from '@angular/router'
+import { LoginFormGroup } from '../../models/forms'
+import { LoginUserApiRequest } from '../../models/api'
+import { AlertService, LocalService, UserApiService } from '../../services'
+import { FormErrorsComponent } from '../form-errors/form-errors.component'
 
 @Component({
   selector: 'app-login',

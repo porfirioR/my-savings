@@ -1,4 +1,4 @@
-import { CreateEventApiRequest } from ".";
+import { CreateEventApiRequest } from "."
 
 export class UpdateEventApiRequest extends CreateEventApiRequest {
   constructor(
@@ -15,6 +15,6 @@ export class UpdateEventApiRequest extends CreateEventApiRequest {
       description,
       date,
       isPublic
-    );
+    )
   }
 }

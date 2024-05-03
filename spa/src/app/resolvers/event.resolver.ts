@@ -1,8 +1,8 @@
-import { inject } from '@angular/core';
-import { ResolveFn } from '@angular/router';
-import { map, of } from 'rxjs';
-import { EventApiService, LocalService } from '../services';
-import { EventViewModel } from '../models/view/event-view-model';
+import { inject } from '@angular/core'
+import { ResolveFn } from '@angular/router'
+import { map, of } from 'rxjs'
+import { EventApiService, LocalService } from '../services'
+import { EventViewModel } from '../models/view/event-view-model'
 
 export const eventResolver: ResolveFn<EventViewModel | null> = (route, state) => {
   const eventApiService = inject(EventApiService)
@@ -19,4 +19,4 @@ export const eventResolver: ResolveFn<EventViewModel | null> = (route, state) =>
     x.isPublic,
     new Date()
   ))) : of(null)
-};
+}

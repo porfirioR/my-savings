@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, Self } from '@angular/core';
-import { ControlValueAccessor, NgControl, ReactiveFormsModule } from '@angular/forms';
-import { FormErrorsComponent } from '../../form-errors/form-errors.component';
+import { CommonModule } from '@angular/common'
+import { Component, Input, OnInit, Self } from '@angular/core'
+import { ControlValueAccessor, NgControl, ReactiveFormsModule } from '@angular/forms'
+import { FormErrorsComponent } from '../../form-errors/form-errors.component'
 
 @Component({
   selector: 'app-date-input',

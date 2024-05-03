@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { UserApiService } from '../../services';
-import { CommonModule } from '@angular/common';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { ResetPasswordFormGroup } from '../../models/forms';
-import { ResetPasswordApiRequest } from '../../models/api/reset-password-api-request';
-import { TextComponent } from '../inputs/text/text.component';
+import { Component, OnInit } from '@angular/core'
+import { CommonModule } from '@angular/common'
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms'
+import { ActivatedRoute, RouterModule } from '@angular/router'
+import { UserApiService } from '../../services'
+import { ResetPasswordFormGroup } from '../../models/forms'
+import { ResetPasswordApiRequest } from '../../models/api/reset-password-api-request'
+import { TextComponent } from '../inputs/text/text.component'
 
 @Component({
   selector: 'app-reset-password',
@@ -46,7 +46,7 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   protected changePassword = (event: Event): void => {
-    event.preventDefault();
+    event.preventDefault()
     if (this.formGroup.invalid) {
       return
     }

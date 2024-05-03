@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { ForgotPasswordFormGroup } from '../../models/forms';
-import { AlertService, UserApiService } from '../../services';
-import { ForgotPasswordApiRequest } from '../../models/api';
-import { FormErrorsComponent } from '../form-errors/form-errors.component';
-import { TextComponent } from '../inputs/text/text.component';
+import { Component, OnInit } from '@angular/core'
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
+import { RouterModule } from '@angular/router'
+import { ForgotPasswordFormGroup } from '../../models/forms'
+import { AlertService, UserApiService } from '../../services'
+import { ForgotPasswordApiRequest } from '../../models/api'
+import { TextComponent } from '../inputs/text/text.component'
 
 @Component({
   selector: 'app-forgot-password',
@@ -34,8 +33,8 @@ export class ForgotPasswordComponent implements OnInit {
   }
 
   protected sendCode = (event: Event): void => {
-    event.preventDefault();
-    if (!this.formGroup.valid) {
+    event.preventDefault()
+    if (this.formGroup.invalid) {
       return
     }
     const email = this.formGroup.value.email!

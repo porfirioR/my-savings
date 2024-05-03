@@ -7,7 +7,7 @@ import { provideStore } from '@ngrx/store'
 import { routes } from './app.routes'
 import { headerInterceptor } from './interceptors/header.interceptor'
 import { jwtInterceptor } from './interceptors/jwt.interceptor'
-import { metaReducers, reducers } from './store';
+import { metaReducers, reducers } from './store'
 import { catchErrorInterceptor } from './interceptors/catch-error.interceptor'
 import { CustomErrorHandler } from './errors/custom-error-handler'
 import { provideStoreDevtools } from '@ngrx/store-devtools'

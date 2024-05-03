@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { LoginFormGroup } from '../../models/forms';
-import { CreateUserApiRequest } from '../../models/api';
-import { LocalService, UserApiService } from '../../services';
-import { TextComponent } from '../inputs/text/text.component';
+import { Component, OnInit } from '@angular/core'
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
+import { Router, RouterModule } from '@angular/router'
+import { LoginFormGroup } from '../../models/forms'
+import { CreateUserApiRequest } from '../../models/api'
+import { LocalService, UserApiService } from '../../services'
+import { TextComponent } from '../inputs/text/text.component'
 
 @Component({
   selector: 'app-signup',
@@ -35,8 +35,8 @@ export class SignupComponent implements OnInit {
   }
 
   protected save = (event: Event): void => {
-    event.preventDefault();
-    if (!this.formGroup.valid) {
+    event.preventDefault()
+    if (this.formGroup.invalid) {
       return
     }
     const request: CreateUserApiRequest = new CreateUserApiRequest(this.formGroup.value.email!, this.formGroup.value.password!)
