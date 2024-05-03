@@ -1,16 +1,17 @@
 import { ApplicationConfig, ErrorHandler, isDevMode } from '@angular/core'
 import { provideHttpClient, withInterceptors } from '@angular/common/http'
-import { provideEffects } from '@ngrx/effects'
+import { provideServiceWorker } from '@angular/service-worker'
 import { provideRouter } from '@angular/router'
+import { provideEffects } from '@ngrx/effects'
 import { provideStore } from '@ngrx/store'
+import { provideStoreDevtools } from '@ngrx/store-devtools'
 
 import { routes } from './app.routes'
 import { headerInterceptor } from './interceptors/header.interceptor'
 import { jwtInterceptor } from './interceptors/jwt.interceptor'
-import { metaReducers, reducers } from './store'
 import { catchErrorInterceptor } from './interceptors/catch-error.interceptor'
+import { metaReducers, reducers } from './store'
 import { CustomErrorHandler } from './errors/custom-error-handler'
-import { provideStoreDevtools } from '@ngrx/store-devtools'
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -24,8 +25,12 @@ export const appConfig: ApplicationConfig = {
     provideEffects(),
     {
       provide: ErrorHandler,
-      useClass: CustomErrorHandler
+      useClass: CustomErrorHandler,
     },
-    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() })
-]
+    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
+  ],
 }
