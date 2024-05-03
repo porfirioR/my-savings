@@ -7,7 +7,7 @@
       <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
         {{title}}
       </h1>
-      <form [formGroup]="formGroup" (keydown.enter)="save($event)">
+      <form [formGroup]="formGroup" (keydown.enter)="save($event)" (submit)="save()">
         <app-text formControlName="name" type="text" label="Name" id="name" name="name" />
         <app-text-area-input formControlName="description" label="Description" id="description" name="description" />
         <app-date-input formControlName="date" label="Date" id="date" name="date" />
@@ -17,17 +17,31 @@
           <button
             type="button"
             class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+            [disabled]="saving"
+            (click)="cancel()"
           >
             <i class="fas fa-arrow-left"></i>
             Cancel
           </button>
-          <button
-            type="submit"
-            class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
-          >
-            <i class="fas fa-cloud-arrow-up"></i>
-            Save
-          </button>
+          @if (saving) {
+            <button
+              type="button"
+              class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 flex items-center"
+            >
+              <span class="loading loading-spinner loading-xs mr-1"></span>
+              Saving
+            </button>
+          } @else {
+            <button
+              role="button"
+              type="submit"
+              class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 disabled:bg-indigo-400"
+              [disabled]="formGroup.invalid || saving"
+            >
+              <i class="fas fa-cloud-arrow-up"></i>
+              Save
+            </button>
+          }
         </footer>
       </form>
     </main>

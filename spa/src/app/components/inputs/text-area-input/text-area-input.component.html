@@ -1,7 +1,8 @@
 <fieldset [ngClass]="ngControl.control?.invalid && ngControl.control?.touched ? 'mb-0': 'mb-6'">
-  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" [for]="name">Description</label>
+  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" [for]="name">{{label}}</label>
   <textarea
     [name]="name"
+    [placeholder]="label"
     [id]="id"
     [attr.aria-label]="label"
     [formControl]="$any(ngControl).control"

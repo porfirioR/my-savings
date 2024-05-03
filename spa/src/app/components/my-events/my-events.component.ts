@@ -9,6 +9,7 @@ import { EventApiService, LocalService } from '../../services'
 import { EventViewModel } from '../../models/view/event-view-model'
 import { selectIsLoading } from '../../store/loading/loading.selectors'
 import { loadingActionGroup } from '../../store/loading/loading.actions'
+import { EmptyDataComponent } from "../empty-data/empty-data.component";
 
 @Component({
   selector: 'app-my-events',
@@ -21,7 +22,8 @@ import { loadingActionGroup } from '../../store/loading/loading.actions'
     AsyncPipe,
     RouterModule,
     EventComponent,
-    LoadingSkeletonComponent
+    LoadingSkeletonComponent,
+    EmptyDataComponent
   ]
 })
 export class MyEventsComponent {

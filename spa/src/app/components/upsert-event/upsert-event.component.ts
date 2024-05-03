@@ -3,13 +3,13 @@ import { CommonModule, Location } from '@angular/common'
 import { Component } from '@angular/core'
 import { ActivatedRoute, RouterModule } from '@angular/router'
 import { Observable } from 'rxjs'
-import { EventFormGroup } from '../../models/forms/event-form-group'
-import { EventViewModel } from '../../models/view/event-view-model'
 import { TextComponent } from '../inputs/text/text.component'
 import { TextAreaInputComponent } from '../inputs/text-area-input/text-area-input.component'
 import { DateInputComponent } from '../inputs/date-input/date-input.component'
 import { CheckBoxInputComponent } from '../inputs/check-box-input/check-box-input.component'
 import { AlertService, EventApiService, LocalService } from '../../services'
+import { EventFormGroup } from '../../models/forms/event-form-group'
+import { EventViewModel } from '../../models/view/event-view-model'
 import { CreateEventApiRequest, EvenApiModel, UpdateEventApiRequest } from '../../models/api'
 
 @Component({
@@ -51,23 +51,27 @@ export class UpsertEventComponent {
     })
   }
 
-  protected save = (event: Event): void => {
-    event.preventDefault()
+  protected save = (event?: Event): void => {
+    event?.preventDefault()
     if (this.formGroup.invalid) {
       return
     }
     this.saving = true
-    const request$ = this.event ? this.create() : this.update()
+    this.formGroup.disable()
+    const request$ = this.event ? this.update() : this.create()
     request$.subscribe({
       next: () => {
         this.alertService.showSuccess('Event save successfully')
-        this.location.back()
+        this.cancel()
       }, error: (e) => {
-        this.saving = false
+        this.formGroup.enable()
+        // this.saving = false
         throw e
       }
     })
   }
+
+  protected cancel = (): void => this.location.back()
 
   private create = (): Observable<EvenApiModel> => {
     const request = new CreateEventApiRequest(
