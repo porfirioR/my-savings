@@ -20,18 +20,23 @@ export class MailAccessService {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Forgot your Password</title>
+          <style>
+            body {
+              background-color: #e8f0fe;
+            }
+          </style>
         </head>
         <body>
           <h1>Reset your Password</h1>
           <h3>Hey ${request.email} the code to reset your password is: </h3>
-          <p>
-            <b>${request.code}</b>
+          <p style="display: flex; justify-content:center">
+            <b style="border-style: solid; border-color:#4F46E5;>${request.code}</b>
           </p>
           <p>
             Please click on the next link and add the code <b>${url}</b> to reset your password.
           </p>
           <p>
-            Or click <b>${url}?code=${request.code}</b> to the next link to with the code include in the link and change your password
+            Or click <b style="border-style: solid; border-color:#4F46E5;">${url}?email=${request.email}&code=${request.code}</b> to the next link to with the code include in the link and change your password
           </p>
           <p>
             If you did not request this email you can safely ignore it.

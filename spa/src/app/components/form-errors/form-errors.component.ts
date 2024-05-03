@@ -1,6 +1,6 @@
-import { NgFor, NgIf } from '@angular/common';
-import { Component, Input, Self } from '@angular/core';
-import { ControlValueAccessor, NgControl } from '@angular/forms';
+import { NgFor, NgIf } from '@angular/common'
+import { Component, Input, Self } from '@angular/core'
+import { ControlValueAccessor, NgControl } from '@angular/forms'
 
 @Component({
   selector: 'app-form-errors',
@@ -8,7 +8,6 @@ import { ControlValueAccessor, NgControl } from '@angular/forms';
   imports: [
     NgIf,
     NgFor,
-
   ],
   templateUrl: './form-errors.component.html',
   styleUrl: './form-errors.component.css'

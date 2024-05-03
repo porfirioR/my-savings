@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { EventViewModel } from '../../models/view/event-view-model';
-import { DatePipe, NgClass } from '@angular/common';
+import { Component, Input } from '@angular/core'
+import { DatePipe, NgClass } from '@angular/common'
+import { EventViewModel } from '../../models/view/event-view-model'
 
 @Component({
   selector: 'app-event',
@@ -12,12 +12,9 @@ import { DatePipe, NgClass } from '@angular/common';
     DatePipe
   ]
 })
-export class EventComponent implements OnInit {
+export class EventComponent {
   @Input() eventModel!: EventViewModel
 
   constructor() { }
-
-  ngOnInit() {
-  }
 
 }

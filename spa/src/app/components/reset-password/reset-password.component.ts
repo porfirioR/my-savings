@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { UserApiService } from '../../services';
-import { CommonModule } from '@angular/common';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { ResetPasswordFormGroup } from '../../models/forms';
-import { ResetPasswordApiRequest } from '../../models/api/reset-password-api-request';
-import { FormErrorsComponent } from "../form-errors/form-errors.component";
+import { Component } from '@angular/core'
+import { CommonModule } from '@angular/common'
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms'
+import { ActivatedRoute, RouterModule } from '@angular/router'
+import { UserApiService } from '../../services'
+import { ResetPasswordFormGroup } from '../../models/forms'
+import { ResetPasswordApiRequest } from '../../models/api/reset-password-api-request'
+import { TextComponent } from '../inputs/text/text.component'
 
 @Component({
   selector: 'app-reset-password',
@@ -16,10 +16,10 @@ import { FormErrorsComponent } from "../form-errors/form-errors.component";
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    FormErrorsComponent
+    TextComponent
   ]
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent {
   protected formGroup: FormGroup<ResetPasswordFormGroup>
 
   constructor(
@@ -27,24 +27,25 @@ export class ResetPasswordComponent implements OnInit {
     private readonly userApiService: UserApiService
   ) {
     const code = this.activeRoute.snapshot.queryParams['code']
+    const email = this.activeRoute.snapshot.queryParams['email']
     this.formGroup = new FormGroup<ResetPasswordFormGroup>({
-      email: new FormControl(null, [Validators.required, Validators.email]),
+      email: new FormControl(email ? email : null, [Validators.required, Validators.email]),
       newPassword: new FormControl(null, [Validators.required, Validators.minLength(4)]),
       repeatPassword: new FormControl(null, [Validators.required, this.repeatPasswordValidator()]),
       code: new FormControl(code ? code : null, [Validators.required]),
     })
-  }
-
-  ngOnInit() {
-    this.formGroup.controls.repeatPassword.valueChanges.subscribe({
-      next: (value) => {
-        
+    this.formGroup.controls.newPassword.valueChanges.subscribe({
+      next: () => {
+        this.formGroup.controls.repeatPassword.updateValueAndValidity()
       }
     })
-
   }
 
-  protected changePassword = (): void => {
+  protected changePassword = (event: Event): void => {
+    event.preventDefault()
+    if (this.formGroup.invalid) {
+      return
+    }
     const request = new ResetPasswordApiRequest(this.formGroup.value.email!, this.formGroup.value.code!, this.formGroup.value.newPassword!)
     this.userApiService.resetPassword(request).subscribe({
       next: (value) => {

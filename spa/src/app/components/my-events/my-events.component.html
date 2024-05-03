@@ -7,7 +7,7 @@
     @for (event of eventFollows; track event.id) {
       <app-event [eventModel]="event"/>
     } @empty {
-      <article>No data</article>
+      <app-empty-data />
     }
   }
   <a class="fixed bottom-0 right-0 m-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow-md"

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core'
 
 @Component({
   selector: 'app-loading-skeleton',
@@ -7,11 +7,8 @@ import { Component, OnInit } from '@angular/core';
   standalone: true,
   imports: []
 })
-export class LoadingSkeletonComponent implements OnInit {
+export class LoadingSkeletonComponent {
 
   constructor() { }
-
-  ngOnInit(): void {
-  }
 
 }

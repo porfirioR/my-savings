@@ -1,7 +1,6 @@
-import { inject } from '@angular/core';
-import { HttpInterceptorFn } from '@angular/common/http';
-import { retry } from 'rxjs';
-import { LocalService } from '../services';
+import { inject } from '@angular/core'
+import { HttpInterceptorFn } from '@angular/common/http'
+import { LocalService } from '../services'
 
 export const jwtInterceptor: HttpInterceptorFn = (request, next) => {
   const localService = inject(LocalService)

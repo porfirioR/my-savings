@@ -1,14 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable, first, tap } from 'rxjs';
-import { EventComponent } from "../event/event.component";
-import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component";
-import { EventApiService, LocalService } from '../../services';
-import { EventViewModel } from '../../models/view/event-view-model';
-import { selectIsLoading } from '../../store/loading/loading.selectors';
-import { loadingActionGroup } from '../../store/loading/loading.actions';
+import { AsyncPipe, NgFor, NgIf } from '@angular/common'
+import { Component } from '@angular/core'
+import { RouterModule } from '@angular/router'
+import { Store } from '@ngrx/store'
+import { Observable, first, tap } from 'rxjs'
+import { EventComponent } from "../event/event.component"
+import { LoadingSkeletonComponent } from "../loading-skeleton/loading-skeleton.component"
+import { EventApiService, LocalService } from '../../services'
+import { EventViewModel } from '../../models/view/event-view-model'
+import { selectIsLoading } from '../../store/loading/loading.selectors'
+import { loadingActionGroup } from '../../store/loading/loading.actions'
+import { EmptyDataComponent } from "../empty-data/empty-data.component";
 
 @Component({
   selector: 'app-my-events',
@@ -16,10 +17,13 @@ import { loadingActionGroup } from '../../store/loading/loading.actions';
   styleUrls: ['./my-events.component.css'],
   standalone: true,
   imports: [
-    CommonModule,
+    NgIf,
+    NgFor,
+    AsyncPipe,
     RouterModule,
     EventComponent,
-    LoadingSkeletonComponent
+    LoadingSkeletonComponent,
+    EmptyDataComponent
   ]
 })
 export class MyEventsComponent {

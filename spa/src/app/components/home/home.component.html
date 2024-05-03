@@ -1,14 +1,22 @@
 <main>
-  @for (event of eventFollows; track event.id) {
-    @defer {
-    <app-event [eventModel]="event" />
+  @if (loading$ | async) {
+    <app-loading-skeleton/>
+    <app-loading-skeleton/>
+    <app-loading-skeleton/>
+  } @else {
+    @for (event of eventFollows; track event.id) {
+      <app-event [eventModel]="event"/>
+    } @empty {
+      <app-empty-data />
     }
-    @placeholder {
-    Loading
-    }
-  } @empty {
-    <app-loading-skeleton/>
-    <app-loading-skeleton/>
-    <app-loading-skeleton/>
+  }
+  @if (userLoaded) {
+    <a
+      class="fixed bottom-0 right-0 m-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow-md"
+      [routerLink]="['/create-event']"
+    >
+      <i class="fas fa-plus"></i>
+      Add Event
+    </a>
   }
 </main>

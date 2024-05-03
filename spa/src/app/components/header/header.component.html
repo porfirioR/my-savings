@@ -1,11 +1,8 @@
 <header class="navbar shadow drop-shadow-md mb-2">
   <article class="flex-1">
-    <a class="btn btn-ghost text-xl" [routerLink]="''">Home</a>
+    <a class="btn hover:text-white bg-none placeholder-slate-400 glass text-indigo-700 hover:bg-indigo-200 text-xl hover:ring hover:ring-indigo-400 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800" [routerLink]="''">Home</a>
   </article>
   <section class="flex-none gap-2">
-    <!-- <div class="form-control">
-      <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
-    </div> -->
     <main class="dropdown dropdown-end" (click)="checkLogin()">
       <article tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
         <div class="w-24 rounded-xl hover:ring hover:ring-indigo-400 ring-offset-base-100 ring-offset-2">
@@ -13,21 +10,24 @@
         </div>
       </article>
       <article class="dropdown-content bg-base-200 text-base-content rounded-box top-px mt-16 max-h-[calc(100vh-10rem)] w-56 overflow-y-auto border border-white/5 shadow-2xl outline outline-1 outline-black/5">
-        <ul tabindex="0" class="menu menu-sm gap-1 bg-white">
-          <li>
-            <a class="justify-between" (click)="openProfile()">
-              Profile
-              <!-- <span class="badge">New</span> -->
-            </a>
+        <ul tabindex="0" class="menu menu-sm gap-1 bg-white" role="button">
+          <li class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
+            (click)="openProfile()"
+          >
+            Profile
           </li>
-          <li *ngIf="isLogin">
-            <a [routerLink]="'my-events'">
+          @if (isLogin) {
+            <li class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
+              [routerLink]="'my-events'"
+            >
               My Events
-            </a>
-          </li>
-          <li *ngIf="isLogin">
-            <a (click)="logOut()">Logout</a>
-          </li>
+            </li>
+            <li class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
+              (click)="logOut()"
+            >
+              Logout
+            </li>
+          }
         </ul>
       </article>
     </main>

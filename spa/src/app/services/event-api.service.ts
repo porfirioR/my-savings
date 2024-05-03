@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-import { CreateEventApiRequest, EvenApiModel, UpdateEventApiRequest } from '../models/api';
+import { HttpClient } from '@angular/common/http'
+import { Injectable } from '@angular/core'
+import { Observable } from 'rxjs'
+import { environment } from '../../environments/environment'
+import { CreateEventApiRequest, EvenApiModel, UpdateEventApiRequest } from '../models/api'
 
 @Injectable({
   providedIn: 'root'

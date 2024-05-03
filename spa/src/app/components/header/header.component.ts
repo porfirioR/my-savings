@@ -1,8 +1,8 @@
-import { Component, ViewChild } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { NgIf } from '@angular/common';
-import { ProfileComponent } from "../profile/profile.component";
-import { AlertService, LocalService } from '../../services';
+import { Component, ViewChild } from '@angular/core'
+import { Router, RouterModule } from '@angular/router'
+import { NgIf } from '@angular/common'
+import { ProfileComponent } from "../profile/profile.component"
+import { AlertService, LocalService } from '../../services'
 
 @Component({
   selector: 'app-header',
@@ -16,7 +16,7 @@ import { AlertService, LocalService } from '../../services';
   ]
 })
 export class HeaderComponent {
-  @ViewChild(ProfileComponent) profile: ProfileComponent | undefined;
+  @ViewChild(ProfileComponent) profile: ProfileComponent | undefined
 
   protected isLogin: boolean = false
 

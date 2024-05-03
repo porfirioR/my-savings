@@ -1,23 +1,23 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { LoginFormGroup } from '../../models/forms';
-import { CreateUserApiRequest } from '../../models/api';
-import { LocalService, UserApiService } from '../../services';
-import { FormErrorsComponent } from "../form-errors/form-errors.component";
+import { Component } from '@angular/core'
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
+import { Router, RouterModule } from '@angular/router'
+import { LoginFormGroup } from '../../models/forms'
+import { CreateUserApiRequest } from '../../models/api'
+import { LocalService, UserApiService } from '../../services'
+import { TextComponent } from '../inputs/text/text.component'
 
 @Component({
-    selector: 'app-signup',
-    templateUrl: './signup.component.html',
-    styleUrls: ['./signup.component.css'],
-    standalone: true,
-    imports: [
-        RouterModule,
-        ReactiveFormsModule,
-        FormErrorsComponent
-    ]
+  selector: 'app-signup',
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.css'],
+  standalone: true,
+  imports: [
+    RouterModule,
+    ReactiveFormsModule,
+    TextComponent
+  ]
 })
-export class SignupComponent implements OnInit {
+export class SignupComponent {
   protected formGroup: FormGroup<LoginFormGroup>
 
   constructor(
@@ -31,11 +31,9 @@ export class SignupComponent implements OnInit {
     })
   }
 
-  ngOnInit() {
-  }
-
-  protected save = (): void => {
-    if (!this.formGroup.valid) {
+  protected save = (event: Event): void => {
+    event.preventDefault()
+    if (this.formGroup.invalid) {
       return
     }
     const request: CreateUserApiRequest = new CreateUserApiRequest(this.formGroup.value.email!, this.formGroup.value.password!)

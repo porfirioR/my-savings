@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { LocalService, UserApiService } from '../../services';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core'
+import { RouterModule } from '@angular/router'
+import { LocalService, UserApiService } from '../../services'
 
 @Component({
   selector: 'app-profile',
@@ -12,10 +12,10 @@ import { LocalService, UserApiService } from '../../services';
   ]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  @ViewChild('profileModal', { static: true }) profileModal!: ElementRef<HTMLDialogElement>;
+  @ViewChild('profileModal', { static: true }) profileModal!: ElementRef<HTMLDialogElement>
   protected hasEmail = false
-  protected email?: string | null;
-  protected userId?: number | null;
+  protected email?: string | null
+  protected userId?: number | null
 
   constructor(
     private readonly localService: LocalService,

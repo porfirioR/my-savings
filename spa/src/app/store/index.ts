@@ -1,6 +1,6 @@
-import { ActionReducerMap, MetaReducer } from '@ngrx/store';
-import { environment } from '../../environments/environment.development';
-import * as fromLogin from './loading/loading.reducer';
+import { ActionReducerMap, MetaReducer } from '@ngrx/store'
+import { environment } from '../../environments/environment.development'
+import * as fromLogin from './loading/loading.reducer'
 
 export interface AppState {
 }
