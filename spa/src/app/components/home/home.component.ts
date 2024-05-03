@@ -1,5 +1,5 @@
 import { AsyncPipe, NgFor, NgIf } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { Component } from '@angular/core'
 import { Store } from '@ngrx/store'
 import { RouterModule } from '@angular/router'
 import { Observable } from 'rxjs'
@@ -26,7 +26,7 @@ import { loadingActionGroup } from '../../store/loading/loading.actions'
     EmptyDataComponent
   ]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   protected eventFollows: EventViewModel[] = []
   protected loading$: Observable<boolean>
   protected userLoaded: boolean
@@ -56,8 +56,5 @@ export class HomeComponent implements OnInit {
         this.store.dispatch(loadingActionGroup.loadingSuccess())
       }
     })
-  }
-
-  ngOnInit(): void {
   }
 }

@@ -11,26 +11,23 @@
       </article>
       <article class="dropdown-content bg-base-200 text-base-content rounded-box top-px mt-16 max-h-[calc(100vh-10rem)] w-56 overflow-y-auto border border-white/5 shadow-2xl outline outline-1 outline-black/5">
         <ul tabindex="0" class="menu menu-sm gap-1 bg-white" role="button">
-          <li
-            class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
+          <li class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
             (click)="openProfile()"
           >
             Profile
           </li>
-          <li
-            *ngIf="isLogin"
-            class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
-            [routerLink]="'my-events'"
-          >
-            My Events
-          </li>
-          <li
-            *ngIf="isLogin"
-            class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
-            (click)="logOut()"
-          >
-            Logout
-          </li>
+          @if (isLogin) {
+            <li class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
+              [routerLink]="'my-events'"
+            >
+              My Events
+            </li>
+            <li class="mx-1 rounded hover:bg-indigo-300 hover:text-white active:text-white focus:text-white active:bg-indigo-400 focus:bg-indigo-400"
+              (click)="logOut()"
+            >
+              Logout
+            </li>
+          }
         </ul>
       </article>
     </main>

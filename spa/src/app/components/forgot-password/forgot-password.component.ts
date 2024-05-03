@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component } from '@angular/core'
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
 import { RouterModule } from '@angular/router'
 import { ForgotPasswordFormGroup } from '../../models/forms'
@@ -17,7 +17,7 @@ import { TextComponent } from '../inputs/text/text.component'
     TextComponent
   ]
 })
-export class ForgotPasswordComponent implements OnInit {
+export class ForgotPasswordComponent {
   protected formGroup: FormGroup<ForgotPasswordFormGroup>
   protected showMessage: boolean = false
   constructor(
@@ -27,9 +27,6 @@ export class ForgotPasswordComponent implements OnInit {
     this.formGroup = new FormGroup<ForgotPasswordFormGroup>({
       email: new FormControl(null, [Validators.required, Validators.email])
     })
-  }
-
-  ngOnInit() {
   }
 
   protected sendCode = (event: Event): void => {

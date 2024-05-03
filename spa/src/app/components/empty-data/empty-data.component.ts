@@ -1,16 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-empty-data',
   templateUrl: './empty-data.component.html',
   styleUrls: ['./empty-data.component.css'],
-  standalone: true,
+  standalone: true
 })
-export class EmptyDataComponent implements OnInit {
+export class EmptyDataComponent {
 
   constructor() { }
-
-  ngOnInit() {
-  }
 
 }

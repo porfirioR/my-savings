@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { Component } from '@angular/core'
 
 @Component({
   selector: 'app-dynamic-table',
@@ -10,7 +10,7 @@ import { Component, OnInit } from '@angular/core'
     CommonModule
   ]
 })
-export class DynamicTableComponent implements OnInit {
+export class DynamicTableComponent {
   protected columName: any[] = [
     'id',
     'nombre',
@@ -173,8 +173,5 @@ export class DynamicTableComponent implements OnInit {
   ]
 
   constructor() { }
-
-  ngOnInit() {
-  }
 
 }

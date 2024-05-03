@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component } from '@angular/core'
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
 import { Router, RouterModule } from '@angular/router'
 import { LoginFormGroup } from '../../models/forms'
@@ -17,7 +17,7 @@ import { FormErrorsComponent } from '../form-errors/form-errors.component'
     FormErrorsComponent,
   ]
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   protected formGroup: FormGroup<LoginFormGroup>
 
   constructor(
@@ -31,8 +31,6 @@ export class LoginComponent implements OnInit {
       password: new FormControl(null, [Validators.required, Validators.minLength(5), Validators.maxLength(10)])
     })
   }
-
-  ngOnInit(): void { }
 
   protected loginUser = (): void => {
     if (this.formGroup.invalid) {

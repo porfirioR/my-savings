@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core'
+import { Component, Input } from '@angular/core'
 import { DatePipe, NgClass } from '@angular/common'
 import { EventViewModel } from '../../models/view/event-view-model'
 
@@ -12,12 +12,9 @@ import { EventViewModel } from '../../models/view/event-view-model'
     DatePipe
   ]
 })
-export class EventComponent implements OnInit {
+export class EventComponent {
   @Input() eventModel!: EventViewModel
 
   constructor() { }
-
-  ngOnInit() {
-  }
 
 }

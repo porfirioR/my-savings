@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common'
-import { Component, Input, OnInit, Self } from '@angular/core'
+import { Component, Input, Self } from '@angular/core'
 import { ControlValueAccessor, NgControl, ReactiveFormsModule } from '@angular/forms'
 import { FormErrorsComponent } from '../../form-errors/form-errors.component'
 import { InputType } from '../../../constants/input-type'

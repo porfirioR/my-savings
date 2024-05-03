@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms'
 import { ActivatedRoute, RouterModule } from '@angular/router'
@@ -19,7 +19,7 @@ import { TextComponent } from '../inputs/text/text.component'
     TextComponent
   ]
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent {
   protected formGroup: FormGroup<ResetPasswordFormGroup>
 
   constructor(
@@ -34,15 +34,11 @@ export class ResetPasswordComponent implements OnInit {
       repeatPassword: new FormControl(null, [Validators.required, this.repeatPasswordValidator()]),
       code: new FormControl(code ? code : null, [Validators.required]),
     })
-  }
-
-  ngOnInit(): void {
     this.formGroup.controls.newPassword.valueChanges.subscribe({
       next: () => {
         this.formGroup.controls.repeatPassword.updateValueAndValidity()
       }
     })
-
   }
 
   protected changePassword = (event: Event): void => {
