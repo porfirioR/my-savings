@@ -12,7 +12,7 @@ export class TasksService {
     private readonly userManagerService: UserManagerService,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_9_HOURS)
   async handleCron(): Promise<void> {
     const events = await this.eventManagerService.getPublicEvents();
     const currentDate = new Date()
@@ -29,6 +29,8 @@ export class TasksService {
             notification: {
               title: `My Events: ${x.name}`,
               body: `Description: ${x.description}\nDate: ${x.date}`,
+              badge: '/assets/icons/icon-96x96.png',
+              icon: '/assets/icons/icon-152x152.png',
               actions: [{
                 action: 'explore',
                 title: 'Ok'

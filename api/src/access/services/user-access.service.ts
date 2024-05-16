@@ -65,21 +65,33 @@ export class UserAccessService {
   };
 
   public saveToken = async (accessRequest: WebPushTokenAccessRequest): Promise<WebPushTokenAccessModel> => {
-    const { data, error } = await this.userContext
+    const { data } = await this.userContext
       .from(TableEnum.WebPushToken)
       .select()
-      .single<WebPushTokenEntity>();
-    if (error) throw new Error(error.message);
+      .returns<WebPushTokenEntity>();
 
-    const result = await this.userContext
+    if (data.id) {
+      const result = await this.userContext
       .from(TableEnum.WebPushToken)
-      .upsert({ id: data.id, endpoint: accessRequest.endpoint, expirationTime: accessRequest.expirationTime, keys: JSON.stringify(accessRequest.keys) })
+      .upsert({ id: data.id, endpoint: accessRequest.endpoint, expirationtime: accessRequest.expirationTime, keys: JSON.stringify(accessRequest.keys) })
       .select()
       .single<WebPushTokenEntity>();
-    if (result.error) {
-      throw new Error(error.message);
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+    } else {
+      const insertValue: Record<string, string | Date> = {
+        [this.databaseColumns.Endpoint]: accessRequest.endpoint,
+        [this.databaseColumns.ExpirationTime]: null,
+        [this.databaseColumns.Password]: JSON.stringify(accessRequest.keys)
+      };
+      const result = await this.userContext
+        .from(TableEnum.WebPushToken)
+        .insert(insertValue)
+        .select()
+        .single<WebPushTokenEntity>();
+      return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
     }
-    return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
   };
 
   public getWebPushToken = async (): Promise<WebPushTokenAccessModel> => {
