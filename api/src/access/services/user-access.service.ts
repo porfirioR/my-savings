@@ -79,11 +79,12 @@ export class UserAccessService {
       if (result.error) {
         throw new Error(result.error.message);
       }
+      return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
     } else {
       const insertValue: Record<string, string | Date> = {
         [this.databaseColumns.Endpoint]: accessRequest.endpoint,
         [this.databaseColumns.ExpirationTime]: null,
-        [this.databaseColumns.Password]: JSON.stringify(accessRequest.keys)
+        [this.databaseColumns.Keys]: JSON.stringify(accessRequest.keys)
       };
       const result = await this.userContext
         .from(TableEnum.WebPushToken)
@@ -100,7 +101,7 @@ export class UserAccessService {
       .select()
       .single<WebPushTokenEntity>()
     if (error) throw new Error(error.message)
-    return new WebPushTokenAccessModel(data.id, data.endpoint, data.expirationTime, JSON.parse(data.keys));
+    return new WebPushTokenAccessModel(data.id, data.endpoint, data.expirationtime, JSON.parse(data.keys));
   };
 
   public addForgotCodePassword = async (accessRequest: ForgotPasswordAccessRequest): Promise<UserAccessModel> => {
