@@ -3,12 +3,12 @@ import { UserAccessService } from '../../access/services';
 import { AuthService } from '../../auth/auth.service';
 import { CreateUserAccessRequest } from '../../access/contract/users/create-user-access-request';
 import { UserAccessModel } from '../../access/contract/users/user-access-model';
+import { ResetUserAccessRequest } from '../../access/contract/users/reset-user-password-access-request';
+import { WebPushTokenKey } from '../../access/contract/users/web-push-token-key';
+import { WebPushTokenAccessRequest } from '../../access/contract/users/web-push-token-access-request';
 import { AuthAccessRequest } from '../../auth/models/auth-access-request';
 import { AuthUserModel } from '../../auth/models/auth-user-model';
 import { ResetUserPasswordRequest, SignModel, UserModel, UserRequest, WebPushModel, WebPushRequest } from '../models/users';
-import { ResetUserAccessRequest } from 'src/access/contract/users/reset-user-password-access-request';
-import { WebPushTokenKey } from 'src/access/contract/users/web-push-token-key';
-import { WebPushTokenAccessRequest } from 'src/access/contract/users/web-push-token-access-request';
 
 @Injectable()
 export class UserManagerService {

@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { EventManagerService, UserManagerService } from '../../manager/services';
 import { ConfigService } from '@nestjs/config';
-import { WEB_PUSH_PRIVATE_KEY, WEB_PUSH_PUBLIC_KEY } from 'src/utility/constants';
+import { WEB_PUSH_PRIVATE_KEY, WEB_PUSH_PUBLIC_KEY } from '../../utility/constants';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpush = require('web-push');
 
