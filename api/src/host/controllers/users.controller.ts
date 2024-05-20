@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Headers, Post, UseGuards } from '@nestjs/common';
 import { MailManagerService, UserManagerService } from '../../manager/services';
-import { ResetUserPasswordRequest, SignModel, UserModel, UserRequest } from '../../manager/models/users';
+import { ResetUserPasswordRequest, SignModel, UserModel, UserRequest, WebPushModel, WebPushRequest } from '../../manager/models/users';
 import { CreateUserApiRequest } from '../models/users/create-user-api-request';
 import { Public } from '../decorators/public.decorator';
 import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
@@ -8,6 +8,7 @@ import { ForgotPasswordEndpointGuard } from '../guards/forgot-password-endpoint.
 import { DatabaseColumns } from '../../utility/enums';
 import { ResetUserPasswordApiRequest } from '../models/users/reset-user-password-api-request';
 import { ForgotPasswordApiRequest } from '../models/users/forgot-password-api-request';
+import { WebPushApiRequest } from '../models/users/web-push-api-request';
 
 @Controller('users')
 @UseGuards(PrivateEndpointGuard)
@@ -56,6 +57,14 @@ export class UsersController {
   async resetPassword(@Body() apiRequest: ResetUserPasswordApiRequest): Promise<SignModel> {
     const request = new ResetUserPasswordRequest(apiRequest.email, apiRequest.newPassword, apiRequest.code)
     const model = await this.userManagerService.resetUserPassword(request)
-    return model;
+    return model
+  }
+
+  @Post('save-token')
+  @Public()
+  async saveKey(@Body() apiRequest: WebPushApiRequest): Promise<WebPushModel> {
+    const request = new WebPushRequest(apiRequest.endpoint, apiRequest.expirationTime, apiRequest.keys)
+    const model = await this.userManagerService.saveToken(request)
+    return model
   }
 }

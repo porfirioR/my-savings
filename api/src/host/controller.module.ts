@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 import { UsersController } from './controllers/users.controller';
 import { EventsController } from './controllers/events.controller';
 import { AllExceptionsFilter } from './filters/exception.filter';
@@ -10,9 +11,11 @@ import { LoginMiddleware } from './middleware/login.middleware';
 import { SignupMiddleware } from './middleware/signup.middleware';
 import { PrivateEndpointGuard } from './guards/private-endpoint.guard';
 import { ResetPasswordMiddleware } from './middleware/reset-password.middleware';
+import { TasksService } from './services/tasks.service';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ManagerModule
   ],
   controllers: [
@@ -30,6 +33,7 @@ import { ResetPasswordMiddleware } from './middleware/reset-password.middleware'
       provide: APP_GUARD,
       useClass: PrivateEndpointGuard,
     },
+    TasksService
   ],
 })
 export class ControllerModule implements NestModule {

@@ -7,6 +7,9 @@ import { UserEntity } from '../contract/entities/user.entity';
 import { TableEnum, DatabaseColumns } from '../../utility/enums';
 import { ForgotPasswordAccessRequest } from '../contract/users/forgot-password-access-request';
 import { ResetUserAccessRequest } from '../contract/users/reset-user-password-access-request';
+import { WebPushTokenAccessRequest } from '../contract/users/web-push-token-access-request';
+import { WebPushTokenEntity } from '../contract/entities/web-push-token.Entity';
+import { WebPushTokenAccessModel } from '../contract/users/web-push-token-access-model';
 
 @Injectable()
 export class UserAccessService {
@@ -59,6 +62,46 @@ export class UserAccessService {
       throw new Error(error.message);
     }
     return this.getUser(data);
+  };
+
+  public saveToken = async (accessRequest: WebPushTokenAccessRequest): Promise<WebPushTokenAccessModel> => {
+    const { data } = await this.userContext
+      .from(TableEnum.WebPushToken)
+      .select()
+      .returns<WebPushTokenEntity>();
+
+    if (data.id) {
+      const result = await this.userContext
+      .from(TableEnum.WebPushToken)
+      .upsert({ id: data.id, endpoint: accessRequest.endpoint, expirationtime: accessRequest.expirationTime, keys: JSON.stringify(accessRequest.keys) })
+      .select()
+      .single<WebPushTokenEntity>();
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+      return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
+    } else {
+      const insertValue: Record<string, string | Date> = {
+        [this.databaseColumns.Endpoint]: accessRequest.endpoint,
+        [this.databaseColumns.ExpirationTime]: null,
+        [this.databaseColumns.Keys]: JSON.stringify(accessRequest.keys)
+      };
+      const result = await this.userContext
+        .from(TableEnum.WebPushToken)
+        .insert(insertValue)
+        .select()
+        .single<WebPushTokenEntity>();
+      return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
+    }
+  };
+
+  public getWebPushToken = async (): Promise<WebPushTokenAccessModel> => {
+    const { data, error } = await this.userContext
+      .from(TableEnum.WebPushToken)
+      .select()
+      .single<WebPushTokenEntity>()
+    if (error) throw new Error(error.message)
+    return new WebPushTokenAccessModel(data.id, data.endpoint, data.expirationtime, JSON.parse(data.keys));
   };
 
   public addForgotCodePassword = async (accessRequest: ForgotPasswordAccessRequest): Promise<UserAccessModel> => {

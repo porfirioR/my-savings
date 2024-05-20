@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable, tap } from 'rxjs'
-import { CreateUserApiRequest, ForgotPasswordApiRequest, LoginUserApiRequest, SignApiModel, UserApiModel } from '../models/api'
+import { CreateUserApiRequest, ForgotPasswordApiRequest, LoginUserApiRequest, PushTokenApiModel, PushTokenApiRequest, SignApiModel, UserApiModel } from '../models/api'
 import { environment } from '../../environments/environment'
 import { LocalService } from './local.service'
 import { ResetPasswordApiRequest } from '../models/api/reset-password-api-request'
@@ -53,6 +53,10 @@ export class UserApiService {
 
   public getUserInformation = (userId: number): Observable<unknown> => {
     return this.httpClient.get<unknown>(`${this.url}/user-information/${userId}`)
+  }
+
+  public saveToken = (request: PushTokenApiRequest): Observable<PushTokenApiModel> => {
+    return this.httpClient.post<PushTokenApiModel>(`${this.url}/save-token`, request)
   }
 
   private setInLocaleStorage = (user: SignApiModel): void => {

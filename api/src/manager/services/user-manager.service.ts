@@ -3,10 +3,12 @@ import { UserAccessService } from '../../access/services';
 import { AuthService } from '../../auth/auth.service';
 import { CreateUserAccessRequest } from '../../access/contract/users/create-user-access-request';
 import { UserAccessModel } from '../../access/contract/users/user-access-model';
+import { ResetUserAccessRequest } from '../../access/contract/users/reset-user-password-access-request';
+import { WebPushTokenKey } from '../../access/contract/users/web-push-token-key';
+import { WebPushTokenAccessRequest } from '../../access/contract/users/web-push-token-access-request';
 import { AuthAccessRequest } from '../../auth/models/auth-access-request';
 import { AuthUserModel } from '../../auth/models/auth-user-model';
-import { ResetUserPasswordRequest, SignModel, UserModel, UserRequest } from '../models/users';
-import { ResetUserAccessRequest } from 'src/access/contract/users/reset-user-password-access-request';
+import { ResetUserPasswordRequest, SignModel, UserModel, UserRequest, WebPushModel, WebPushRequest } from '../models/users';
 
 @Injectable()
 export class UserManagerService {
@@ -49,6 +51,20 @@ export class UserManagerService {
     const authModel = new AuthUserModel(accessModel.id, accessModel.email, '')
     const jwtToken = await this.authService.getToken(authModel)
     return new SignModel(accessModel.id, accessModel.email, jwtToken);
+  };
+
+  public saveToken = async (request: WebPushRequest): Promise<WebPushModel> => {
+    const keys = new WebPushTokenKey(request.keys.auth, request.keys.p256dh)
+    const accessRequest = new WebPushTokenAccessRequest(request.endpoint, request.expirationTime, keys)
+    const accessModel = await this.userAccessService.saveToken(accessRequest);
+    const model = new WebPushModel(accessModel.id, accessModel.endpoint, accessModel.expirationTime, accessModel.keys)
+    return model;
+  };
+
+  public getWebPushToken = async (): Promise<WebPushModel> => {
+    const accessModel = await this.userAccessService.getWebPushToken();
+    const model = new WebPushModel(accessModel.id, accessModel.endpoint, accessModel.expirationTime, accessModel.keys)
+    return model;
   };
 
   private getUserModel = (accessModel: UserAccessModel, token: string = ''): UserModel => new UserModel(accessModel.id, accessModel.email, accessModel.dateCreated, token.length ? token : accessModel.code);
