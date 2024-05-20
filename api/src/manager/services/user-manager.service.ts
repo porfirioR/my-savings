@@ -54,8 +54,9 @@ export class UserManagerService {
   };
 
   public saveToken = async (request: WebPushRequest): Promise<WebPushModel> => {
+    const userModel = await this.getUserByEmail(request.email)
     const keys = new WebPushTokenKey(request.keys.auth, request.keys.p256dh)
-    const accessRequest = new WebPushTokenAccessRequest(request.endpoint, request.expirationTime, keys)
+    const accessRequest = new WebPushTokenAccessRequest(request.endpoint, request.expirationTime, keys, userModel.email)
     const accessModel = await this.userAccessService.saveToken(accessRequest);
     const model = new WebPushModel(accessModel.id, accessModel.endpoint, accessModel.expirationTime, accessModel.keys)
     return model;

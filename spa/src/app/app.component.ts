@@ -4,7 +4,7 @@ import { SwPush } from '@angular/service-worker'
 import { DynamicTableComponent } from './components/dynamic-table/dynamic-table.component'
 import { HeaderComponent } from './components/header/header.component'
 import { environment } from '../environments/environment.development'
-import { UserApiService } from './services'
+import { LocalService, UserApiService } from './services'
 import { PushTokenApiRequest } from './models/api'
 
 @Component({
@@ -23,16 +23,21 @@ export class AppComponent {
 
   constructor(
     private swPush: SwPush,
-    private readonly userApiService: UserApiService
+    private readonly userApiService: UserApiService,
+    private readonly localService: LocalService
   ) {
     this.key = environment.webPush.publicKey
     this.subscribeToNotification()
   }
 
-  private subscribeToNotification = () => {
-    this.swPush.requestSubscription({ serverPublicKey: this.key }).then(sub =>{
-      const token: PushTokenApiRequest = JSON.parse(JSON.stringify(sub))
-      this.userApiService.saveToken(token).subscribe()
-    })
+  private subscribeToNotification = (): void => {
+    const email = this.localService.getEmail()
+    if (email) {
+      this.swPush.requestSubscription({ serverPublicKey: this.key }).then(sub =>{
+        const token: PushTokenApiRequest = JSON.parse(JSON.stringify(sub))
+        token.email = email
+        this.userApiService.saveToken(token).subscribe()
+      })
+    }
   }
 }

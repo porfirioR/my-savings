@@ -4,6 +4,7 @@ export class WebPushTokenAccessRequest {
   constructor(
     public endpoint: string,
     public expirationTime: Date | null,
-    public keys: WebPushTokenKey
+    public keys: WebPushTokenKey,
+    public email: string
   ) { }
 }
