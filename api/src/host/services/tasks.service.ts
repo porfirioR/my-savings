@@ -16,7 +16,7 @@ export class TasksService {
     private readonly configService: ConfigService
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_9AM)
   async handleCron(): Promise<void> {
     const events = await this.eventManagerService.getPublicEvents();
     const currentDate = new Date()
