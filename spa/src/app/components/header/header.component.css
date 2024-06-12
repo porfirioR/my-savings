@@ -33,3 +33,7 @@ main {
   margin: 5px;
   cursor: pointer;
 }
+
+.avatar > div {
+  display: flex;
+}
