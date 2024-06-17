@@ -3,4 +3,5 @@ export interface WebPushTokenEntity {
   endpoint: string
   expirationtime: Date | null,
   keys: string
+  email: string
 }

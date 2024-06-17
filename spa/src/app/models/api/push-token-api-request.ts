@@ -4,4 +4,5 @@ export interface PushTokenApiRequest {
   endpoint: string,
   expirationTime: Date | null,
   keys: WebPushTokenKeyApiRequest
+  email: string
 }

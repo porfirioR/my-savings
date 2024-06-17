@@ -68,30 +68,24 @@ export class UserAccessService {
     const { data } = await this.userContext
       .from(TableEnum.WebPushToken)
       .select()
-      .returns<WebPushTokenEntity>();
+      .returns<WebPushTokenEntity[]>();
 
-    if (data.id) {
+    if (data.length) {
+      const webPush = data.find(x => x.email === accessRequest.email)
+      if (!webPush) {
+        return await this.insertWebPushToken(accessRequest)
+      }
       const result = await this.userContext
-      .from(TableEnum.WebPushToken)
-      .upsert({ id: data.id, endpoint: accessRequest.endpoint, expirationtime: accessRequest.expirationTime, keys: JSON.stringify(accessRequest.keys) })
-      .select()
-      .single<WebPushTokenEntity>();
+        .from(TableEnum.WebPushToken)
+        .upsert({ id: webPush.id, endpoint: accessRequest.endpoint, expirationtime: accessRequest.expirationTime, keys: JSON.stringify(accessRequest.keys), email: accessRequest.email })
+        .select()
+        .single<WebPushTokenEntity>();
       if (result.error) {
         throw new Error(result.error.message);
       }
       return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
     } else {
-      const insertValue: Record<string, string | Date> = {
-        [this.databaseColumns.Endpoint]: accessRequest.endpoint,
-        [this.databaseColumns.ExpirationTime]: null,
-        [this.databaseColumns.Keys]: JSON.stringify(accessRequest.keys)
-      };
-      const result = await this.userContext
-        .from(TableEnum.WebPushToken)
-        .insert(insertValue)
-        .select()
-        .single<WebPushTokenEntity>();
-      return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
+      return await this.insertWebPushToken(accessRequest)
     }
   };
 
@@ -138,4 +132,19 @@ export class UserAccessService {
     entity.password,
     entity.code
   );
+
+  private insertWebPushToken = async (accessRequest: WebPushTokenAccessRequest): Promise<WebPushTokenAccessModel> => {
+    const insertValue: Record<string, string | Date> = {
+      [this.databaseColumns.Endpoint]: accessRequest.endpoint,
+      [this.databaseColumns.Email]: accessRequest.email,
+      [this.databaseColumns.ExpirationTime]: null,
+      [this.databaseColumns.Keys]: JSON.stringify(accessRequest.keys)
+    };
+    const result = await this.userContext
+      .from(TableEnum.WebPushToken)
+      .insert(insertValue)
+      .select()
+      .single<WebPushTokenEntity>();
+    return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
+  }
 }

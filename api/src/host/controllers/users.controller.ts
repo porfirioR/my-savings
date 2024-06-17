@@ -63,7 +63,7 @@ export class UsersController {
   @Post('save-token')
   @Public()
   async saveKey(@Body() apiRequest: WebPushApiRequest): Promise<WebPushModel> {
-    const request = new WebPushRequest(apiRequest.endpoint, apiRequest.expirationTime, apiRequest.keys)
+    const request = new WebPushRequest(apiRequest.endpoint, apiRequest.expirationTime, apiRequest.keys, apiRequest.email)
     const model = await this.userManagerService.saveToken(request)
     return model
   }
