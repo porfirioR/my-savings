@@ -83,7 +83,7 @@ export class UserAccessService {
       if (result.error) {
         throw new Error(result.error.message);
       }
-      return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
+      return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys, accessRequest.email);
     } else {
       return await this.insertWebPushToken(accessRequest)
     }
@@ -95,7 +95,7 @@ export class UserAccessService {
       .select()
       .single<WebPushTokenEntity>()
     if (error) throw new Error(error.message)
-    return new WebPushTokenAccessModel(data.id, data.endpoint, data.expirationtime, JSON.parse(data.keys));
+    return new WebPushTokenAccessModel(data.id, data.endpoint, data.expirationtime, JSON.parse(data.keys), data.email);
   };
 
   public addForgotCodePassword = async (accessRequest: ForgotPasswordAccessRequest): Promise<UserAccessModel> => {
@@ -145,6 +145,6 @@ export class UserAccessService {
       .insert(insertValue)
       .select()
       .single<WebPushTokenEntity>();
-    return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys);
+    return new WebPushTokenAccessModel(result.data.id, accessRequest.endpoint, accessRequest.expirationTime, accessRequest.keys, accessRequest.email);
   }
 }

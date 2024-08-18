@@ -6,8 +6,9 @@ export class WebPushTokenAccessModel extends WebPushTokenAccessRequest {
     public id: number,
     endpoint: string,
     expirationTime: Date,
-    keys: WebPushTokenKey
+    keys: WebPushTokenKey,
+    email: string
   ) {
-    super(endpoint, expirationTime, keys);
+    super(endpoint, expirationTime, keys, email);
   }
 }
