@@ -1,5 +1,5 @@
 export const environment = {
-  baseUrl: 'https://kind-coast-0bf3d7c10.4.azurestaticapps.net/api/',
+  baseUrl: 'api/',
   production: true,
   webPush: {
     publicKey: '',
