@@ -32,11 +32,13 @@ export class AppComponent {
 
   private subscribeToNotification = (): void => {
     const email = this.localService.getEmail()
-    if (email) {
+    if (email && environment.production) {
       this.swPush.requestSubscription({ serverPublicKey: this.key }).then(sub =>{
         const token: PushTokenApiRequest = JSON.parse(JSON.stringify(sub))
         token.email = email
         this.userApiService.saveToken(token).subscribe()
+      }).catch(reason => {
+        console.error(reason)
       })
     }
   }
