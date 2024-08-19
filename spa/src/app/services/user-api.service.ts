@@ -62,5 +62,6 @@ export class UserApiService {
   private setInLocaleStorage = (user: SignApiModel): void => {
     this.localService.setEmail(user.email)
     this.localService.setJwtToken(user.token)
+    this.localService.setUserId(user.id)
   }
 }

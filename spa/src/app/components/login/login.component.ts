@@ -40,8 +40,6 @@ export class LoginComponent {
     this.userApiService.loginUser(request).subscribe({
       next: (user) => {
         this.alertService.showSuccess(`Welcome ${user.email}`)
-        this.localService.setEmail(user.email)
-        this.localService.setUserId(user.id)
         this.router.navigate([''])
       }
     })
