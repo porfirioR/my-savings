@@ -3,7 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router'
 import { LoginFormGroup } from '../../models/forms'
 import { CreateUserApiRequest } from '../../models/api'
-import { LocalService, UserApiService } from '../../services'
+import { AlertService, LocalService, UserApiService } from '../../services'
 import { TextComponent } from '../inputs/text/text.component'
 
 @Component({
@@ -23,7 +23,8 @@ export class SignupComponent {
   constructor(
     private readonly router: Router,
     private readonly userApiService: UserApiService,
-    private readonly localService: LocalService
+    private readonly localService: LocalService,
+    private readonly alertService: AlertService,
   ) {
     this.formGroup = new FormGroup<LoginFormGroup>({
       email: new FormControl(null, [Validators.required, Validators.email]),
@@ -39,8 +40,7 @@ export class SignupComponent {
     const request: CreateUserApiRequest = new CreateUserApiRequest(this.formGroup.value.email!, this.formGroup.value.password!)
     this.userApiService.signUpUser(request).subscribe({
       next: (user) => {
-        this.localService.setEmail(user.email)
-        this.localService.setJwtToken(user.token)
+        this.alertService.showSuccess(`Welcome ${user.email}`)
         this.router.navigate([''])
       }
     })
