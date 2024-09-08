@@ -28,8 +28,8 @@ export class PrivateEndpointGuard implements CanActivate {
       const invalidData: Record<string, string | number | Date | boolean | object> = {
         isPublic: isPublic,
         token: token,
-        requestUrl: request.url,
-        requestBaseUrl: request.baseUrl,
+        requestUrl: request?.url,
+        requestBaseUrl: request?.baseUrl,
       }
       const invalidObject = JSON.stringify(invalidData)
       throw new UnauthorizedException(invalidObject);
