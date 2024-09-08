@@ -13,7 +13,8 @@ export class LoginMiddleware implements NestMiddleware {
         requestUrl: req.url,
         requestBaseUrl: req.baseUrl,
       }
-      throw new UnauthorizedException(invalidData)
+      const invalidObject = JSON.stringify(invalidData)
+      throw new UnauthorizedException(invalidObject)
     }
     const key = authorization.split('Basic ').at(1)
     const [email, password] = atob(key).split(':')

@@ -31,7 +31,8 @@ export class PrivateEndpointGuard implements CanActivate {
         requestUrl: request.url,
         requestBaseUrl: request.baseUrl,
       }
-      throw new UnauthorizedException(invalidData);
+      const invalidObject = JSON.stringify(invalidData)
+      throw new UnauthorizedException(invalidObject);
     }
 
     const jwtToken = this.configService.get<string>(JWT_TOKEN)
