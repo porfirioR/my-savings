@@ -11,7 +11,7 @@ async function bootstrap() {
     origin: [SPA_URL, SPA_URL2]
 
   })
-  await app.listen(3000)
+  // await app.listen(3000)
   config()
 }
 bootstrap()
