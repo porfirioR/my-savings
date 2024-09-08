@@ -8,7 +8,12 @@ export class LoginMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const authorization: string = req.headers['authorization']
     if (!authorization.startsWith('Basic ')) {
-      throw new UnauthorizedException()
+      const invalidData: Record<string, string | number | Date | boolean | object> = {
+        authorization: authorization,
+        requestUrl: req.url,
+        requestBaseUrl: req.baseUrl,
+      }
+      throw new UnauthorizedException(invalidData)
     }
     const key = authorization.split('Basic ').at(1)
     const [email, password] = atob(key).split(':')
