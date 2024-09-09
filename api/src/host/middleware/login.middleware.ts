@@ -10,8 +10,8 @@ export class LoginMiddleware implements NestMiddleware {
     if (!authorization.startsWith('Basic ')) {
       const invalidData: Record<string, string | number | Date | boolean | object> = {
         authorization: authorization,
-        requestUrl: req.url,
-        requestBaseUrl: req.baseUrl,
+        requestUrl: req?.url,
+        requestBaseUrl: req?.baseUrl,
       }
       const invalidObject = JSON.stringify(invalidData)
       throw new UnauthorizedException(invalidObject)
