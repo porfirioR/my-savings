@@ -10,7 +10,7 @@
       <b>Date:&nbsp;</b>
       <span class="mt-1 leading-tight font-medium"
         [ngClass]="eventModel.passDate ? 'text-red-400' : 'text-indigo-400'">
-        {{eventModel.date | date: 'dd/MM/yyyy'}}
+        {{eventModel.date | date: 'dd/MM/yyyy': 'utc'}}
       </span>
     </article>
     <article class="break-all">
@@ -25,10 +25,14 @@
         </span>
       </article>
     } @else {
-      <article class="badge badge-secondary badge-outline">
+      <article role="button" class="badge badge-secondary badge-outline">
         <i class="fas fa-lock"></i>&nbsp;
         Private
-      </article>
+      </article>&nbsp;
+      <button class="badge badge-primary badge-outline">
+        <i class="fas fa-pen"></i>&nbsp;
+        Edit
+      </button>
     }
   </main>
 </section>
