@@ -20,7 +20,8 @@ export class EventAccessService {
       .from(TableEnum.Events)
       .select(DatabaseColumns.All)
       .eq(DatabaseColumns.IsActive, true)
-      .eq(DatabaseColumns.IsPublic, true);
+      .eq(DatabaseColumns.IsPublic, true)
+      .order('date', {ascending: false});
     if (error) throw new Error(error.message);
     return data?.map(this.getEventAccessModel);
   };
@@ -29,7 +30,8 @@ export class EventAccessService {
     const { data, error } = await this.eventContext
       .from(TableEnum.Events)
       .select(DatabaseColumns.All)
-      .eq(DatabaseColumns.AuthorId, authorId);
+      .eq(DatabaseColumns.AuthorId, authorId)
+      .order('date', {ascending: false});
     if (error) throw new Error(error.message);
     return data?.map(this.getEventAccessModel);
   };
