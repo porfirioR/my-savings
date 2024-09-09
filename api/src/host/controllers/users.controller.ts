@@ -9,6 +9,7 @@ import { DatabaseColumns } from '../../utility/enums';
 import { ResetUserPasswordApiRequest } from '../models/users/reset-user-password-api-request';
 import { ForgotPasswordApiRequest } from '../models/users/forgot-password-api-request';
 import { WebPushApiRequest } from '../models/users/web-push-api-request';
+import { USER_AUTHORIZATION } from '../../utility/constants';
 
 @Controller('users')
 @UseGuards(PrivateEndpointGuard)
@@ -39,7 +40,7 @@ export class UsersController {
 
   @Post('login')
   @Public()
-  async login(@Headers('authorization') authorization: string): Promise<SignModel> {
+  async login(@Headers(USER_AUTHORIZATION) authorization: string): Promise<SignModel> {
     const model = await this.userManagerService.loginUser(authorization);
     return model;
   }

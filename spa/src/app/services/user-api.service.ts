@@ -31,7 +31,7 @@ export class UserApiService {
     const credentials = `${request.email}:${request.password}`
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'authorization': `Basic ${btoa(credentials)}`
+      'user-authorization': `Basic ${btoa(credentials)}`
     })
     const httpOptions = {
       headers: headers
