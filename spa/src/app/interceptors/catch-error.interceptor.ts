@@ -8,7 +8,7 @@ import { loadingActionGroup } from '../store/loading/loading.actions'
 export const catchErrorInterceptor: HttpInterceptorFn = (request, next) =>  {
   const store = inject(Store<AppState>)
 
-  return next(request).pipe(retry(3), catchError(error => {
+  return next(request).pipe(retry(2), catchError(error => {
     store.dispatch(loadingActionGroup.loadingFailed())
     throw error
   }))

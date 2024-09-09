@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { UpdateEventApiRequest } from '../models/events/update-event-api-request';
 import { EventManagerService, UserManagerService } from '../../manager/services';
-import { JWT_TOKEN } from '../../utility/constants';
+import { JWT_TOKEN, JWT_USER_TOKEN } from '../../utility/constants';
 import { DatabaseColumns } from '../../utility/enums';
 
 @Injectable()
@@ -57,7 +57,7 @@ export class PrivateEndpointGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers['authorization']?.split(' ') ?? [];
+    const [type, token] = request.headers[JWT_USER_TOKEN]?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
 }
