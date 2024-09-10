@@ -35,7 +35,7 @@ export class EventApiService {
   }
 
   public updateEvent = (request: UpdateEventApiRequest): Observable<EvenApiModel> => {
-    return this.httpClient.post<EvenApiModel>(this.url, request)
+    return this.httpClient.put<EvenApiModel>(this.url, request)
   }
 
 }

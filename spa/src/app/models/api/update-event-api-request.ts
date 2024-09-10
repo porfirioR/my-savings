@@ -1,20 +1,11 @@
 import { CreateEventApiRequest } from "."
 
-export class UpdateEventApiRequest extends CreateEventApiRequest {
+export class UpdateEventApiRequest implements Omit<CreateEventApiRequest, 'authorId'> {
   constructor(
     public id: number,
-    name: string,
-    authorId: number,
-    description: string,
-    date: Date,
-    isPublic: boolean
-  ) {
-    super(
-      name,
-      authorId,
-      description,
-      date,
-      isPublic
-    )
-  }
+    public name: string,
+    public description: string,
+    public date: Date,
+    public isPublic: boolean
+  ) { }
 }

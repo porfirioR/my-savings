@@ -1,5 +1,5 @@
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
-import { CommonModule, Location } from '@angular/common'
+import { CommonModule, DatePipe, Location } from '@angular/common'
 import { Component } from '@angular/core'
 import { ActivatedRoute, RouterModule } from '@angular/router'
 import { Observable } from 'rxjs'
@@ -42,10 +42,11 @@ export class UpsertEventComponent {
   ) {
     this.event = this.activatedRoute.snapshot.data['event']
     this.title = this.event ? 'Update Event' : 'Create Event'
+    const date = this.event?.date ? new DatePipe('en-US').transform(this.event?.date, 'yyyy-MM-dd', 'utc') as unknown as Date : null
     this.formGroup = new FormGroup<EventFormGroup>({
       description: new FormControl(this.event?.description ?? null, [Validators.required]),
       name: new FormControl(this.event?.name ?? null, [Validators.required]),
-      date: new FormControl(this.event?.date ?? null, [Validators.required]),
+      date: new FormControl(date, [Validators.required]),
       isPublic: new FormControl(this.event?.isPublic ?? false, [Validators.required]),
       isActive: new FormControl(this.event?.isActive ?? false, [Validators.required]),
     })
@@ -65,7 +66,7 @@ export class UpsertEventComponent {
         this.cancel()
       }, error: (e) => {
         this.formGroup.enable()
-        // this.saving = false
+        this.saving = false
         throw e
       }
     })
@@ -88,7 +89,6 @@ export class UpsertEventComponent {
     const request = new UpdateEventApiRequest(
       this.event!.id,
       this.formGroup.value.name!,
-      this.localService.getUserId()!,
       this.formGroup.value.description!,
       this.formGroup.value.date!,
       this.formGroup.value.isPublic!,

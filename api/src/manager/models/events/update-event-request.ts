@@ -1,6 +1,6 @@
 import { CreateEventRequest } from "./create-event-request";
 
-export class UpdateEventRequest extends CreateEventRequest {
+export class UpdateEventRequest implements Omit<CreateEventRequest, 'authorId'> {
   constructor(
     public id: number,
     public name: string,
@@ -8,6 +8,5 @@ export class UpdateEventRequest extends CreateEventRequest {
     public date: Date,
     public isPublic: boolean
   ) {
-    super(name, null, description, date, isPublic)
   }
 }
