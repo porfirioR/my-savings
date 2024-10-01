@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core'
 import { DatePipe, NgClass } from '@angular/common'
 import { EventViewModel } from '../../models/view/event-view-model'
+import { Router, RouterLink, RouterModule } from '@angular/router'
 
 @Component({
   selector: 'app-event',
@@ -9,12 +10,17 @@ import { EventViewModel } from '../../models/view/event-view-model'
   standalone: true,
   imports: [
     NgClass,
-    DatePipe
+    DatePipe,
+    RouterModule
   ]
 })
 export class EventComponent {
   @Input() eventModel!: EventViewModel
 
-  constructor() { }
+  constructor(private readonly router: Router) { }
+
+  protected editEvent = (id: number) => {
+    this.router.navigate(['my-events/update-event', id])
+  }
 
 }

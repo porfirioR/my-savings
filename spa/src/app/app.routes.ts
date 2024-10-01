@@ -52,7 +52,7 @@ export const routes: Routes = [
         resolve: { event: eventResolver }
       },
       {
-        path: 'update-event/:id',
+        path: 'my-events/update-event/:id',
         title: 'Update Event',
         loadComponent: () => UpsertEventComponent,
         resolve: { event: eventResolver }

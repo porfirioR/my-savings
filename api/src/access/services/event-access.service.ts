@@ -59,7 +59,8 @@ export class EventAccessService {
 
   public updateEvent = async (accessRequest: UpdateEventAccessRequest): Promise<EventAccessModel> => {
     const eventEntity = this.getEntity(accessRequest);
-    delete eventEntity[DatabaseColumns.AuthorId]
+    const entity = await this.getMyEvent(accessRequest.id)
+    eventEntity.authorid = entity.authorId
     const event = await this.eventContext
       .from(TableEnum.Events)
       .upsert(eventEntity)
