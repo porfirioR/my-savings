@@ -1,11 +1,16 @@
 import { ErrorHandler, Injectable } from '@angular/core'
-import { AlertService } from '../services/alert.service'
+import { AlertService, LocalService } from '../services'
+import { Router } from '@angular/router'
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomErrorHandler implements ErrorHandler {
-  constructor(private readonly alertService: AlertService) { }
+  constructor(
+    private readonly alertService: AlertService,
+    private readonly localService: LocalService,
+    private readonly router: Router
+  ) { }
 
   handleError(error: any): void {
     console.error(error)
@@ -14,7 +19,7 @@ export class CustomErrorHandler implements ErrorHandler {
       this.alertService.showError(error)
       return
     } 
-    
+
     if (error && error.error) {
       error = error.error
       if (error && error.type === 'HandledError') {
@@ -29,6 +34,11 @@ export class CustomErrorHandler implements ErrorHandler {
         } else if (error.title) {
           additionalMessage = error.title
         } else if (error.message) {
+          if (error.message === 'jwt expired') {
+            this.localService.cleanCredentials()
+            this.alertService.showError(`${error.status} ${additionalMessage}`)
+            this.router.navigate(['login'])
+          }
           additionalMessage = error.message
         }
         this.alertService.showError(`${error.status} ${additionalMessage}`)
