@@ -57,4 +57,8 @@ export class MyEventsComponent {
     )).subscribe()
   }
 
+  protected removeEventFromMyEvents = (id: number): void => {
+    this.eventFollows = this.eventFollows.filter(x => x.id !== id)
+  }
+
 }

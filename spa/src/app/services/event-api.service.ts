@@ -38,4 +38,8 @@ export class EventApiService {
     return this.httpClient.put<EvenApiModel>(this.url, request)
   }
 
+  public deleteEvent = (id: number): Observable<boolean> => {
+    return this.httpClient.delete<boolean>(`${this.url}/${id}`)
+  }
+
 }

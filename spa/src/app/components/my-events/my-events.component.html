@@ -4,8 +4,9 @@
     <app-loading-skeleton/>
     <app-loading-skeleton/>
   } @else {
+    <h1 class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white justify-center">My events</h1>
     @for (event of eventFollows; track event.id) {
-      <app-event [eventModel]="event"/>
+      <app-event [eventModel]="event" (removeEventFromMyEvents)="$event"/>
     } @empty {
       <app-empty-data />
     }
