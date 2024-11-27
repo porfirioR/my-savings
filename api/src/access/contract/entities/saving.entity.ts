@@ -7,7 +7,7 @@ export class SavingEntity {
     public date: Date,
     public numberofpayment: number,
     public totalamount: number,
-    public savintypeid: number,
+    public savingtypeid: number,
     public currencyid: number,
     public userid: number
   ) {}
