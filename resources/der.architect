@@ -133,16 +133,16 @@
     <column id="COL35" populated="true" UUID="56abfe73-a7b6-4d9c-b209-1c6279572e6d" autoIncrement="false" autoIncrementSequenceName="Payments_Id_seq" defaultValue="" name="Id" nullable="0" physicalName="Id" precision="0" primaryKeySeq="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
      <remarks></remarks>
     </column>
-    <column id="COL36" populated="true" UUID="d79b0008-7e0c-4a7d-9ca9-d05d6eb3ae8e" autoIncrement="false" autoIncrementSequenceName="Savings_Id_seq" defaultValue="" name="SavingId" nullable="0" physicalName="SavingId" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
+    <column id="COL36" populated="true" UUID="6911b2c4-9509-49b5-ba59-cc8734d97136" autoIncrement="false" autoIncrementSequenceName="Payments_Amount_seq" defaultValue="" name="Amount" nullable="0" physicalName="Amount" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
      <remarks></remarks>
     </column>
-    <column id="COL37" populated="true" UUID="6911b2c4-9509-49b5-ba59-cc8734d97136" autoIncrement="false" autoIncrementSequenceName="Payments_Amount_seq" defaultValue="" name="Amount" nullable="0" physicalName="Amount" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
+    <column id="COL37" populated="true" UUID="d1193d2e-d8f3-4c09-b898-3c30144c63a7" autoIncrement="false" autoIncrementSequenceName="Payments_Date_seq" defaultValue="" name="Date" nullable="0" physicalName="Date" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="91" userDefinedTypeUUID="ee349be3-6af2-46e1-b305-975f5354b009" >
      <remarks></remarks>
     </column>
-    <column id="COL38" populated="true" UUID="d1193d2e-d8f3-4c09-b898-3c30144c63a7" autoIncrement="false" autoIncrementSequenceName="Payments_Date_seq" defaultValue="" name="Date" nullable="0" physicalName="Date" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="91" userDefinedTypeUUID="ee349be3-6af2-46e1-b305-975f5354b009" >
+    <column id="COL38" populated="true" UUID="191288d4-818b-4cad-a8b5-a0544cb75fa0" autoIncrement="false" autoIncrementSequenceName="Payments_Refund_seq" defaultValue="false" name="Refund" nullable="0" physicalName="Refund" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="16" userDefinedTypeUUID="a26374aa-3026-4bb8-b564-eb2e186dfa5d" >
      <remarks></remarks>
     </column>
-    <column id="COL39" populated="true" UUID="191288d4-818b-4cad-a8b5-a0544cb75fa0" autoIncrement="false" autoIncrementSequenceName="Payments_Refund_seq" defaultValue="false" name="Refund" nullable="0" physicalName="Refund" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="16" userDefinedTypeUUID="a26374aa-3026-4bb8-b564-eb2e186dfa5d" >
+    <column id="COL39" populated="true" UUID="d79b0008-7e0c-4a7d-9ca9-d05d6eb3ae8e" autoIncrement="false" autoIncrementSequenceName="Savings_Id_seq" defaultValue="" name="SavingId" nullable="0" physicalName="SavingId" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
      <remarks></remarks>
     </column>
     </folder>
@@ -216,7 +216,7 @@
     <column-mapping id="CMP61" populated="true" UUID="0be889c3-eaeb-4a12-9677-4313ff02f31f" fk-column-ref="COL31" name="Column Mapping" physicalName="Column Mapping" pk-column-ref="COL12" />
    </relationship>
    <relationship id="REL62" populated="true" UUID="cb19b2d9-5e0e-4fee-be19-6d5c9bff51a6" deferrability="7" deleteRule="3" fk-table-ref="TAB34" fkCardinality="7" identifying="false" name="Savings_Payments_fk" physicalName="Savings_Payments_fk" pk-table-ref="TAB23" pkCardinality="2" updateRule="3" >
-    <column-mapping id="CMP63" populated="true" UUID="e4d4ea40-bb78-4a3a-8200-f76d31679b23" fk-column-ref="COL36" name="Column Mapping" physicalName="Column Mapping" pk-column-ref="COL24" />
+    <column-mapping id="CMP63" populated="true" UUID="e4d4ea40-bb78-4a3a-8200-f76d31679b23" fk-column-ref="COL39" name="Column Mapping" physicalName="Column Mapping" pk-column-ref="COL24" />
    </relationship>
    <relationship id="REL64" populated="true" UUID="717c2c54-3b22-4ac2-8115-2e4845b4cf37" deferrability="7" deleteRule="3" fk-table-ref="TAB23" fkCardinality="7" identifying="false" name="Type_Savings_fk" physicalName="Type_Savings_fk" pk-table-ref="TAB42" pkCardinality="2" updateRule="3" >
     <column-mapping id="CMP65" populated="true" UUID="445f11ec-748c-48c0-b2ed-5149fcb9c2d7" fk-column-ref="COL29" name="Column Mapping" physicalName="Column Mapping" pk-column-ref="COL43" />
