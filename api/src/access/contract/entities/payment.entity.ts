@@ -4,6 +4,7 @@ export class PaymentEntity {
     public date: Date,
     public savingid: number,
     public amount: number,
-    public refund: boolean
+    public refund: boolean,
+    public savingId: number
   ) {}
 }

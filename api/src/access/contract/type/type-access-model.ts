@@ -4,3 +4,4 @@ export class TypeAccessModel {
     public name: string
   ) {}
 }
+//asc, desc, random
