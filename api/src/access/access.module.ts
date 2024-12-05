@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DbContextService, EventAccessService, EventFollowAccessService, MailAccessService, UserAccessService } from './services';
+import { DbContextService, EventAccessService, EventFollowAccessService, MailAccessService, PaymentAccessService, UserAccessService } from './services';
 import { AuthModule } from '../auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MAIL_HOST, MAIL_PASSWORD, MAIL_USER } from '../utility/constants';
@@ -36,12 +36,14 @@ import { MAIL_HOST, MAIL_PASSWORD, MAIL_USER } from '../utility/constants';
     EventFollowAccessService,
     UserAccessService,
     MailAccessService,
+    PaymentAccessService
   ],
   exports: [
     EventAccessService,
     EventFollowAccessService,
     UserAccessService,
     MailAccessService,
+    PaymentAccessService,
   ]
 })
 export class AccessModule {}

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { DbContextService } from './db-context.service';
 import { CreatePaymentAccessRequest } from '../contract/payments/create-payment-access-request';
-import { TableEnum } from 'src/utility/enums';
+import { DatabaseColumns, TableEnum } from 'src/utility/enums';
 import { PaymentEntity } from '../contract/entities/payment.entity';
 import { PaymentAccessModel } from '../contract/payments/payment-access-model';
 
@@ -14,33 +14,42 @@ export class PaymentAccessService {
     this.eventContext = this.dbContextService.getConnection();
   }
 
-  
   public create = async (accessRequest: CreatePaymentAccessRequest): Promise<PaymentAccessModel> => {
-    const eventEntity = this.getEntity(accessRequest);
+    const eventEntity = this.mapAccessRequestToEntity(accessRequest);
     const event  = await this.eventContext
       .from(TableEnum.Payments)
       .insert(eventEntity)
       .select()
       .single<PaymentEntity>();
     if (event.error) throw new Error(event.error.message);
-    return this.getPaymentAccessModel(event.data);
+    return this.mapEntityToAccessModel(event.data);
   };
 
-  private getPaymentAccessModel = (accessRequest: PaymentEntity): PaymentAccessModel => new PaymentAccessModel(
-    accessRequest.id,
-    accessRequest.amount,
-    accessRequest.date,
-    accessRequest.refund,
-    accessRequest.savingId
+  public getMyPayments = async (authorId: number, id: number): Promise<PaymentAccessModel[]> => {
+    const { data, error } = await this.eventContext
+      .from(TableEnum.Events)
+      .select(DatabaseColumns.All)
+      .eq(DatabaseColumns.AuthorId, authorId)
+      .eq(DatabaseColumns.EntityId, id)
+      .order('date', {ascending: false});
+    if (error) throw new Error(error.message);
+    return data?.map(this.mapEntityToAccessModel);
+  };
+
+  private mapEntityToAccessModel = (entity: PaymentEntity): PaymentAccessModel => new PaymentAccessModel(
+    entity.id,
+    entity.amount,
+    entity.date,
+    entity.refund,
+    entity.savingid
   );
 
-  private getEntity = (accessRequest: CreatePaymentAccessRequest) => {
+  private mapAccessRequestToEntity = (accessRequest: CreatePaymentAccessRequest) => {
     const eventEntity = new PaymentEntity(
       accessRequest.date,
-      accessRequest.savingid,
+      accessRequest.savingId,
       accessRequest.amount,
-      accessRequest.refund,
-      accessRequest.savingId
+      accessRequest.refund
     );
     return eventEntity
   };

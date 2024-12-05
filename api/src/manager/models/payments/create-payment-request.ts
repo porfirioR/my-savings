@@ -1,4 +1,4 @@
-export class CreatePaymentAccessRequest {
+export class CreatePaymentRequest {
   constructor(
     public date: Date,
     public savingId: number,
