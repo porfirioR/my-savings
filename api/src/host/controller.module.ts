@@ -12,6 +12,7 @@ import { SignupMiddleware } from './middleware/signup.middleware';
 import { PrivateEndpointGuard } from './guards/private-endpoint.guard';
 import { ResetPasswordMiddleware } from './middleware/reset-password.middleware';
 import { TasksService } from './services/tasks.service';
+import { PaymentController } from './controllers/payments.controller';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { TasksService } from './services/tasks.service';
   ],
   controllers: [
     UsersController,
-    EventsController
+    EventsController,
+    PaymentController,
   ],
   providers: [
     JwtService,

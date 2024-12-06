@@ -4,6 +4,7 @@ import { PaymentModel } from '../models/payments/payment-model';
 import { PaymentAccessModel } from '../../access/contract/payments/payment-access-model';
 import { CreatePaymentAccessRequest } from '../../access/contract/payments/create-payment-access-request';
 import { CreatePaymentRequest } from '../models/payments/create-payment-request';
+import { UpdatePaymentRequest } from '../models/payments/update-payment-request';
 
 @Injectable()
 export class PaymentManagerService {
@@ -36,18 +37,18 @@ export class PaymentManagerService {
   //   return await this.paymentFollowAccessService.deletePaymentFollow(request)
   // }
 
-  // public updatePayment = async (request: UpdatePaymentRequest): Promise<PaymentModel> => {
-  //   const accessRequest = new UpdatePaymentAccessRequest(request.id, request.name, request.description, request.date, request.isPublic)
-  //   const accessModel = await this.paymentAccessService.updatePayment(accessRequest);
-  //   const exitPaymentFollow = await this.paymentFollowAccessService.checkExistPaymentFollows(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
-  //   if (exitPaymentFollow && !accessModel.isPublic) {
-  //     await this.deletePaymentFollow(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
-  //   }
-  //   if (!exitPaymentFollow && accessModel.isPublic) {
-  //     await this.createPaymentFollow(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
-  //   }
-  //   return this.mapAccessModelToModel(accessModel)
-  // }
+  public updatePayment = async (request: UpdatePaymentRequest): Promise<PaymentModel> => {
+    // const accessRequest = new UpdatePaymentAccessRequest(request.id, request.name, request.description, request.date, request.isPublic)
+    // const accessModel = await this.paymentAccessService.updatePayment(accessRequest);
+    // const exitPaymentFollow = await this.paymentFollowAccessService.checkExistPaymentFollows(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
+    // if (exitPaymentFollow && !accessModel.isPublic) {
+    //   await this.deletePaymentFollow(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
+    // }
+    // if (!exitPaymentFollow && accessModel.isPublic) {
+    //   await this.createPaymentFollow(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
+    // }
+    // return this.mapAccessModelToModel(accessModel)
+  }
 
   private mapAccessModelToModel = (accessModel: PaymentAccessModel) => new PaymentModel(
     accessModel.id,
