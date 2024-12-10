@@ -1,4 +1,4 @@
-import { CreatePaymentRequest } from "./create-payment-request";
+import { CreatePaymentRequest } from "./create-payment-request"
 
 export class UpdatePaymentRequest extends CreatePaymentRequest {
   constructor(
@@ -13,6 +13,6 @@ export class UpdatePaymentRequest extends CreatePaymentRequest {
       savingId,
       amount,
       refund
-    );
+    )
   }
 }

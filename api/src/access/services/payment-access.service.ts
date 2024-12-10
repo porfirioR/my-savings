@@ -5,6 +5,7 @@ import { CreatePaymentAccessRequest } from '../contract/payments/create-payment-
 import { DatabaseColumns, TableEnum } from 'src/utility/enums';
 import { PaymentEntity } from '../contract/entities/payment.entity';
 import { PaymentAccessModel } from '../contract/payments/payment-access-model';
+import { UpdatePaymentAccessRequest } from '../contract/payments/update-payment-access-request';
 
 @Injectable()
 export class PaymentAccessService {
@@ -27,13 +28,24 @@ export class PaymentAccessService {
 
   public getMyPayments = async (authorId: number, id: number): Promise<PaymentAccessModel[]> => {
     const { data, error } = await this.eventContext
-      .from(TableEnum.Events)
+      .from(TableEnum.Payments)
       .select(DatabaseColumns.All)
       .eq(DatabaseColumns.AuthorId, authorId)
       .eq(DatabaseColumns.EntityId, id)
       .order('date', {ascending: false});
     if (error) throw new Error(error.message);
     return data?.map(this.mapEntityToAccessModel);
+  };
+
+  public updatePayment = async (accessRequest: UpdatePaymentAccessRequest): Promise<PaymentAccessModel> => {
+    const eventEntity = this.mapAccessRequestToEntity(accessRequest);
+    const event = await this.eventContext
+      .from(TableEnum.Payments)
+      .upsert(eventEntity)
+      .select()
+      .single<PaymentEntity>();
+    if (event.error) throw new Error(event.error.message);
+    return this.mapEntityToAccessModel(event.data);
   };
 
   private mapEntityToAccessModel = (entity: PaymentEntity): PaymentAccessModel => new PaymentAccessModel(
@@ -44,13 +56,17 @@ export class PaymentAccessService {
     entity.savingid
   );
 
-  private mapAccessRequestToEntity = (accessRequest: CreatePaymentAccessRequest) => {
+  private mapAccessRequestToEntity = (accessRequest: CreatePaymentAccessRequest | UpdatePaymentAccessRequest) => {
     const eventEntity = new PaymentEntity(
       accessRequest.date,
       accessRequest.savingId,
       accessRequest.amount,
       accessRequest.refund
     );
+    if (accessRequest instanceof UpdatePaymentAccessRequest) {
+      eventEntity.id = accessRequest.id
+    }
     return eventEntity
   };
+
 }

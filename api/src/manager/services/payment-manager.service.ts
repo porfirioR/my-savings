@@ -5,6 +5,7 @@ import { PaymentAccessModel } from '../../access/contract/payments/payment-acces
 import { CreatePaymentAccessRequest } from '../../access/contract/payments/create-payment-access-request';
 import { CreatePaymentRequest } from '../models/payments/create-payment-request';
 import { UpdatePaymentRequest } from '../models/payments/update-payment-request';
+import { UpdatePaymentAccessRequest } from '../../access/contract/payments/update-payment-access-request';
 
 @Injectable()
 export class PaymentManagerService {
@@ -29,25 +30,16 @@ export class PaymentManagerService {
     return this.mapAccessModelToModel(accessModel)
   }
 
-  // public createPaymentFollow = async (request: PaymentFollowRequest): Promise<boolean> => {
-  //   return await this.paymentFollowAccessService.createPaymentFollow(request)
-  // }
-
-  // public deletePaymentFollow = async (request: PaymentFollowRequest): Promise<boolean> => {
-  //   return await this.paymentFollowAccessService.deletePaymentFollow(request)
-  // }
-
   public updatePayment = async (request: UpdatePaymentRequest): Promise<PaymentModel> => {
-    // const accessRequest = new UpdatePaymentAccessRequest(request.id, request.name, request.description, request.date, request.isPublic)
-    // const accessModel = await this.paymentAccessService.updatePayment(accessRequest);
-    // const exitPaymentFollow = await this.paymentFollowAccessService.checkExistPaymentFollows(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
-    // if (exitPaymentFollow && !accessModel.isPublic) {
-    //   await this.deletePaymentFollow(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
-    // }
-    // if (!exitPaymentFollow && accessModel.isPublic) {
-    //   await this.createPaymentFollow(new PaymentFollowRequest(accessModel.id, accessModel.authorId))
-    // }
-    // return this.mapAccessModelToModel(accessModel)
+    const accessRequest = new UpdatePaymentAccessRequest(
+      request.id,
+      request.date,
+      request.savingId,
+      request.amount,
+      request.refund
+    )
+    const accessModel = await this.paymentAccessService.updatePayment(accessRequest);
+    return this.mapAccessModelToModel(accessModel)
   }
 
   private mapAccessModelToModel = (accessModel: PaymentAccessModel) => new PaymentModel(
@@ -57,4 +49,5 @@ export class PaymentManagerService {
     accessModel.refund,
     accessModel.savingId
   )
+
 }
