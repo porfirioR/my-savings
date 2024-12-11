@@ -12,7 +12,7 @@ import { UpdatePaymentRequest } from '../../manager/models/payments/update-payme
 export class PaymentController {
   constructor(private paymentManagerService: PaymentManagerService) {}
 
-  @Get('my-events/:authorId/:id')
+  @Get(':authorId/:id')
   async getMyPayments(@Param('authorId') authorId: number, @Param('id') id: number): Promise<PaymentModel[]> {
     return await this.paymentManagerService.getMyPayments(authorId, id);
   }

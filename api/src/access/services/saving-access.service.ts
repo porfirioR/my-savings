@@ -2,88 +2,80 @@ import { Injectable } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { DbContextService } from './db-context.service';
 import { TableEnum, DatabaseColumns } from '../../utility/enums';
-import { CreateEventAccessRequest } from '../contract/events/create-event-access-request';
-import { EventAccessModel } from '../contract/events/event-access-model';
-import { UpdateEventAccessRequest } from '../contract/events/update-event-access-request';
-import { EventEntity } from '../contract/entities/event.entity';
+import { SavingEntity } from '../contract/entities/saving.entity';
+import { CreateSavingAccessRequest, SavingAccessModel, UpdateSavingAccessRequest } from '../contract/savings';
 
 @Injectable()
 export class SavingAccessService {
-  private eventContext: SupabaseClient<any, 'public', any>;
+  private dbtContext: SupabaseClient<any, 'public', any>;
 
   constructor(private dbContextService: DbContextService) {
-    this.eventContext = this.dbContextService.getConnection();
+    this.dbtContext = this.dbContextService.getConnection();
   }
 
-  public getPublicEvents = async (): Promise<EventAccessModel[]> => {
-    const { data, error } = await this.eventContext
-      .from(TableEnum.Events)
-      .select(DatabaseColumns.All)
-      .eq(DatabaseColumns.IsActive, true)
-      .eq(DatabaseColumns.IsPublic, true)
-      .order('date', {ascending: false});
-    if (error) throw new Error(error.message);
-    return data?.map(this.getEventAccessModel);
+  public create = async (accessRequest: CreateSavingAccessRequest): Promise<SavingAccessModel> => {
+    const entity = this.mapAccessRequestToEntity(accessRequest);
+    const event  = await this.dbtContext
+      .from(TableEnum.Savings)
+      .insert(entity)
+      .select()
+      .single<SavingEntity>();
+    if (event.error) throw new Error(event.error.message);
+    return this.mapEntityToAccessModel(event.data);
   };
 
-  public getMyEvents = async (authorId: number): Promise<EventAccessModel[]> => {
-    const { data, error } = await this.eventContext
-      .from(TableEnum.Events)
+  public getMySavings = async (authorId: number, id: number): Promise<SavingAccessModel[]> => {
+    const { data, error } = await this.dbtContext
+      .from(TableEnum.Savings)
       .select(DatabaseColumns.All)
       .eq(DatabaseColumns.AuthorId, authorId)
+      .eq(DatabaseColumns.EntityId, id)
       .order('date', {ascending: false});
     if (error) throw new Error(error.message);
-    return data?.map(this.getEventAccessModel);
+    return data?.map(this.mapEntityToAccessModel);
   };
 
-  public getMyEvent = async (id: number): Promise<EventAccessModel> => {
-    const { data, error } = await this.eventContext
-      .from(TableEnum.Events)
-      .select(DatabaseColumns.All)
-      .eq(DatabaseColumns.EntityId, id)
-      .single();
-    if (error) throw new Error(error.message);
-    return this.getEventAccessModel(data);
-  };
-
-  public createEvent = async (accessRequest: CreateEventAccessRequest): Promise<EventAccessModel> => {
-    const eventEntity = this.getEntity(accessRequest);
-    const event  = await this.eventContext
-      .from(TableEnum.Events)
-      .insert(eventEntity)
-      .select()
-      .single<EventEntity>();
-    if (event.error) throw new Error(event.error.message);
-    return this.getEventAccessModel(event.data);
-  };
-
-  public updateEvent = async (accessRequest: UpdateEventAccessRequest): Promise<EventAccessModel> => {
-    const eventEntity = this.getEntity(accessRequest);
-    const entity = await this.getMyEvent(accessRequest.id)
-    eventEntity.authorid = entity.authorId
-    const event = await this.eventContext
-      .from(TableEnum.Events)
+  public updateSaving = async (accessRequest: UpdateSavingAccessRequest): Promise<SavingAccessModel> => {
+    const eventEntity = this.mapAccessRequestToEntity(accessRequest);
+    const event = await this.dbtContext
+      .from(TableEnum.Savings)
       .upsert(eventEntity)
       .select()
-      .single<EventEntity>();
+      .single<SavingEntity>();
     if (event.error) throw new Error(event.error.message);
-    return this.getEventAccessModel(event.data);
+    return this.mapEntityToAccessModel(event.data);
   };
 
-  private getEventAccessModel = (accessRequest: EventEntity): EventAccessModel => new EventAccessModel(
-    accessRequest.id,
-    accessRequest.name,
-    accessRequest.authorid,
-    accessRequest.description,
-    accessRequest.isactive,
-    accessRequest.date,
-    accessRequest.ispublic
+  private mapEntityToAccessModel = (entity: SavingEntity): SavingAccessModel => new SavingAccessModel(
+    entity.id,
+    entity.name,
+    entity.description,
+    entity.isactive,
+    entity.date,
+    entity.savingtypeid,
+    entity.currencyid,
+    entity.userid,
+    entity.periodid,
+    entity.totalamount,
+    entity.numberofpayment
   );
 
-  private getEntity = (accessRequest: CreateEventAccessRequest | UpdateEventAccessRequest) => {
-    const eventEntity = new EventEntity(accessRequest.name, accessRequest.authorId, accessRequest.description, true, accessRequest.date, accessRequest.isPublic);
-    if (accessRequest instanceof UpdateEventAccessRequest) {
+  private mapAccessRequestToEntity = (accessRequest: CreateSavingAccessRequest | UpdateSavingAccessRequest) => {
+    const eventEntity = new SavingEntity(
+      accessRequest.name,
+      accessRequest.description,
+      true,
+      accessRequest.date,
+      accessRequest.savingTypeId,
+      accessRequest.currencyId,
+      accessRequest.userId,
+      accessRequest.periodId,
+      accessRequest.totalAmount,
+      accessRequest.numberOfPayment,
+    );
+    if (accessRequest instanceof UpdateSavingAccessRequest) {
       eventEntity.id = accessRequest.id
+      eventEntity.isactive = accessRequest.isActive
     }
     return eventEntity
   };

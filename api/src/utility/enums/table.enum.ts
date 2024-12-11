@@ -4,4 +4,5 @@ export enum TableEnum {
   WebPushToken = 'webpushtoken',
   EventFollows = 'eventfollows',
   Payments = 'payments',
+  Savings = 'savings',
 }
