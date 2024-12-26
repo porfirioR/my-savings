@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CreatePaymentApiRequest } from '../models/payments/create-payment-api-request';
-import { PaymentModel } from '../models/payments/payment-model';
+import { PaymentModel } from '../../manager/models/payments/payment-model';
 import { UpdatePaymentApiRequest } from '../models/payments/update-payment-api-request';
 import { PrivateEndpointGuard } from '../guards/private-endpoint.guard';
 import { PaymentManagerService } from '../../manager/services';

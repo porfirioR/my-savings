@@ -1,9 +1,8 @@
-export class SavingAccessModel {
+export class CreateSavingRequest {
   constructor(
-    public id: number,
-    public isActive: boolean,
     public name: string,
     public description: string,
+    public isActive: boolean,
     public date: Date,
     public savingTypeId: number,
     public currencyId: number,
@@ -11,5 +10,5 @@ export class SavingAccessModel {
     public periodId?: number,
     public totalAmount?: number,
     public numberOfPayment?: number,
-  ) { }
+  ) {}
 }

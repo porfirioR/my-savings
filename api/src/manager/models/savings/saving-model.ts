@@ -1,4 +1,4 @@
-export class SavingAccessModel {
+export class SavingModel {
   constructor(
     public id: number,
     public isActive: boolean,
@@ -11,5 +11,5 @@ export class SavingAccessModel {
     public periodId?: number,
     public totalAmount?: number,
     public numberOfPayment?: number,
-  ) { }
+  ) {}
 }

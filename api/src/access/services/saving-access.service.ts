@@ -48,9 +48,9 @@ export class SavingAccessService {
 
   private mapEntityToAccessModel = (entity: SavingEntity): SavingAccessModel => new SavingAccessModel(
     entity.id,
+    entity.isactive,
     entity.name,
     entity.description,
-    entity.isactive,
     entity.date,
     entity.savingtypeid,
     entity.currencyid,
@@ -60,7 +60,7 @@ export class SavingAccessService {
     entity.numberofpayment
   );
 
-  private mapAccessRequestToEntity = (accessRequest: CreateSavingAccessRequest | UpdateSavingAccessRequest) => {
+  private mapAccessRequestToEntity = (accessRequest: CreateSavingAccessRequest | UpdateSavingAccessRequest): SavingEntity => {
     const eventEntity = new SavingEntity(
       accessRequest.name,
       accessRequest.description,

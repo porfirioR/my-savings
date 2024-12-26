@@ -56,17 +56,17 @@ export class PaymentAccessService {
     entity.savingid
   );
 
-  private mapAccessRequestToEntity = (accessRequest: CreatePaymentAccessRequest | UpdatePaymentAccessRequest) => {
-    const eventEntity = new PaymentEntity(
+  private mapAccessRequestToEntity = (accessRequest: CreatePaymentAccessRequest | UpdatePaymentAccessRequest): PaymentEntity => {
+    const paymentEntity = new PaymentEntity(
       accessRequest.date,
       accessRequest.savingId,
       accessRequest.amount,
       accessRequest.refund
     );
     if (accessRequest instanceof UpdatePaymentAccessRequest) {
-      eventEntity.id = accessRequest.id
+      paymentEntity.id = accessRequest.id
     }
-    return eventEntity
+    return paymentEntity
   };
 
 }
