@@ -16,7 +16,6 @@ import { CreateEventApiRequest, EvenApiModel, UpdateEventApiRequest } from '../.
   selector: 'app-upsert-event',
   templateUrl: './upsert-event.component.html',
   styleUrls: ['./upsert-event.component.css'],
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,

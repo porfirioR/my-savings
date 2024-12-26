@@ -9,7 +9,6 @@ import { AutocompleteType } from '../../../constants/autocomplete-type'
   selector: 'app-text',
   templateUrl: './text.component.html',
   styleUrls: ['./text.component.css'],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

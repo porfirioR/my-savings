@@ -7,7 +7,6 @@ import { FormErrorsComponent } from '../../form-errors/form-errors.component'
   selector: 'app-text-area-input',
   templateUrl: './text-area-input.component.html',
   styleUrls: ['./text-area-input.component.css'],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

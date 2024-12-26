@@ -1,4 +1,4 @@
-import { AsyncPipe, NgFor, NgIf } from '@angular/common'
+import { AsyncPipe } from '@angular/common'
 import { Component } from '@angular/core'
 import { Store } from '@ngrx/store'
 import { RouterModule } from '@angular/router'
@@ -15,10 +15,7 @@ import { loadingActionGroup } from '../../store/loading/loading.actions'
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     AsyncPipe,
     RouterModule,
     EventComponent,

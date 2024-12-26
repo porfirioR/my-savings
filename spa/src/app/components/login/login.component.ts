@@ -10,7 +10,6 @@ import { FormErrorsComponent } from '../form-errors/form-errors.component'
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  standalone: true,
   imports: [
     RouterModule,
     ReactiveFormsModule,

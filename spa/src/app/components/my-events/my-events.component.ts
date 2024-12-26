@@ -1,4 +1,4 @@
-import { AsyncPipe, NgFor, NgIf } from '@angular/common'
+import { AsyncPipe } from '@angular/common'
 import { Component } from '@angular/core'
 import { RouterModule } from '@angular/router'
 import { Store } from '@ngrx/store'
@@ -15,10 +15,7 @@ import { EmptyDataComponent } from "../empty-data/empty-data.component";
   selector: 'app-my-events',
   templateUrl: './my-events.component.html',
   styleUrls: ['./my-events.component.css'],
-  standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     AsyncPipe,
     RouterModule,
     EventComponent,

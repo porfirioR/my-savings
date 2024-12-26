@@ -6,7 +6,6 @@ import { LocalService, UserApiService } from '../../services'
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
-  standalone: true,
   imports: [
     RouterModule,
   ]

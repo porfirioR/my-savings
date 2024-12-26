@@ -6,7 +6,6 @@ import { ControlValueAccessor, NgControl, ReactiveFormsModule } from '@angular/f
   selector: 'app-check-box-input',
   templateUrl: './check-box-input.component.html',
   styleUrls: ['./check-box-input.component.css'],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

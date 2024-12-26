@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core'
 import { Router, RouterModule } from '@angular/router'
-import { NgIf } from '@angular/common'
 import { ProfileComponent } from "../profile/profile.component"
 import { AlertService, LocalService } from '../../services'
 
@@ -8,11 +7,9 @@ import { AlertService, LocalService } from '../../services'
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
-  standalone: true,
   imports: [
     RouterModule,
     ProfileComponent,
-    NgIf
   ]
 })
 export class HeaderComponent {

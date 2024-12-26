@@ -11,7 +11,6 @@ import { TextComponent } from '../inputs/text/text.component'
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.css'],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

@@ -7,7 +7,6 @@ import { FormErrorsComponent } from '../../form-errors/form-errors.component'
   selector: 'app-date-input',
   templateUrl: './date-input.component.html',
   styleUrls: ['./date-input.component.css'],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

@@ -4,10 +4,8 @@ import { ControlValueAccessor, NgControl } from '@angular/forms'
 
 @Component({
   selector: 'app-form-errors',
-  standalone: true,
   imports: [
     NgIf,
-    NgFor,
   ],
   templateUrl: './form-errors.component.html',
   styleUrl: './form-errors.component.css'

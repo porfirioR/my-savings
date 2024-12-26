@@ -1,7 +1,6 @@
 import { Component } from '@angular/core'
 import { RouterOutlet } from '@angular/router'
 import { SwPush } from '@angular/service-worker'
-import { DynamicTableComponent } from './components/dynamic-table/dynamic-table.component'
 import { HeaderComponent } from './components/header/header.component'
 import { environment } from '../environments/environment.development'
 import { LocalService, UserApiService } from './services'
@@ -9,10 +8,8 @@ import { PushTokenApiRequest } from './models/api'
 
 @Component({
   selector: 'app-root',
-  standalone: true,
   imports: [
     RouterOutlet,
-    DynamicTableComponent,
     HeaderComponent
   ],
   templateUrl: './app.component.html',
