@@ -7,7 +7,6 @@ import { Router, RouterLink, RouterModule } from '@angular/router'
   selector: 'app-event',
   templateUrl: './event.component.html',
   styleUrls: ['./event.component.css'],
-  standalone: true,
   imports: [
     NgClass,
     DatePipe,

@@ -15,14 +15,13 @@ import { EmptyDataComponent } from "../empty-data/empty-data.component";
   selector: 'app-my-events',
   templateUrl: './my-events.component.html',
   styleUrls: ['./my-events.component.css'],
-  standalone: true,
   imports: [
     AsyncPipe,
     RouterModule,
     EventComponent,
     LoadingSkeletonComponent,
     EmptyDataComponent
-]
+  ]
 })
 export class MyEventsComponent {
   protected eventFollows: EventViewModel[] = []

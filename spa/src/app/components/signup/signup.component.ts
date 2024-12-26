@@ -10,7 +10,6 @@ import { TextComponent } from '../inputs/text/text.component'
   selector: 'app-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css'],
-  standalone: true,
   imports: [
     RouterModule,
     ReactiveFormsModule,

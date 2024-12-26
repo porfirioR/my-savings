@@ -3,7 +3,6 @@ import { Component } from '@angular/core'
 
 @Component({
   selector: 'app-dynamic-table',
-  standalone: true,
   templateUrl: './dynamic-table.component.html',
   styleUrls: ['./dynamic-table.component.css'],
   imports: [
@@ -11,7 +10,7 @@ import { Component } from '@angular/core'
   ]
 })
 export class DynamicTableComponent {
-  protected columName: any[] = [
+  protected columnName: any[] = [
     'id',
     'nombre',
     'tipo',

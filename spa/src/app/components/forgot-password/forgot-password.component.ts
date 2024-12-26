@@ -10,7 +10,6 @@ import { TextComponent } from '../inputs/text/text.component'
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.css'],
-  standalone: true,
   imports: [
     RouterModule,
     ReactiveFormsModule,
