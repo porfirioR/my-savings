@@ -1,4 +1,4 @@
-import { AsyncPipe, NgFor, NgIf } from '@angular/common'
+import { AsyncPipe } from '@angular/common'
 import { Component } from '@angular/core'
 import { RouterModule } from '@angular/router'
 import { Store } from '@ngrx/store'
@@ -17,14 +17,12 @@ import { EmptyDataComponent } from "../empty-data/empty-data.component";
   styleUrls: ['./my-events.component.css'],
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     AsyncPipe,
     RouterModule,
     EventComponent,
     LoadingSkeletonComponent,
     EmptyDataComponent
-  ]
+]
 })
 export class MyEventsComponent {
   protected eventFollows: EventViewModel[] = []
