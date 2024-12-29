@@ -1,4 +1,4 @@
-export class CreateSavingRequest {
+export class CreateSavingApiRequest {
   constructor(
     public name: string,
     public description: string,

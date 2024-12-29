@@ -13,7 +13,7 @@ export class SavingsController {
   constructor(private savingManagerService: SavingsManagerService) {}
 
   @Get(':authorId/:id')
-  async getMySavingss(@Param('authorId') authorId: number, @Param('id') id: number): Promise<SavingModel[]> {
+  async getMySavings(@Param('authorId') authorId: number, @Param('id') id: number): Promise<SavingModel[]> {
     return await this.savingManagerService.getMySavings(authorId, id);
   }
 
@@ -22,7 +22,6 @@ export class SavingsController {
     const request = new CreateSavingRequest(
       apiRequest.name,
       apiRequest.description,
-      apiRequest.isActive,
       apiRequest.date,
       apiRequest.savingTypeId,
       apiRequest.currencyId,

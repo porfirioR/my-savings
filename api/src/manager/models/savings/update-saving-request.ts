@@ -17,7 +17,6 @@ export class UpdateSavingRequest extends CreateSavingRequest {
     super(
       name,
       description,
-      isActive,
       date,
       savingTypeId,
       currencyId,

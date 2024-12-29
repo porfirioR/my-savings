@@ -1,4 +1,6 @@
-export class CreateSavingApiRequest {
+export interface SavingApiModel {
+  id: number
+  isActive: boolean
   name: string
   description: string
   date: Date
