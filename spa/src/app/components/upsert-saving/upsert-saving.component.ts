@@ -7,10 +7,9 @@ import { CheckBoxInputComponent } from '../inputs/check-box-input/check-box-inpu
 import { DateInputComponent } from '../inputs/date-input/date-input.component';
 import { TextAreaInputComponent } from '../inputs/text-area-input/text-area-input.component';
 import { SavingFormGroup } from '../../models/forms';
-import { SavingApiModel } from '../../models/api/savings/saving-api-model';
 import { AlertService, LocalService, SavingApiService } from '../../services';
 import { Observable } from 'rxjs';
-import { CreateSavingApiRequest, EvenApiModel, UpdateSavingApiRequest, } from '../../models/api';
+import { CreateSavingApiRequest, SavingApiModel, UpdateSavingApiRequest, } from '../../models/api';
 
 @Component({
   selector: 'app-upsert-saving',
@@ -37,8 +36,7 @@ export class UpsertSavingComponent implements OnInit {
     private readonly localService: LocalService,
     private readonly activatedRoute: ActivatedRoute,
     private readonly alertService: AlertService,
-        private readonly savingApiService: SavingApiService,
-    
+    private readonly savingApiService: SavingApiService,
   ) {
     this.saving = this.activatedRoute.snapshot.data['saving']
     this.title = this.saving ? 'Update Saving' : 'New Saving'
@@ -49,8 +47,8 @@ export class UpsertSavingComponent implements OnInit {
     date = new DatePipe('en-US').transform(date, 'yyyy-MM-dd', 'utc') as unknown as Date
     this.formGroup = new FormGroup<SavingFormGroup>({
       id: new FormControl(this.saving?.id),
-      name: new FormControl(this.saving?.name, [Validators.required]),
-      description: new FormControl(this.saving?.description, [Validators.required]),
+      name: new FormControl(this.saving?.name, [Validators.required, Validators.maxLength(50)]),
+      description: new FormControl(this.saving?.description, [Validators.required, Validators.maxLength(100)]),
       date: new FormControl(date, [Validators.required]),
       savingTypeId: new FormControl(this.saving?.savingTypeId, [Validators.required]),
       isActive: new FormControl(this.saving?.isActive),
@@ -86,7 +84,7 @@ export class UpsertSavingComponent implements OnInit {
     })
   }
 
-  private create = (): Observable<EvenApiModel> => {
+  private create = (): Observable<SavingApiModel> => {
     const request = new CreateSavingApiRequest(
       this.formGroup.value.name!,
       this.formGroup.value.description!,
@@ -101,7 +99,7 @@ export class UpsertSavingComponent implements OnInit {
     return this.savingApiService.createSaving(request)
   }
 
-  private update = (): Observable<EvenApiModel> => {
+  private update = (): Observable<SavingApiModel> => {
     const request = new UpdateSavingApiRequest(
       this.formGroup.value.id!,
       this.formGroup.value.isActive ?? true,

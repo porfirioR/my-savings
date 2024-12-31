@@ -11,7 +11,8 @@
         <app-text formControlName="name" type="text" label="Name" id="name" name="name" />
         <app-text-area-input formControlName="description" label="Description" id="description" name="description" />
         <app-date-input formControlName="date" label="Date" id="date" name="date" />
-        <app-check-box-input formControlName="isPublic" label="Is Public" />
+        <app-text formControlName="totalAmount" type="text" label="Amount" id="totalAmount" name="totalAmount" />
+        <app-text formControlName="numberOfPayment" type="text" label="Number Of Payment" id="numberOfPayment" name="numberOfPayment" />
         <app-check-box-input *ngIf="saving" formControlName="isActive" label="Is Active" />
         <footer class="flex justify-between">
           <button

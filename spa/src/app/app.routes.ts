@@ -8,6 +8,7 @@ import { loadingResolver } from './resolvers/loading.resolver'
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component'
 import { UpsertEventComponent } from './components/upsert-event/upsert-event.component'
 import { eventResolver } from './resolvers/event.resolver'
+import { UpsertSavingComponent } from './components/upsert-saving/upsert-saving.component'
 
 export const routes: Routes = [
   {
@@ -56,6 +57,12 @@ export const routes: Routes = [
         title: 'Update Event',
         loadComponent: () => UpsertEventComponent,
         resolve: { event: eventResolver }
+      },
+      {
+        path: 'update-saving/:id',
+        title: 'Update Saving',
+        loadComponent: () => UpsertSavingComponent,
+        resolve: { saving: eventResolver }
       },
     ]
   }
