@@ -36,22 +36,23 @@ export class HomeComponent {
     this.loading$ = this.store.select(selectIsLoading)
     const userId = this.localService.getUserId()
     this.userLoaded = userId > 0
-    this.eventApiService.getPublicEvents().subscribe({
-      next: (eventFollow) => {
-        const currentDate = new Date()
-        this.eventFollows = eventFollow.map(x => new EventViewModel(
-          x.id,
-          x.name,
-          x.authorId,
-          x.authorId !== userId ? '': this.localService.getEmail()!,
-          x.description,
-          x.isActive,
-          new Date(x.date),
-          x.isPublic,
-          currentDate
-        ))
-        this.store.dispatch(loadingActionGroup.loadingSuccess())
-      }
-    })
+    // this.eventApiService.getPublicEvents().subscribe({
+    //   next: (eventFollow) => {
+    //     const currentDate = new Date()
+    //     this.eventFollows = eventFollow.map(x => new EventViewModel(
+    //       x.id,
+    //       x.name,
+    //       x.authorId,
+    //       x.authorId !== userId ? '': this.localService.getEmail()!,
+    //       x.description,
+    //       x.isActive,
+    //       new Date(x.date),
+    //       x.isPublic,
+    //       currentDate
+    //     ))
+    //     this.store.dispatch(loadingActionGroup.loadingSuccess())
+    //   }
+    // })
+    this.store.dispatch(loadingActionGroup.loadingSuccess())
   }
 }

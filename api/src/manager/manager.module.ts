@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { EventManagerService, MailManagerService, PaymentManagerService, SavingsManagerService, UserManagerService } from './services';
+import { EventManagerService, MailManagerService, PaymentManagerService, SavingsManagerService, TypeManagerService, UserManagerService } from './services';
 import { AccessModule } from '../access/access.module';
 import { AuthModule } from '../auth/auth.module';
 
@@ -14,14 +14,16 @@ import { AuthModule } from '../auth/auth.module';
     UserManagerService,
     MailManagerService,
     PaymentManagerService,
-    SavingsManagerService
+    SavingsManagerService,
+    TypeManagerService,
   ],
   exports: [
     EventManagerService,
     UserManagerService,
     MailManagerService,
     PaymentManagerService,
-    SavingsManagerService
+    SavingsManagerService,
+    TypeManagerService,
   ]
 })
 export class ManagerModule {}

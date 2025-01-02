@@ -28,8 +28,8 @@ import { CreateSavingApiRequest, SavingApiModel, UpdateSavingApiRequest, } from 
 export class UpsertSavingComponent implements OnInit {
   protected formGroup: FormGroup<SavingFormGroup>
   protected title: string
-  protected saving?: SavingApiModel
-  protected savingForm = false
+  protected model?: SavingApiModel
+  protected saving = false
 
   constructor(
     private readonly location: Location,
@@ -38,24 +38,24 @@ export class UpsertSavingComponent implements OnInit {
     private readonly alertService: AlertService,
     private readonly savingApiService: SavingApiService,
   ) {
-    this.saving = this.activatedRoute.snapshot.data['saving']
-    this.title = this.saving ? 'Update Saving' : 'New Saving'
+    this.model = this.activatedRoute.snapshot.data['saving']
+    this.title = this.model ? 'Update Saving' : 'New Saving'
     let date = new Date()
-    if (this.saving?.date) {
-      date = this.saving?.date
+    if (this.model?.date) {
+      date = this.model?.date
     }
     date = new DatePipe('en-US').transform(date, 'yyyy-MM-dd', 'utc') as unknown as Date
     this.formGroup = new FormGroup<SavingFormGroup>({
-      id: new FormControl(this.saving?.id),
-      name: new FormControl(this.saving?.name, [Validators.required, Validators.maxLength(50)]),
-      description: new FormControl(this.saving?.description, [Validators.required, Validators.maxLength(100)]),
+      id: new FormControl(this.model?.id),
+      name: new FormControl(this.model?.name, [Validators.required, Validators.maxLength(50)]),
+      description: new FormControl(this.model?.description, [Validators.required, Validators.maxLength(100)]),
       date: new FormControl(date, [Validators.required]),
-      savingTypeId: new FormControl(this.saving?.savingTypeId, [Validators.required]),
-      isActive: new FormControl(this.saving?.isActive),
-      currencyId: new FormControl(this.saving?.currencyId, [Validators.required]),
-      periodId: new FormControl(this.saving?.periodId),
-      totalAmount: new FormControl(this.saving?.totalAmount),
-      numberOfPayment: new FormControl(this.saving?.numberOfPayment),
+      savingTypeId: new FormControl(this.model?.savingTypeId, [Validators.required]),
+      isActive: new FormControl(this.model?.isActive),
+      currencyId: new FormControl(this.model?.currencyId, [Validators.required]),
+      periodId: new FormControl(this.model?.periodId),
+      totalAmount: new FormControl(this.model?.totalAmount),
+      numberOfPayment: new FormControl(this.model?.numberOfPayment),
     })
   }
 
@@ -69,16 +69,16 @@ export class UpsertSavingComponent implements OnInit {
     if (this.formGroup.invalid) {
       return
     }
-    this.savingForm = true
+    this.saving = true
     this.formGroup.disable()
-    const request$ = this.saving ? this.update() : this.create()
+    const request$ = this.model ? this.update() : this.create()
     request$.subscribe({
       next: () => {
         this.alertService.showSuccess('Saving save successfully')
         this.cancel()
       }, error: (e) => {
         this.formGroup.enable()
-        this.savingForm = false
+        this.saving = false
         throw e
       }
     })

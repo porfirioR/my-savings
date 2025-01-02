@@ -5,4 +5,5 @@ export enum TableEnum {
   EventFollows = 'eventfollows',
   Payments = 'payments',
   Savings = 'savings',
+  Types = 'types',
 }

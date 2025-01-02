@@ -7,7 +7,7 @@ import { CreateSavingRequest } from '../../manager/models/savings/create-saving-
 import { UpdateSavingRequest } from '../../manager/models/savings/update-saving-request';
 import { UpdateSavingApiRequest } from '../models/savings/update-saving-api-request';
 
-@Controller()
+@Controller('savings')
 @UseGuards(PrivateEndpointGuard)
 export class SavingsController {
   constructor(private savingManagerService: SavingsManagerService) {}

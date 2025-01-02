@@ -64,6 +64,12 @@ export const routes: Routes = [
         loadComponent: () => UpsertSavingComponent,
         resolve: { saving: eventResolver }
       },
+      {
+        path: 'create-saving',
+        title: 'Create Saving',
+        loadComponent: () => UpsertSavingComponent,
+        resolve: { saving: eventResolver }
+      },
     ]
   }
 ]
