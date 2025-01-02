@@ -14,7 +14,7 @@ import { ResetPasswordMiddleware } from './middleware/reset-password.middleware'
 import { TasksService } from './services/tasks.service';
 import { PaymentController } from './controllers/payments.controller';
 import { SavingsController } from './controllers/savings.controller';
-import { TypeController } from './controllers/type.controller';
+import { ConfigurationController } from './controllers/type.controller';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { TypeController } from './controllers/type.controller';
     EventsController,
     PaymentController,
     SavingsController,
-    TypeController,
+    ConfigurationController,
   ],
   providers: [
     JwtService,

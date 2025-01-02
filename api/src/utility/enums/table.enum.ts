@@ -6,4 +6,5 @@ export enum TableEnum {
   Payments = 'payments',
   Savings = 'savings',
   Types = 'types',
+  Periods = 'periods',
 }

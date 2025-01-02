@@ -1,8 +1,7 @@
-export class PeriodEntity {
-  public id: number
+export class PeriodModel {
   constructor(
+    public id: number,
     public name: string,
     public quantity: number
   ) {}
 }
-// days, week, months
