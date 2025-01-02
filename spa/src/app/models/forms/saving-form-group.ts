@@ -6,6 +6,7 @@ export interface SavingFormGroup {
   description: FormControl<string | null | undefined>
   date: FormControl<Date | null | undefined>
   savingTypeId: FormControl<number | null | undefined>
+  savingTypeDescription: FormControl<string | null | undefined>
   isActive: FormControl<boolean | null | undefined>
   currencyId: FormControl<number | null | undefined>
   periodId: FormControl<number | null | undefined>

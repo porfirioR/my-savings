@@ -9,7 +9,11 @@ import { TextAreaInputComponent } from '../inputs/text-area-input/text-area-inpu
 import { SavingFormGroup } from '../../models/forms';
 import { AlertService, LocalService, SavingApiService } from '../../services';
 import { Observable } from 'rxjs';
-import { CreateSavingApiRequest, SavingApiModel, UpdateSavingApiRequest, } from '../../models/api';
+import { CreateSavingApiRequest, SavingApiModel, TypeApiModel, UpdateSavingApiRequest, } from '../../models/api';
+import { SelectInputComponent } from '../inputs/select-input/select-input.component';
+import { KeyValueViewModel } from '../../models/view/key-value-view-model';
+import { TypeApiService } from '../../services/type-api.service';
+import { HelperService } from '../../services/helper.service';
 
 @Component({
   selector: 'app-upsert-saving',
@@ -23,12 +27,15 @@ import { CreateSavingApiRequest, SavingApiModel, UpdateSavingApiRequest, } from 
     TextAreaInputComponent,
     CheckBoxInputComponent,
     DateInputComponent,
+    SelectInputComponent,
   ]
 })
 export class UpsertSavingComponent implements OnInit {
   protected formGroup: FormGroup<SavingFormGroup>
   protected title: string
   protected model?: SavingApiModel
+  protected typeList?: KeyValueViewModel[] = []
+  private types: TypeApiModel[] = []
   protected saving = false
 
   constructor(
@@ -37,6 +44,7 @@ export class UpsertSavingComponent implements OnInit {
     private readonly activatedRoute: ActivatedRoute,
     private readonly alertService: AlertService,
     private readonly savingApiService: SavingApiService,
+    private readonly typeApiService: TypeApiService,
   ) {
     this.model = this.activatedRoute.snapshot.data['saving']
     this.title = this.model ? 'Update Saving' : 'New Saving'
@@ -51,15 +59,33 @@ export class UpsertSavingComponent implements OnInit {
       description: new FormControl(this.model?.description, [Validators.required, Validators.maxLength(100)]),
       date: new FormControl(date, [Validators.required]),
       savingTypeId: new FormControl(this.model?.savingTypeId, [Validators.required]),
+      savingTypeDescription: new FormControl(''),
       isActive: new FormControl(this.model?.isActive),
       currencyId: new FormControl(this.model?.currencyId, [Validators.required]),
       periodId: new FormControl(this.model?.periodId),
       totalAmount: new FormControl(this.model?.totalAmount),
       numberOfPayment: new FormControl(this.model?.numberOfPayment),
     })
+    this.formGroup.controls.savingTypeId.valueChanges.subscribe(this.setTypeList)
   }
 
   ngOnInit() {
+    this.typeApiService.getTypes().subscribe({
+      next: (types) => {
+        this.types = types
+        this.typeList = HelperService.convertToList(types)
+        if (this.model) {
+          this.setTypeList(this.model.savingTypeId)
+        }
+      }, error: (e) => {
+        throw e
+      }
+    })
+  }
+
+  private setTypeList = (savingTypeId: number | undefined | null): void => {
+    const description = this.types.find(x => x.id === savingTypeId)?.description
+    this.formGroup.controls.savingTypeDescription.setValue(description)
   }
 
   protected cancel = (): void => this.location.back()

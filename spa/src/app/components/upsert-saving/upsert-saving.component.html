@@ -10,6 +10,7 @@
         <app-date-input formControlName="date" label="Date" id="date" name="date" />
         <app-text formControlName="totalAmount" type="text" label="Amount" id="totalAmount" name="totalAmount" />
         <app-text formControlName="numberOfPayment" type="text" label="Number Of Payment" id="numberOfPayment" name="numberOfPayment" />
+        <app-select-input formControlName="savingTypeId" id="types" label="Types" name="types" [list]="typeList"/>
         <app-check-box-input *ngIf="model" formControlName="isActive" label="Is Active" />
         <footer class="flex justify-between">
           <button
