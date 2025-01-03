@@ -12,6 +12,7 @@ import { jwtInterceptor } from './interceptors/jwt.interceptor'
 import { catchErrorInterceptor } from './interceptors/catch-error.interceptor'
 import { metaReducers, reducers } from './store'
 import { CustomErrorHandler } from './errors/custom-error-handler'
+import { urlInterceptor } from './interceptors/url.interceptor'
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,6 +21,7 @@ export const appConfig: ApplicationConfig = {
       headerInterceptor,
       jwtInterceptor,
       catchErrorInterceptor,
+      urlInterceptor,
     ])),
     provideStore(reducers, { metaReducers }),
     provideEffects(),

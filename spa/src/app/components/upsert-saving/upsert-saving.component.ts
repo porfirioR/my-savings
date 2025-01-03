@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
 import { CreateSavingApiRequest, SavingApiModel, TypeApiModel, UpdateSavingApiRequest, } from '../../models/api';
 import { SelectInputComponent } from '../inputs/select-input/select-input.component';
 import { KeyValueViewModel } from '../../models/view/key-value-view-model';
-import { TypeApiService } from '../../services/type-api.service';
+import { ConfigurationApiService } from '../../services/configurations-api.service';
 import { HelperService } from '../../services/helper.service';
 
 @Component({
@@ -35,8 +35,8 @@ export class UpsertSavingComponent implements OnInit {
   protected title: string
   protected model?: SavingApiModel
   protected typeList?: KeyValueViewModel[] = []
-  private types: TypeApiModel[] = []
   protected saving = false
+  private types: TypeApiModel[] = []
 
   constructor(
     private readonly location: Location,
@@ -44,7 +44,7 @@ export class UpsertSavingComponent implements OnInit {
     private readonly activatedRoute: ActivatedRoute,
     private readonly alertService: AlertService,
     private readonly savingApiService: SavingApiService,
-    private readonly typeApiService: TypeApiService,
+    private readonly configurationApiService: ConfigurationApiService,
   ) {
     this.model = this.activatedRoute.snapshot.data['saving']
     this.title = this.model ? 'Update Saving' : 'New Saving'
@@ -70,7 +70,7 @@ export class UpsertSavingComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.typeApiService.getTypes().subscribe({
+    this.configurationApiService.getTypes().subscribe({
       next: (types) => {
         this.types = types
         this.typeList = HelperService.convertToList(types)
