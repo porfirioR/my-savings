@@ -1,4 +1,4 @@
-<fieldset [ngClass]="ngControl.control?.invalid && ngControl.control?.touched ? 'mb-0': 'mb-6'">
+<fieldset [ngClass]="(ngControl.control?.invalid && ngControl.control?.touched) || description ? 'mb-0': 'mb-6'">
   <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" [for]="name">{{label}}</label>
   <input
     [id]="id"
@@ -6,6 +6,7 @@
     [attr.aria-label]="label"
     [placeholder]="placeholder || label"
     [type]="type"
+    [title]="description"
     [autocomplete]="autocomplete || type === 'password' ? 'on': 'off'"
     [formControl]="$any(ngControl).control"
     class="px-3 py-2 bg-white border shadow-sm
@@ -19,5 +20,8 @@
       'border-slate-300': ngControl.control && !ngControl.control.touched
     }"
   />
+  @if (description && !(ngControl.control?.touched && ngControl.control?.errors)) {
+    <span class="text-gray-500">{{description}}</span>
+  }
   <app-form-errors [formControl]="$any(ngControl).control" [label]="label"/>
 </fieldset>

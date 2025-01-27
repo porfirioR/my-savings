@@ -18,6 +18,7 @@ export class SelectInputComponent implements ControlValueAccessor {
   @Input({required: true}) id: string = ''
   @Input({required: true}) label: string = ''
   @Input({required: true}) name: string = ''
+  @Input() description?: string | null
   @Input({required: true}) list: KeyValueViewModel[] | undefined = []
 
   constructor(@Self() public ngControl: NgControl) {

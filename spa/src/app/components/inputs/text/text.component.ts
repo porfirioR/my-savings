@@ -18,6 +18,7 @@ import { AutocompleteType } from '../../../constants/autocomplete-type'
 export class TextComponent implements ControlValueAccessor {
   @Input({required: true}) label: string = ''
   @Input() placeholder?: string
+  @Input() description?: string
   @Input({required: true}) type: InputType = 'text'
   @Input({required: true}) id: string = ''
   @Input({required: true}) name: string = ''

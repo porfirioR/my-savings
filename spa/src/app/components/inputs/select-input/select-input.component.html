@@ -16,7 +16,11 @@
       'border-slate-300': ngControl.control && !ngControl.control.touched
     }"
   >
+    <option [ngValue]="null" hidden>Select one of {{label}}</option>
     <option [ngValue]="item.key" *ngFor="let item of list">{{item.value}}</option>
   </select>
   <app-form-errors [formControl]="$any(ngControl).control" [label]="label"/>
+  @if (description) {
+    <span class="text-gray-500">{{description}}</span>
+  }
 </fieldset>

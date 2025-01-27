@@ -7,5 +7,5 @@ import { TypeApiModel } from '../models/api';
 })
 export class HelperService {
 
-  public static convertToList = (elements: TypeApiModel[]): KeyValueViewModel[] => elements.map(x => new KeyValueViewModel(x.id, x.name))
+  public static convertToList = (elements: TypeApiModel[]): KeyValueViewModel[] => elements.map(x => new KeyValueViewModel(x.id, x.name, x.description))
 }
