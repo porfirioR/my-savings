@@ -19,3 +19,8 @@ INSERT INTO Currency (Id, Name, Symbol, Country) VALUES
 (18, 'Guyanese Dollar', '$', 'Guyana'),
 (19, 'Surinamese Dollar', '$', 'Suriname'),
 (20, 'Uruguayan Peso', '$', 'Uruguay');
+
+INSERT INTO Periods (Id, Name, Symbol, Country) VALUES 
+(1, 'Day', 365),
+(2, 'Week', 52),
+(3, 'Month', 12),
