@@ -8,4 +8,5 @@ export class CreateSavingApiRequest {
   periodId?: number
   totalAmount?: number
   numberOfPayment?: number
+  customPeriodQuantity?: number
 }

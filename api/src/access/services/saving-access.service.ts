@@ -72,6 +72,7 @@ export class SavingAccessService {
       accessRequest.periodId,
       accessRequest.totalAmount,
       accessRequest.numberOfPayment,
+      accessRequest.customPeriodQuantity
     );
     if (accessRequest instanceof UpdateSavingAccessRequest) {
       eventEntity.id = accessRequest.id

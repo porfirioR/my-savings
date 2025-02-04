@@ -29,6 +29,7 @@ export class SavingsController {
       apiRequest.periodId,
       apiRequest.totalAmount,
       apiRequest.numberOfPayment,
+      apiRequest.customPeriodQuantity
     );
     return await this.savingManagerService.createSaving(request);
   }
@@ -47,6 +48,7 @@ export class SavingsController {
       apiRequest.periodId,
       apiRequest.totalAmount,
       apiRequest.numberOfPayment,
+      apiRequest.customPeriodQuantity
     )
     return await this.savingManagerService.updateSaving(request);
   }

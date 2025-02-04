@@ -11,5 +11,6 @@ export class SavingEntity {
     public periodid?: number,
     public totalamount?: number,
     public numberofpayment?: number,
+    public customPeriodQuantity?: number,
   ) {}
 }

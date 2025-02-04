@@ -13,6 +13,7 @@ export class UpdateSavingRequest extends CreateSavingRequest {
     public periodId?: number,
     public totalAmount?: number,
     public numberOfPayment?: number,
+    public customPeriodQuantity?: number
   ) {
     super(
       name,
@@ -23,7 +24,8 @@ export class UpdateSavingRequest extends CreateSavingRequest {
       userid,
       periodId,
       totalAmount,
-      numberOfPayment
+      numberOfPayment,
+      customPeriodQuantity
     )
   }
 }

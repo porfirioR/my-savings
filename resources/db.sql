@@ -20,7 +20,13 @@ INSERT INTO Currency (Id, Name, Symbol, Country) VALUES
 (19, 'Surinamese Dollar', '$', 'Suriname'),
 (20, 'Uruguayan Peso', '$', 'Uruguay');
 
-INSERT INTO Periods (Id, Name, Symbol, Country) VALUES 
+INSERT INTO Periods (Id, Name, Symbol, Quantity, userId?) VALUES 
 (1, 'Day', 365),
 (2, 'Week', 52),
 (3, 'Month', 12),
+(4, 'Custom', -1);
+
+INSERT INTO types (Id, Description) VALUES 
+(1, 'Progresive', 'Amounts increase by adding a constant value'),
+(2, 'Fixed amount', 'Fixed amount for the duration of the loan'),
+(3, 'Total', 'Total amount of the loan');
