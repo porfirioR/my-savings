@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigurationAccessService } from '../../access/services';
-import { TypeModel } from '../models/configurations/type-model';
-import { TypeAccessModel } from '../../access/contract/types/type-access-model';
-import { PeriodModel } from '../models/configurations/period-model';
-import { PeriodAccessModel } from '../../access/contract/periods/period-access-model';
+import { TypeAccessModel } from '../../access/contract/configurations/type-access-model';
+import { PeriodAccessModel } from '../../access/contract/configurations/period-access-model';
 import { Configurations } from '../../utility/enums';
+import { CurrencyAccessModel } from 'src/access/contract/configurations/currency-access-model';
+import { CurrencyModel, PeriodModel, TypeModel } from '../models/configurations';
 
 @Injectable()
 export class ConfigurationManagerService {
@@ -13,12 +13,14 @@ export class ConfigurationManagerService {
     private readonly configurationAccessService: ConfigurationAccessService
   ) { }
 
-  public getConfiguration = async (configuration: Configurations): Promise<TypeModel[] | PeriodModel[]> => {
+  public getConfiguration = async (configuration: Configurations): Promise<TypeModel[] | PeriodModel[] | CurrencyModel[]> => {
     switch (configuration) {
       case Configurations.Periods:
         return this.getPeriods()
       case Configurations.Types:
         return this.getTypes()
+      case Configurations.Currencies:
+        return this.getCurrencies()
       default:
         break;
     }
@@ -34,16 +36,28 @@ export class ConfigurationManagerService {
     return accessModelList.map(this.mapPeriodAccessModelToModel)
   }
 
-  private mapAccessModelToModel = (accessModel: TypeAccessModel) => new TypeModel(
+  private getCurrencies = async (): Promise<CurrencyModel[]> => {
+    const accessModelList = await this.configurationAccessService.getCurrencies();
+    return accessModelList.map(this.mapCurrencyAccessModelToModel)
+  }
+
+  private mapAccessModelToModel = (accessModel: TypeAccessModel): TypeModel => new TypeModel(
     accessModel.id,
     accessModel.name,
     accessModel.description,
   )
 
-  private mapPeriodAccessModelToModel = (accessModel: PeriodAccessModel) => new PeriodModel(
+  private mapPeriodAccessModelToModel = (accessModel: PeriodAccessModel): PeriodModel => new PeriodModel(
     accessModel.id,
     accessModel.name,
     accessModel.quantity,
+  )
+
+  private mapCurrencyAccessModelToModel = (accessModel: CurrencyAccessModel): CurrencyModel => new CurrencyModel(
+    accessModel.id,
+    accessModel.name,
+    accessModel.symbol,
+    accessModel.country,
   )
 
 }

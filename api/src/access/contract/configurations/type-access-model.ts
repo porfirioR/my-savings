@@ -5,4 +5,3 @@ export class TypeAccessModel {
     public description: string
   ) {}
 }
-//asc, desc, random

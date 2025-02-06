@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
-import { TypeApiModel } from '../models/api'
+import { CurrencyApiModel, PeriodApiModel, TypeApiModel } from '../models/api'
 import { Configurations } from '../models/enums'
 
 @Injectable({
@@ -15,7 +15,10 @@ export class ConfigurationApiService {
   public getTypes = (): Observable<TypeApiModel[]> =>
     this.httpClient.get<TypeApiModel[]>(`${this.section}/${Configurations.Types}`)
 
-  public getPeriods = (): Observable<TypeApiModel[]> =>
-    this.httpClient.get<TypeApiModel[]>(`${this.section}/${Configurations.Periods}`)
+  public getPeriods = (): Observable<PeriodApiModel[]> =>
+    this.httpClient.get<PeriodApiModel[]>(`${this.section}/${Configurations.Periods}`)
+
+  public getCurrencies = (): Observable<CurrencyApiModel[]> =>
+    this.httpClient.get<CurrencyApiModel[]>(`${this.section}/${Configurations.Currencies}`)
 
 }

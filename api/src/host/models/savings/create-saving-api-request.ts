@@ -1,4 +1,4 @@
-export class CreateSavingApiRequest {
+export interface CreateSavingApiRequest {
   name: string
   description: string
   date: Date

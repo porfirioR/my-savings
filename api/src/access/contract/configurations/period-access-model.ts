@@ -5,4 +5,3 @@ export class PeriodAccessModel {
     public quantity: number
   ) {}
 }
-//asc, desc, random

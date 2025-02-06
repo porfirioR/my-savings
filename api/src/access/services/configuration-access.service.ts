@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { DbContextService } from './db-context.service';
 import { TableEnum, DatabaseColumns } from '../../utility/enums';
-import { TypeAccessModel } from '../contract/types/type-access-model';
 import { TypeEntity } from '../contract/entities/type.entity';
-import { PeriodAccessModel } from '../contract/periods/period-access-model';
 import { PeriodEntity } from '../contract/entities/period.entity';
+import { CurrencyEntity } from '../contract/entities/currency.entity';
+import { TypeAccessModel, PeriodAccessModel, CurrencyAccessModel } from '../contract/configurations';
 
 @Injectable()
 export class ConfigurationAccessService {
@@ -31,6 +31,14 @@ export class ConfigurationAccessService {
     return data?.map(this.getPeriodAccessModel);
   };
 
+  public getCurrencies = async (): Promise<CurrencyAccessModel[]> => {
+    const { data, error } = await this.eventContext
+      .from(TableEnum.Currencies)
+      .select(DatabaseColumns.All)
+    if (error) throw new Error(error.message);
+    return data?.map(this.getCurrencyAccessModel);
+  };
+
   private getTypeAccessModel = (accessRequest: TypeEntity): TypeAccessModel => new TypeAccessModel(
     accessRequest.id,
     accessRequest.name,
@@ -41,6 +49,13 @@ export class ConfigurationAccessService {
     accessRequest.id,
     accessRequest.name,
     accessRequest.quantity
+  );
+
+  private getCurrencyAccessModel = (accessRequest: CurrencyEntity): CurrencyAccessModel => new CurrencyAccessModel(
+    accessRequest.id,
+    accessRequest.name,
+    accessRequest.symbol,
+    accessRequest.country,
   );
 
 }

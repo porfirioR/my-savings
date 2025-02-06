@@ -29,7 +29,8 @@ export class SavingsManagerService {
       request.userId,
       request.periodId,
       request.totalAmount,
-      request.numberOfPayment
+      request.numberOfPayment,
+      request.customPeriodQuantity
     )
     const accessModel = await this.savingAccessService.create(accessRequest);
     return this.mapAccessModelToModel(accessModel)
@@ -47,7 +48,8 @@ export class SavingsManagerService {
       request.userId,
       request.periodId,
       request.totalAmount,
-      request.numberOfPayment
+      request.numberOfPayment,
+      request.customPeriodQuantity
     )
     const accessModel = await this.savingAccessService.updateSaving(accessRequest);
     return this.mapAccessModelToModel(accessModel)
@@ -64,7 +66,8 @@ export class SavingsManagerService {
     accessModel.userId,
     accessModel.periodId,
     accessModel.totalAmount,
-    accessModel.numberOfPayment
+    accessModel.numberOfPayment,
+    accessModel.customPeriodQuantity
   )
 
 }

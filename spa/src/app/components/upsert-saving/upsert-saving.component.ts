@@ -8,8 +8,8 @@ import { DateInputComponent } from '../inputs/date-input/date-input.component';
 import { TextAreaInputComponent } from '../inputs/text-area-input/text-area-input.component';
 import { SavingFormGroup } from '../../models/forms';
 import { AlertService, LocalService, SavingApiService } from '../../services';
-import { Observable } from 'rxjs';
-import { CreateSavingApiRequest, SavingApiModel, TypeApiModel, UpdateSavingApiRequest, } from '../../models/api';
+import { forkJoin, Observable } from 'rxjs';
+import { CreateSavingApiRequest, CurrencyApiModel, PeriodApiModel, SavingApiModel, TypeApiModel, UpdateSavingApiRequest, } from '../../models/api';
 import { SelectInputComponent } from '../inputs/select-input/select-input.component';
 import { KeyValueViewModel } from '../../models/view/key-value-view-model';
 import { ConfigurationApiService } from '../../services/configurations-api.service';
@@ -37,6 +37,8 @@ export class UpsertSavingComponent implements OnInit {
   protected typeList?: KeyValueViewModel[] = []
   protected saving = false
   private types: TypeApiModel[] = []
+  private periods: PeriodApiModel[] = []
+  private currencies: CurrencyApiModel[] = []
 
   constructor(
     private readonly location: Location,
@@ -69,10 +71,17 @@ export class UpsertSavingComponent implements OnInit {
     this.formGroup.controls.savingTypeId.valueChanges.subscribe(this.setTypeList)
   }
 
-  ngOnInit() {
-    this.configurationApiService.getTypes().subscribe({
-      next: (types) => {
+  ngOnInit(): void {
+    forkJoin([
+      this.configurationApiService.getTypes(),
+      this.configurationApiService.getPeriods(),
+      this.configurationApiService.getCurrencies(),
+    ])
+    .subscribe({
+      next: ([types, periods, currencies]) => {
         this.types = types
+        this.periods = periods
+        this.currencies = currencies
         this.typeList = HelperService.convertToList(types)
         if (this.model) {
           this.setTypeList(this.model.savingTypeId)
