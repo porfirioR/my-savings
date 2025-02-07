@@ -1,3 +1,4 @@
+export * from './configurations/base-configuration-api-model'
 export * from './user-api-model'
 export * from './even-api-model'
 export * from './create-user-api-request'

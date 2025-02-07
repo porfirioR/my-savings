@@ -35,6 +35,8 @@ export class UpsertSavingComponent implements OnInit {
   protected title: string
   protected model?: SavingApiModel
   protected typeList?: KeyValueViewModel[] = []
+  protected periodList?: KeyValueViewModel[] = []
+  protected currencyList?: KeyValueViewModel[] = []
   protected saving = false
   private types: TypeApiModel[] = []
   private periods: PeriodApiModel[] = []
@@ -83,6 +85,8 @@ export class UpsertSavingComponent implements OnInit {
         this.periods = periods
         this.currencies = currencies
         this.typeList = HelperService.convertToList(types)
+        this.typeList = HelperService.convertToList(periods)
+        this.typeList = HelperService.convertToList(currencies)
         if (this.model) {
           this.setTypeList(this.model.savingTypeId)
         }
