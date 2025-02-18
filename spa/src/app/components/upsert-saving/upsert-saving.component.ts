@@ -14,6 +14,7 @@ import { SelectInputComponent } from '../inputs/select-input/select-input.compon
 import { KeyValueViewModel } from '../../models/view/key-value-view-model';
 import { ConfigurationApiService } from '../../services/configurations-api.service';
 import { HelperService } from '../../services/helper.service';
+import { Configurations } from '../../models/enums';
 
 @Component({
   selector: 'app-upsert-saving',
@@ -64,13 +65,16 @@ export class UpsertSavingComponent implements OnInit {
       date: new FormControl(date, [Validators.required]),
       savingTypeId: new FormControl(this.model?.savingTypeId, [Validators.required]),
       savingTypeDescription: new FormControl(''),
+      currencyDescription: new FormControl(''),
       isActive: new FormControl(this.model?.isActive),
       currencyId: new FormControl(this.model?.currencyId, [Validators.required]),
       periodId: new FormControl(this.model?.periodId),
       totalAmount: new FormControl(this.model?.totalAmount),
-      numberOfPayment: new FormControl(this.model?.numberOfPayment),
+      numberOfPayment: new FormControl({value: this.model?.numberOfPayment, disabled: true}),
     })
-    this.formGroup.controls.savingTypeId.valueChanges.subscribe(this.setTypeList)
+    this.formGroup.controls.savingTypeId.valueChanges.subscribe(this.setTypeDescription)
+    this.formGroup.controls.periodId.valueChanges.subscribe(this.setPeriodDescription)
+    this.formGroup.controls.currencyId.valueChanges.subscribe(this.setCurrencyDescription)
   }
 
   ngOnInit(): void {
@@ -84,11 +88,13 @@ export class UpsertSavingComponent implements OnInit {
         this.types = types
         this.periods = periods
         this.currencies = currencies
-        this.typeList = HelperService.convertToList(types)
-        this.typeList = HelperService.convertToList(periods)
-        this.typeList = HelperService.convertToList(currencies)
+        this.typeList = HelperService.convertToList(types, Configurations.Types)
+        this.periodList = HelperService.convertToList(periods, Configurations.Periods)
+        this.currencyList = HelperService.convertToList(currencies, Configurations.Currencies)
         if (this.model) {
-          this.setTypeList(this.model.savingTypeId)
+          this.setTypeDescription(this.model.savingTypeId)
+          this.setCurrencyDescription(this.model.currencyId)
+          this.setPeriodDescription(this.model.periodId)
         }
       }, error: (e) => {
         throw e
@@ -96,9 +102,24 @@ export class UpsertSavingComponent implements OnInit {
     })
   }
 
-  private setTypeList = (savingTypeId: number | undefined | null): void => {
-    const description = this.types.find(x => x.id === savingTypeId)?.description
+  private setTypeDescription = (id: number | undefined | null): void => {
+    const description = this.typeList?.find(x => x.key === id)?.moreData
     this.formGroup.controls.savingTypeDescription.setValue(description)
+  }
+
+  private setCurrencyDescription = (id: number | undefined | null): void => {
+    const description = this.currencyList?.find(x => x.key === id)?.moreData
+    this.formGroup.controls.currencyDescription.setValue(description)
+  }
+
+  private setPeriodDescription = (id: number | undefined | null): void => {
+    const value = +this.periodList?.find(x => x.key === id)?.moreData!
+    if (value !== -1) {
+      this.formGroup.controls.numberOfPayment.disable()
+      this.formGroup.controls.numberOfPayment.setValue(value)
+    } else {
+      this.formGroup.controls.numberOfPayment.enable()
+    }
   }
 
   protected cancel = (): void => this.location.back()

@@ -1,7 +1,5 @@
-import { BaseConfigurationApiModel } from ".."
-import { Configurations } from "../../enums"
+import { BaseConfigurationApiModel } from '..'
 
 export interface TypeApiModel extends BaseConfigurationApiModel {
-  configurationType: Configurations.Currencies
   description: string
 }
