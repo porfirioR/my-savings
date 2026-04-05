@@ -1,9 +1,11 @@
-export interface CreateMemberAccessRequest {
-  groupId: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  position: number;
-  joinedMonth: number;
-  joinedYear: number;
+export class CreateMemberAccessRequest {
+  constructor(
+    public groupId: string,
+    public firstName: string,
+    public lastName: string,
+    public position: number,
+    public joinedMonth: number,
+    public joinedYear: number,
+    public phone?: string,
+  ) {}
 }

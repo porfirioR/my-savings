@@ -19,4 +19,8 @@ export class UpdateGroupApiRequest {
   @IsNumber()
   @Min(0)
   totalRuedas?: number;
+
+  constructor(partial?: Partial<UpdateGroupApiRequest>) {
+    if (partial) Object.assign(this, partial);
+  }
 }

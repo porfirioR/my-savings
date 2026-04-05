@@ -1,5 +1,7 @@
-export interface CreateGroupRequest {
-  name: string;
-  startMonth: number;
-  startYear: number;
+export class CreateGroupRequest {
+  constructor(
+    public name: string,
+    public startMonth: number,
+    public startYear: number,
+  ) {}
 }

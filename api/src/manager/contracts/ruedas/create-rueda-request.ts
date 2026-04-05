@@ -1,19 +1,23 @@
-export interface CreateRuedaSlotRequest {
-  memberId: string;
-  slotPosition: number;
-  loanAmount?: number;
+export class CreateRuedaSlotRequest {
+  constructor(
+    public memberId: string,
+    public slotPosition: number,
+    public loanAmount?: number,
+  ) {}
 }
 
-export interface CreateRuedaRequest {
-  groupId: string;
-  type: 'new' | 'continua';
-  loanAmount: number;
-  interestRate: number;
-  contributionAmount: number;
-  roundingUnit: 500 | 1000;
-  startMonth: number;
-  startYear: number;
-  historicalContributionTotal?: number;
-  notes?: string;
-  slots: CreateRuedaSlotRequest[];
+export class CreateRuedaRequest {
+  constructor(
+    public groupId: string,
+    public type: 'new' | 'continua',
+    public loanAmount: number,
+    public interestRate: number,
+    public contributionAmount: number,
+    public roundingUnit: 500 | 1000,
+    public startMonth: number,
+    public startYear: number,
+    public slots: CreateRuedaSlotRequest[],
+    public historicalContributionTotal?: number,
+    public notes?: string,
+  ) {}
 }

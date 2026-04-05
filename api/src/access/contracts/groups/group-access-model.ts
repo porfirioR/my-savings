@@ -1,9 +1,11 @@
-export interface GroupAccessModel {
-  id: string;
-  name: string;
-  startMonth: number;
-  startYear: number;
-  totalRuedas: number;
-  createdAt: string;
-  updatedAt: string;
+export class GroupAccessModel {
+  constructor(
+    public id: string,
+    public name: string,
+    public startMonth: number,
+    public startYear: number,
+    public totalRuedas: number,
+    public createdAt: string,
+    public updatedAt: string,
+  ) {}
 }

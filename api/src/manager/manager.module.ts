@@ -1,10 +1,26 @@
 import { Module } from '@nestjs/common';
 import { DataModule } from '../access/data/data.module';
-import { GroupsManager, PaymentsManager, RuedasManager } from './services';
+import {
+  CashBoxManager,
+  GroupsManager,
+  MembersManager,
+  ParallelLoansManager,
+  PaymentsManager,
+  RuedasManager,
+} from './services';
+
+const services = [
+  CashBoxManager,
+  GroupsManager,
+  MembersManager,
+  ParallelLoansManager,
+  PaymentsManager,
+  RuedasManager,
+];
 
 @Module({
   imports: [DataModule],
-  providers: [GroupsManager, PaymentsManager, RuedasManager],
-  exports: [GroupsManager, PaymentsManager, RuedasManager],
+  providers: services,
+  exports: services,
 })
 export class ManagerModule {}

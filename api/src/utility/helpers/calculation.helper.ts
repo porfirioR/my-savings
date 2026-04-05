@@ -60,6 +60,20 @@ export function monthsBetween(
 }
 
 /**
+ * Calculates exit settlement for a member.
+ * If contributions >= remaining loan: member receives the difference (from caja).
+ * If contributions < remaining loan: member pays the difference (goes to caja).
+ */
+export function calculateMemberExitSettlement(
+  accumulatedContributions: number,
+  remainingLoanBalance: number,
+): { memberReceives: number; memberPays: number } {
+  const diff = accumulatedContributions - remainingLoanBalance;
+  if (diff >= 0) return { memberReceives: diff, memberPays: 0 };
+  return { memberReceives: 0, memberPays: Math.abs(diff) };
+}
+
+/**
  * Given a rueda slot position and the current month index (1-based within the rueda),
  * determines the payment type for a given member.
  *

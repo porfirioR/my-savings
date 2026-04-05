@@ -12,4 +12,8 @@ export class CreateGroupApiRequest {
   @IsNumber()
   @Min(2000)
   startYear: number;
+
+  constructor(partial?: Partial<CreateGroupApiRequest>) {
+    if (partial) Object.assign(this, partial);
+  }
 }

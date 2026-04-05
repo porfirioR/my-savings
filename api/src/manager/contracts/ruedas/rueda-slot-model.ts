@@ -1,15 +1,17 @@
-export interface RuedaSlotModel {
-  id: string;
-  ruedaId: string;
-  memberId: string;
-  memberName?: string;
-  slotPosition: number;
-  loanAmount: number;
-  installmentAmount: number;
-  totalToReturn: number;
-  loanMonth: number;
-  loanYear: number;
-  status: 'pending' | 'active' | 'completed';
-  createdAt: string;
-  updatedAt: string;
+export class RuedaSlotModel {
+  constructor(
+    public id: string,
+    public ruedaId: string,
+    public memberId: string,
+    public slotPosition: number,
+    public loanAmount: number,
+    public installmentAmount: number,
+    public totalToReturn: number,
+    public loanMonth: number,
+    public loanYear: number,
+    public status: 'pending' | 'active' | 'completed',
+    public createdAt: string,
+    public updatedAt: string,
+    public memberName?: string,
+  ) {}
 }

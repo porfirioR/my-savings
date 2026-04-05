@@ -1,4 +1,6 @@
-export interface ExitMemberAccessRequest {
-  leftMonth: number;
-  leftYear: number;
+export class ExitMemberAccessRequest {
+  constructor(
+    public leftMonth: number,
+    public leftYear: number,
+  ) {}
 }

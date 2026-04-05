@@ -1,18 +1,20 @@
-export interface PaymentModel {
-  id: string;
-  ruedaId: string;
-  memberId: string;
-  memberName: string;
-  month: number;
-  year: number;
-  installmentAmountDue: number;
-  contributionAmountDue: number;
-  totalAmountDue: number;
-  installmentNumber: number;
-  paymentType: 'current_rueda' | 'previous_rueda' | 'contribution_only';
-  isPaid: boolean;
-  paymentSource: 'member' | 'cash_box' | null;
-  notes: string | null;
-  createdAt: string;
-  updatedAt: string;
+export class PaymentModel {
+  constructor(
+    public id: string,
+    public ruedaId: string,
+    public memberId: string,
+    public memberName: string,
+    public month: number,
+    public year: number,
+    public installmentAmountDue: number,
+    public contributionAmountDue: number,
+    public totalAmountDue: number,
+    public installmentNumber: number,
+    public paymentType: 'current_rueda' | 'previous_rueda' | 'contribution_only',
+    public isPaid: boolean,
+    public paymentSource: 'member' | 'cash_box' | null,
+    public notes: string | null,
+    public createdAt: string,
+    public updatedAt: string,
+  ) {}
 }

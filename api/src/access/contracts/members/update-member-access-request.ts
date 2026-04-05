@@ -1,9 +1,11 @@
-export interface UpdateMemberAccessRequest {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  position?: number;
-  isActive?: boolean;
-  joinedMonth?: number;
-  joinedYear?: number;
+export class UpdateMemberAccessRequest {
+  constructor(
+    public firstName?: string,
+    public lastName?: string,
+    public phone?: string,
+    public position?: number,
+    public isActive?: boolean,
+    public joinedMonth?: number,
+    public joinedYear?: number,
+  ) {}
 }

@@ -7,4 +7,8 @@ export class MarkPaymentApiRequest {
   @IsOptional()
   @IsEnum(['member', 'cash_box'])
   paymentSource?: 'member' | 'cash_box';
+
+  constructor(partial?: Partial<MarkPaymentApiRequest>) {
+    if (partial) Object.assign(this, partial);
+  }
 }

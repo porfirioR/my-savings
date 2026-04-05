@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { RuedasAccess } from '../access/ruedas.access';
-import { RuedaAccessModel, RuedaSlotAccessModel } from '../access/contracts/ruedas';
+import { RuedasAccess } from '../../access/data/services';
+import { RuedaAccessModel, RuedaSlotAccessModel } from '../../access/contracts/ruedas';
 import { calculateInstallment } from '../../utility/helpers';
-import {
-  CreateRuedaRequest,
-  RuedaModel,
-  RuedaSlotModel,
-  UpdateRuedaRequest,
-} from './contracts/ruedas';
+import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, UpdateRuedaRequest } from '../contracts/ruedas';
+
 
 @Injectable()
 export class RuedasManager {

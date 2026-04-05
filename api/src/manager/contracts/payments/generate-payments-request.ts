@@ -1,5 +1,7 @@
-export interface GeneratePaymentsRequest {
-  ruedaId: string;
-  month: number;
-  year: number;
+export class GeneratePaymentsRequest {
+  constructor(
+    public ruedaId: string,
+    public month: number,
+    public year: number,
+  ) {}
 }

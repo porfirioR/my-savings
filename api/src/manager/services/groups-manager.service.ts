@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { GroupAccessModel } from 'src/access/contracts/groups';
-import { GroupsAccess } from 'src/access/data/services';
+import { GroupAccessModel } from '../../access/contracts/groups';
+import { GroupsAccess } from '../../access/data/services';
 import { CreateGroupRequest, GroupModel, UpdateGroupRequest } from '../contracts/groups';
 
 @Injectable()

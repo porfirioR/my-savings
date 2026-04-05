@@ -1,8 +1,24 @@
 import { Module } from '@nestjs/common';
-import { GroupsAccess, MembersAccess, PaymentsAccess, RuedasAccess } from './services';
+import {
+  CashBoxAccess,
+  GroupsAccess,
+  MembersAccess,
+  ParallelLoansAccess,
+  PaymentsAccess,
+  RuedasAccess,
+} from './services';
+
+const services = [
+  CashBoxAccess,
+  GroupsAccess,
+  MembersAccess,
+  ParallelLoansAccess,
+  PaymentsAccess,
+  RuedasAccess,
+];
 
 @Module({
-  providers: [GroupsAccess, MembersAccess, PaymentsAccess, RuedasAccess],
-  exports: [GroupsAccess, MembersAccess, PaymentsAccess, RuedasAccess],
+  providers: services,
+  exports: services,
 })
 export class DataModule {}
