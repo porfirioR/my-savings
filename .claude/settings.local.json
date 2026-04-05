@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f groups/groups.module.ts members/members.module.ts payments/payments.module.ts ruedas/ruedas.module.ts)",
+      "Bash(mv groups/manager/services/groups.manager.ts groups/manager/groups.manager.ts)",
+      "Bash(rm -rf groups/manager/services)",
+      "Bash(mv members/manager/services/members.manager.ts members/manager/members.manager.ts)",
+      "Bash(rm -rf members/manager/services)",
+      "Bash(sed -i 's|from '\\\\''../../../utility/access/data/services'\\\\''|from '\\\\''../../utility/access/data/services'\\\\''|g; \\\\:*)",
+      "Bash(sed -i 's|from '\\\\''../../access/contracts/groups'\\\\''|from '\\\\''../access/contracts/groups'\\\\''|g; \\\\:*)",
+      "Bash(sed -i 's|from '\\\\''../../manager/services/groups.manager'\\\\''|from '\\\\''../../manager/groups.manager'\\\\''|g; \\\\:*)",
+      "Bash(sed -i 's|from '\\\\''../../access/services/members.access'\\\\''|from '\\\\''../access/members.access'\\\\''|g; \\\\:*)",
+      "Bash(sed -i 's|from '\\\\''../../manager/services/members.manager'\\\\''|from '\\\\''../../manager/members.manager'\\\\''|g' members/host/controllers/members.controller.ts)",
+      "Bash(sed -i 's|from '\\\\''../../access/services/ruedas.access'\\\\''|from '\\\\''../access/ruedas.access'\\\\''|g; \\\\:*)",
+      "Bash(sed -i 's|from '\\\\''../../manager/services/ruedas.manager'\\\\''|from '\\\\''../../manager/ruedas.manager'\\\\''|g' ruedas/host/controllers/ruedas.controller.ts)"
+    ]
+  }
+}
