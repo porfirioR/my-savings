@@ -1,12 +1,9 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
-import {
-  GeneratePaymentsApiRequest,
-  MarkPaymentApiRequest,
-} from '../contracts/payments';
-import { PaymentModel } from '../../manager/contracts/payments';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { GeneratePaymentsApiRequest } from '../contracts/payments';
+import { MarkPaymentRequest, PaymentModel } from '../../manager/contracts/payments';
 import { PaymentsManager } from '../../manager/services';
 
-@Controller('ruedas/:ruedaId/payments')
+@Controller('groups/:groupId/ruedas/:ruedaId/payments')
 export class PaymentsController {
   constructor(private readonly paymentsManager: PaymentsManager) {}
 
@@ -31,11 +28,13 @@ export class PaymentsController {
     return this.paymentsManager.generateMonthlyPayments({ ...body, ruedaId });
   }
 
-  @Put(':id')
-  async markPayment(
-    @Param('id') id: string,
-    @Body() body: MarkPaymentApiRequest,
-  ): Promise<PaymentModel> {
-    return this.paymentsManager.markPayment(id, body);
+  @Post(':id/mark-paid')
+  async markPaid(@Param('id') id: string): Promise<PaymentModel> {
+    return this.paymentsManager.markPayment(id, new MarkPaymentRequest(true));
+  }
+
+  @Post(':id/mark-unpaid')
+  async markUnpaid(@Param('id') id: string): Promise<PaymentModel> {
+    return this.paymentsManager.markPayment(id, new MarkPaymentRequest(false));
   }
 }

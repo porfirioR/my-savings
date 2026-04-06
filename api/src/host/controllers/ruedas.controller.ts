@@ -28,13 +28,10 @@ export class RuedasController {
     return this.ruedasManager.findActive(groupId);
   }
 
-  @Get('calculate-suggestion')
-  async calculateSuggestion(@Param('groupId') groupId: string): Promise<{
-    suggestedLoanAmount: number;
-    cajaBalance: number;
-    projectedMonthlyIncome: number;
-  }> {
-    return this.ruedasManager.calculateSuggestion(groupId);
+  @Get('suggest-amount')
+  async calculateSuggestion(@Param('groupId') groupId: string): Promise<{ suggested: number }> {
+    const res = await this.ruedasManager.calculateSuggestion(groupId);
+    return { suggested: res.suggestedLoanAmount };
   }
 
   @Get(':id')

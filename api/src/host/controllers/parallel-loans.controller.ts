@@ -1,10 +1,7 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ParallelLoansManager } from '../../manager/services';
-import { ParallelLoanModel, ParallelLoanPaymentModel } from '../../manager/contracts/parallel-loans';
-import {
-  CreateParallelLoanApiRequest,
-  MarkLoanPaymentApiRequest,
-} from '../contracts/parallel-loans';
+import { MarkLoanPaymentRequest, ParallelLoanModel, ParallelLoanPaymentModel } from '../../manager/contracts/parallel-loans';
+import { CreateParallelLoanApiRequest } from '../contracts/parallel-loans';
 
 @Controller('groups/:groupId/parallel-loans')
 export class ParallelLoansController {
@@ -33,11 +30,10 @@ export class ParallelLoansController {
     return this.parallelLoansManager.getPayments(id);
   }
 
-  @Put(':id/payments/:paymentId')
+  @Post(':id/payments/:paymentId/mark-paid')
   markPayment(
     @Param('paymentId') paymentId: string,
-    @Body() body: MarkLoanPaymentApiRequest,
   ): Promise<ParallelLoanPaymentModel> {
-    return this.parallelLoansManager.markPayment(paymentId, body);
+    return this.parallelLoansManager.markPayment(paymentId, new MarkLoanPaymentRequest(true));
   }
 }

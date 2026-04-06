@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { MembersManager } from '../../manager/services';
-import { MemberModel } from '../../manager/contracts/members';
+import { ExitMemberRequest, MemberModel } from '../../manager/contracts/members';
 import {
   CreateMemberApiRequest,
   ExitMemberApiRequest,
@@ -42,6 +42,11 @@ export class MembersController {
     @Param('id') id: string,
     @Body() body: ExitMemberApiRequest,
   ) {
-    return this.membersManager.processExit(id, body, 0, 0, 15, 0, 1, 2000);
+    return this.membersManager.processExit(
+      id,
+      new ExitMemberRequest(body.leftMonth, body.leftYear),
+      body.accumulatedContributions,
+      body.remainingLoanBalance,
+    );
   }
 }

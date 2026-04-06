@@ -7,11 +7,7 @@ import {
   MemberModel,
   UpdateMemberRequest,
 } from '../contracts/members';
-import {
-  calculateAccumulatedContributions,
-  calculateMemberExitSettlement,
-  monthsBetween,
-} from '../../utility/helpers';
+import { calculateMemberExitSettlement } from '../../utility/helpers';
 
 @Injectable()
 export class MembersManager {
@@ -44,22 +40,10 @@ export class MembersManager {
   async processExit(
     id: string,
     req: ExitMemberRequest,
-    contributionPerMonth: number,
-    installmentsPaid: number,
-    totalInstallments: number,
-    installmentAmount: number,
-    ruedaStartMonth: number,
-    ruedaStartYear: number,
+    accumulatedContributions: number,
+    remainingLoanBalance: number,
   ): Promise<{ member: MemberModel; memberReceives: number; memberPays: number }> {
-    const member = await this.membersAccess.findById(id);
-    const monthsParticipated = monthsBetween(
-      member.joinedMonth, member.joinedYear,
-      req.leftMonth, req.leftYear,
-    );
-    const accumulated = calculateAccumulatedContributions(contributionPerMonth, monthsParticipated);
-    const remaining = Math.max(0, (totalInstallments - installmentsPaid) * installmentAmount);
-    const settlement = calculateMemberExitSettlement(accumulated, remaining);
-
+    const settlement = calculateMemberExitSettlement(accumulatedContributions, remainingLoanBalance);
     const updated = await this.membersAccess.processExit(id, req);
     return { member: this.mapToModel(updated), ...settlement };
   }

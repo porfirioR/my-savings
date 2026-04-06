@@ -12,7 +12,15 @@
       "Bash(sed -i 's|from '\\\\''../../access/services/members.access'\\\\''|from '\\\\''../access/members.access'\\\\''|g; \\\\:*)",
       "Bash(sed -i 's|from '\\\\''../../manager/services/members.manager'\\\\''|from '\\\\''../../manager/members.manager'\\\\''|g' members/host/controllers/members.controller.ts)",
       "Bash(sed -i 's|from '\\\\''../../access/services/ruedas.access'\\\\''|from '\\\\''../access/ruedas.access'\\\\''|g; \\\\:*)",
-      "Bash(sed -i 's|from '\\\\''../../manager/services/ruedas.manager'\\\\''|from '\\\\''../../manager/ruedas.manager'\\\\''|g' ruedas/host/controllers/ruedas.controller.ts)"
+      "Bash(sed -i 's|from '\\\\''../../manager/services/ruedas.manager'\\\\''|from '\\\\''../../manager/ruedas.manager'\\\\''|g' ruedas/host/controllers/ruedas.controller.ts)",
+      "Bash(mkdir -p /c/Users/porfi/Documents/GitHub/my-savings/spa/src/app/features/members/services)",
+      "Bash(mkdir -p /c/Users/porfi/Documents/GitHub/my-savings/spa/src/app/features/members/components/member-list)",
+      "Bash(mkdir -p /c/Users/porfi/Documents/GitHub/my-savings/spa/src/app/features/ruedas/models)",
+      "Bash(mkdir -p /c/Users/porfi/Documents/GitHub/my-savings/spa/src/app/features/ruedas/services)",
+      "Bash(mkdir -p /c/Users/porfi/Documents/GitHub/my-savings/spa/src/app/features/ruedas/components/rueda-list)",
+      "Bash(node_modules/.bin/tsc --noEmit -p tsconfig.app.json)",
+      "Bash(npm install:*)",
+      "Bash(node_modules/.bin/ng build:*)"
     ]
   }
 }
