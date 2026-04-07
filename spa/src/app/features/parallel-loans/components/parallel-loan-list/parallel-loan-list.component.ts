@@ -151,9 +151,9 @@ import { DecimalPipe } from '@angular/common';
                 </tr>
               </thead>
               <tbody>
-                @for (p of service.payments(); track p.id) {
+                @for (p of service.payments(); track p.id; let i = $index) {
                   <tr [class.opacity-50]="p.status === 'paid'">
-                    <td>{{ p.installmentNumber }}</td>
+                    <td>{{ i + 1 }}</td>
                     <td>{{ 'MONTHS.' + p.month | translate }} {{ p.year }}</td>
                     <td class="text-right">{{ p.amount | number:'1.0-0' }} Gs</td>
                     <td class="text-center">

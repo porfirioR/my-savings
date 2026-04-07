@@ -18,7 +18,6 @@ export interface ParallelLoan {
 export interface ParallelLoanPayment {
   id: string;
   loanId: string;
-  installmentNumber: number;
   amount: number;
   month: number;
   year: number;

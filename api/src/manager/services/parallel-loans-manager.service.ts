@@ -19,7 +19,7 @@ export class ParallelLoansManager {
   private mapPayment(a: ParallelLoanPaymentAccessModel): ParallelLoanPaymentModel {
     return new ParallelLoanPaymentModel(
       a.id, a.parallelLoanId, a.month, a.year,
-      a.amount, a.isPaid, a.createdAt, a.paidAt,
+      a.amount, a.isPaid ? 'paid' : 'pending', a.paidAt ?? null, a.createdAt,
     );
   }
 
@@ -44,7 +44,7 @@ export class ParallelLoansManager {
 
   async create(req: CreateParallelLoanRequest): Promise<ParallelLoanModel> {
     const { installmentAmount, totalToReturn } = calculateInstallment(
-      req.amount, req.interestRate, req.totalInstallments, req.roundingUnit,
+      req.amount, req.interestRate, req.totalInstallments, req.roundingUnit ?? 1000,
     );
     return this.mapToModel(
       await this.parallelLoansAccess.create({

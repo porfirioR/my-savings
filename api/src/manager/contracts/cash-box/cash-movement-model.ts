@@ -2,8 +2,7 @@ export class CashMovementModel {
   constructor(
     public id: string,
     public groupId: string,
-    public movementType: 'in' | 'out',
-    public sourceType: 'automatic' | 'manual',
+    public type: 'in' | 'out',
     public category: string,
     public amount: number,
     public month: number,
@@ -11,6 +10,5 @@ export class CashMovementModel {
     public createdAt: string,
     public updatedAt: string,
     public description?: string,
-    public referenceId?: string,
   ) {}
 }

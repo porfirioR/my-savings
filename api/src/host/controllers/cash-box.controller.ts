@@ -30,6 +30,15 @@ export class CashBoxController {
     @Param('groupId') groupId: string,
     @Body() body: CreateCashMovementApiRequest,
   ): Promise<CashMovementModel> {
-    return this.cashBoxManager.createMovement({ ...body, groupId, sourceType: 'manual' });
+    return this.cashBoxManager.createMovement({
+      groupId,
+      movementType: body.type,
+      sourceType: 'manual',
+      category: body.category,
+      amount: body.amount,
+      month: body.month,
+      year: body.year,
+      description: body.description,
+    });
   }
 }

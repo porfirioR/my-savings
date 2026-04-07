@@ -1,12 +1,12 @@
 export class ParallelLoanPaymentModel {
   constructor(
     public id: string,
-    public parallelLoanId: string,
+    public loanId: string,
     public month: number,
     public year: number,
     public amount: number,
-    public isPaid: boolean,
+    public status: 'paid' | 'pending',
+    public paidAt: string | null,
     public createdAt: string,
-    public paidAt?: string,
   ) {}
 }

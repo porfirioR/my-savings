@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsUUID, Max, Min } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsUUID, Max, Min } from 'class-validator';
 
 export class CreateParallelLoanApiRequest {
   @IsUUID()
@@ -16,8 +16,9 @@ export class CreateParallelLoanApiRequest {
   @Min(1)
   totalInstallments: number;
 
+  @IsOptional()
   @IsEnum([500, 1000])
-  roundingUnit: 500 | 1000;
+  roundingUnit?: 500 | 1000;
 
   @IsNumber()
   @Min(1)

@@ -122,7 +122,16 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
 
           <div class="form-control mb-3">
             <label class="label"><span class="label-text">{{ 'CASH_BOX.CATEGORY' | translate }}</span></label>
-            <input type="text" class="input input-bordered" [(ngModel)]="form.category" />
+            <select class="select select-bordered" [(ngModel)]="form.category">
+              <option value="contribution">Aporte</option>
+              <option value="rueda_collection">Cobro rueda</option>
+              <option value="rueda_disbursement">Desembolso rueda</option>
+              <option value="parallel_loan_payment">Pago préstamo paralelo</option>
+              <option value="parallel_loan_disbursement">Desembolso préstamo paralelo</option>
+              <option value="member_entry">Ingreso de miembro</option>
+              <option value="member_exit">Salida de miembro</option>
+              <option value="adjustment">Ajuste</option>
+            </select>
           </div>
 
           <div class="grid grid-cols-2 gap-3 mb-4">
@@ -165,7 +174,7 @@ export class CashBoxComponent implements OnInit {
     type: 'in',
     amount: 0,
     description: '',
-    category: '',
+    category: 'adjustment',
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
   };

@@ -2,12 +2,9 @@ import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateCashMovementApiRequest {
   @IsEnum(['in', 'out'])
-  movementType: 'in' | 'out';
+  type: 'in' | 'out';
 
-  @IsEnum(['automatic', 'manual'])
-  sourceType: 'automatic' | 'manual';
-
-  @IsString()
+  @IsEnum(['rueda_disbursement', 'rueda_collection', 'contribution', 'parallel_loan_disbursement', 'parallel_loan_payment', 'member_entry', 'member_exit', 'adjustment'])
   category: string;
 
   @IsNumber()
