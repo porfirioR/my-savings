@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ParallelLoansManager } from '../../manager/services';
-import { MarkLoanPaymentRequest, ParallelLoanModel, ParallelLoanPaymentModel } from '../../manager/contracts/parallel-loans';
+import { CreateParallelLoanRequest, MarkLoanPaymentRequest, ParallelLoanModel, ParallelLoanPaymentModel } from '../../manager/contracts/parallel-loans';
 import { CreateParallelLoanApiRequest } from '../contracts/parallel-loans';
 
 @Controller('groups/:groupId/parallel-loans')
@@ -17,7 +17,8 @@ export class ParallelLoansController {
     @Param('groupId') groupId: string,
     @Body() body: CreateParallelLoanApiRequest,
   ): Promise<ParallelLoanModel> {
-    return this.parallelLoansManager.create({ ...body, groupId });
+    const request = new CreateParallelLoanRequest(groupId, body.memberId, body.amount, body.interestRate, body.totalInstallments, body.roundingUnit!, body.startMonth, body.startYear)
+    return this.parallelLoansManager.create(request);
   }
 
   @Get(':id')
