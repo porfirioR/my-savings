@@ -11,8 +11,13 @@ export interface Rueda {
   roundingUnit: number;
   startMonth: number;
   startYear: number;
+  endMonth: number | null;
+  endYear: number | null;
   status: 'pending' | 'active' | 'completed';
+  historicalContributionTotal: number | null;
+  notes: string | null;
   createdAt: string;
+  slots?: RuedaSlot[];
 }
 
 export interface RuedaSlot {
@@ -29,8 +34,16 @@ export interface CreateRuedaRequest {
   type: 'new' | 'continua';
   loanAmount: number;
   interestRate: number;
+  contributionAmount: number;
   roundingUnit: number;
   startMonth: number;
   startYear: number;
   slots: { position: number; memberId: string; }[];
+}
+
+export interface UpdateRuedaRequest {
+  status?: 'pending' | 'active' | 'completed';
+  endMonth?: number;
+  endYear?: number;
+  notes?: string;
 }

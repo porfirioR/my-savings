@@ -15,7 +15,7 @@ export class RuedasManager {
       ruedaId: accessModel.ruedaId,
       memberId: accessModel.memberId,
       memberName: accessModel.memberName,
-      slotPosition: accessModel.slotPosition,
+      position: accessModel.position,
       loanAmount: accessModel.loanAmount,
       installmentAmount: accessModel.installmentAmount,
       totalToReturn: accessModel.totalToReturn,
@@ -109,14 +109,14 @@ export class RuedasManager {
         );
 
         // Calculate loan month/year based on slot position and rueda start
-        const totalMonthOffset = req.startMonth - 1 + (slot.slotPosition - 1);
+        const totalMonthOffset = req.startMonth - 1 + (slot.position - 1);
         const loanMonth = (totalMonthOffset % 12) + 1;
         const loanYear = req.startYear + Math.floor(totalMonthOffset / 12);
 
         return {
           ruedaId: rueda.id,
           memberId: slot.memberId,
-          slotPosition: slot.slotPosition,
+          position: slot.position,
           loanAmount: slotLoanAmount,
           installmentAmount: slotCalc.installmentAmount,
           totalToReturn: slotCalc.totalToReturn,

@@ -1,7 +1,7 @@
 export class CreateRuedaSlotRequest {
   constructor(
     public memberId: string,
-    public slotPosition: number,
+    public position: number,
     public loanAmount?: number,
   ) {}
 }

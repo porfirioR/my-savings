@@ -55,6 +55,26 @@ import { CreateRuedaRequest } from '../../models/rueda.model';
                     <div>{{ 'RUEDAS.CONTRIBUTION' | translate }}: <strong>{{ r.contributionAmount | number:'1.0-0' }} Gs</strong></div>
                   </div>
                 </div>
+                @if (r.status !== 'completed') {
+                  <div class="flex justify-end mt-2 gap-2">
+                    @if (r.status === 'pending') {
+                      <button class="btn btn-success btn-xs"
+                        [disabled]="updating() === r.id"
+                        (click)="changeStatus(r.id, 'active')">
+                        @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
+                        @else { Activar }
+                      </button>
+                    }
+                    @if (r.status === 'active') {
+                      <button class="btn btn-neutral btn-xs"
+                        [disabled]="updating() === r.id"
+                        (click)="changeStatus(r.id, 'completed')">
+                        @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
+                        @else { Completar }
+                      </button>
+                    }
+                  </div>
+                }
               </div>
             </div>
           }
@@ -102,6 +122,10 @@ import { CreateRuedaRequest } from '../../models/rueda.model';
             <div class="form-control">
               <label class="label"><span class="label-text">{{ 'RUEDAS.INTEREST_RATE' | translate }} (%)</span></label>
               <input type="number" class="input input-bordered" [(ngModel)]="form.interestRate" step="0.5" />
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">{{ 'RUEDAS.CONTRIBUTION' | translate }} (Gs)</span></label>
+              <input type="number" class="input input-bordered" [(ngModel)]="form.contributionAmount" />
             </div>
             <div class="form-control">
               <label class="label"><span class="label-text">{{ 'MONTHS.1' | translate }} / Año inicio</span></label>
@@ -154,6 +178,7 @@ export class RuedaListComponent implements OnInit {
 
   private groupId = '';
   saving = signal(false);
+  updating = signal('');
   showModal = signal(false);
   suggested = signal<number | null>(null);
 
@@ -161,6 +186,7 @@ export class RuedaListComponent implements OnInit {
     type: 'new',
     loanAmount: 0,
     interestRate: 5,
+    contributionAmount: 0,
     roundingUnit: 500,
     startMonth: new Date().getMonth() + 1,
     startYear: new Date().getFullYear(),
@@ -183,7 +209,7 @@ export class RuedaListComponent implements OnInit {
   openModal(): void {
     this.suggested.set(null);
     this.slots = Array.from({ length: 15 }, (_, i) => ({ position: i + 1, memberId: '' }));
-    this.form = { type: 'new', loanAmount: 0, interestRate: 5, roundingUnit: 500, startMonth: new Date().getMonth() + 1, startYear: new Date().getFullYear(), slots: [] };
+    this.form = { type: 'new', loanAmount: 0, interestRate: 5, contributionAmount: 0, roundingUnit: 500, startMonth: new Date().getMonth() + 1, startYear: new Date().getFullYear(), slots: [] };
     this.showModal.set(true);
   }
 
@@ -197,6 +223,14 @@ export class RuedaListComponent implements OnInit {
 
   useSuggestion(): void {
     if (this.suggested()) this.form.loanAmount = this.suggested()!;
+  }
+
+  changeStatus(ruedaId: string, status: 'active' | 'completed'): void {
+    this.updating.set(ruedaId);
+    this.service.update(this.groupId, ruedaId, { status }).subscribe({
+      next: () => this.updating.set(''),
+      error: () => this.updating.set(''),
+    });
   }
 
   save(): void {

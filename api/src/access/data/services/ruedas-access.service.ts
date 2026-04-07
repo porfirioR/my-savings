@@ -23,7 +23,7 @@ export class RuedasAccess extends BaseAccessService {
       memberName: entity.members
         ? `${entity.members.first_name} ${entity.members.last_name}`
         : undefined,
-      slotPosition: entity.slot_position,
+      position: entity.slot_position,
       loanAmount: entity.loan_amount,
       installmentAmount: entity.installment_amount,
       totalToReturn: entity.total_to_return,
@@ -174,7 +174,7 @@ export class RuedasAccess extends BaseAccessService {
     const records = slots.map((s) => ({
       rueda_id: ruedaId,
       member_id: s.memberId,
-      slot_position: s.slotPosition,
+      slot_position: s.position,
       loan_amount: s.loanAmount,
       installment_amount: s.installmentAmount,
       total_to_return: s.totalToReturn,

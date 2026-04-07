@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { CreateRuedaRequest, Rueda, RuedaSlot } from '../models/rueda.model';
+import { CreateRuedaRequest, Rueda, RuedaSlot, UpdateRuedaRequest } from '../models/rueda.model';
 
 @Injectable({ providedIn: 'root' })
 export class RuedasService {
@@ -28,6 +28,12 @@ export class RuedasService {
   create(groupId: string, req: CreateRuedaRequest): Observable<Rueda> {
     return this.api.post<Rueda>(`groups/${groupId}/ruedas`, req).pipe(
       tap(r => this.ruedas.update(list => [...list, r])),
+    );
+  }
+
+  update(groupId: string, ruedaId: string, req: UpdateRuedaRequest): Observable<Rueda> {
+    return this.api.put<Rueda>(`groups/${groupId}/ruedas/${ruedaId}`, req).pipe(
+      tap(updated => this.ruedas.update(list => list.map(r => r.id === ruedaId ? updated : r))),
     );
   }
 

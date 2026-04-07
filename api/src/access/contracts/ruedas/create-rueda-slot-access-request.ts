@@ -2,7 +2,7 @@ export class CreateRuedaSlotAccessRequest {
   constructor(
     public ruedaId: string,
     public memberId: string,
-    public slotPosition: number,
+    public position: number,
     public loanAmount: number,
     public installmentAmount: number,
     public totalToReturn: number,
