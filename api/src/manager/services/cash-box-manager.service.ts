@@ -13,7 +13,7 @@ export class CashBoxManager {
 
   private mapMovement(a: CashMovementAccessModel): CashMovementModel {
     return new CashMovementModel(
-      a.id, a.groupId, a.movementType, a.category,
+      a.id, a.groupId, a.movementType, a.sourceType, a.category,
       a.amount, a.month, a.year, a.createdAt, a.updatedAt,
       a.description,
     );

@@ -3,6 +3,7 @@ export class CashMovementModel {
     public id: string,
     public groupId: string,
     public type: 'in' | 'out',
+    public sourceType: 'automatic' | 'manual',
     public category: string,
     public amount: number,
     public month: number,

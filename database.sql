@@ -107,6 +107,7 @@ CREATE TABLE rueda_monthly_payments (
     payment_type            VARCHAR(20) NOT NULL CHECK (payment_type IN ('current_rueda', 'previous_rueda', 'contribution_only')),
     -- Payment status
     is_paid                 BOOLEAN NOT NULL DEFAULT FALSE,
+    paid_at                 TIMESTAMPTZ,
     -- 'member'=paid normally, 'cash_box'=covered from caja because member didn't pay
     payment_source          VARCHAR(10) CHECK (payment_source IN ('member', 'cash_box')),
     notes                   TEXT,

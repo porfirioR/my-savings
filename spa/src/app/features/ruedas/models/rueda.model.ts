@@ -17,6 +17,7 @@ export interface Rueda {
   historicalContributionTotal: number | null;
   notes: string | null;
   createdAt: string;
+  updatedAt: string;
   slots?: RuedaSlot[];
 }
 
@@ -26,8 +27,14 @@ export interface RuedaSlot {
   position: number;
   memberId: string | null;
   memberName?: string;
+  loanAmount: number;
+  installmentAmount: number;
+  totalToReturn: number;
   loanMonth: number;
   loanYear: number;
+  status: 'pending' | 'active' | 'completed';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateRuedaRequest {

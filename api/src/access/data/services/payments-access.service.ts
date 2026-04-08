@@ -29,6 +29,7 @@ export class PaymentsAccess extends BaseAccessService {
       installmentNumber: entity.installment_number,
       paymentType: entity.payment_type,
       isPaid: entity.is_paid,
+      paidAt: entity.paid_at,
       paymentSource: entity.payment_source,
       notes: entity.notes,
       createdAt: entity.created_at,
@@ -130,6 +131,7 @@ export class PaymentsAccess extends BaseAccessService {
       .from('rueda_monthly_payments')
       .update({
         is_paid: req.isPaid,
+        paid_at: req.isPaid ? new Date().toISOString() : null,
         payment_source: req.paymentSource ?? null,
       })
       .eq('id', id)

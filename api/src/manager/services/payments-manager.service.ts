@@ -21,7 +21,7 @@ export class PaymentsManager {
       installmentNumber: accessModel.installmentNumber,
       paymentType: accessModel.paymentType,
       status: accessModel.isPaid ? 'paid' : 'pending',
-      paidAt: null,
+      paidAt: accessModel.paidAt,
       paymentSource: accessModel.paymentSource,
       notes: accessModel.notes,
       createdAt: accessModel.createdAt,

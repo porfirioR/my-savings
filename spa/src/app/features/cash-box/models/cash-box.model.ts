@@ -8,12 +8,14 @@ export interface CashMovement {
   id: string;
   groupId: string;
   type: 'in' | 'out';
+  sourceType: 'automatic' | 'manual';
+  category: string;
   amount: number;
-  description: string;
-  category: string | null;
+  description?: string;
   month: number;
   year: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateMovementRequest {

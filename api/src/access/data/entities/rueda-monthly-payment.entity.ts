@@ -10,6 +10,7 @@ export interface RuedaMonthlyPaymentEntity {
   installment_number: number;
   payment_type: 'current_rueda' | 'previous_rueda' | 'contribution_only';
   is_paid: boolean;
+  paid_at: string | null;
   payment_source: 'member' | 'cash_box' | null;
   notes: string | null;
   created_at: string;

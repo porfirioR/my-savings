@@ -12,6 +12,7 @@ export class PaymentAccessModel {
     public installmentNumber: number,
     public paymentType: 'current_rueda' | 'previous_rueda' | 'contribution_only',
     public isPaid: boolean,
+    public paidAt: string | null,
     public paymentSource: 'member' | 'cash_box' | null,
     public notes: string | null,
     public createdAt: string,

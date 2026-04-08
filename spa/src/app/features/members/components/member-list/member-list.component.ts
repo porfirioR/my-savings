@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -8,7 +9,7 @@ import { CreateMemberRequest, ExitMemberRequest } from '../../models/member.mode
 @Component({
   selector: 'app-member-list',
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, DecimalPipe, TranslateModule],
   template: `
     <div class="p-4">
       <div class="flex justify-between items-center mb-4">
@@ -144,12 +145,25 @@ import { CreateMemberRequest, ExitMemberRequest } from '../../models/member.mode
             <label class="label"><span class="label-text">Saldo préstamo restante (Gs)</span></label>
             <input type="number" class="input input-bordered" [(ngModel)]="exitForm.remainingLoanBalance" min="0" />
           </div>
+          @if (settlement()) {
+            <div class="alert mt-2" [class.alert-success]="settlement()!.memberReceives > 0" [class.alert-warning]="settlement()!.memberPays > 0" [class.alert-info]="settlement()!.memberReceives === 0 && settlement()!.memberPays === 0">
+              @if (settlement()!.memberReceives > 0) {
+                <span>El miembro <strong>recibe</strong> {{ settlement()!.memberReceives | number:'1.0-0' }} Gs de la caja.</span>
+              } @else if (settlement()!.memberPays > 0) {
+                <span>El miembro <strong>debe pagar</strong> {{ settlement()!.memberPays | number:'1.0-0' }} Gs a la caja.</span>
+              } @else {
+                <span>Sin diferencia. Liquidación en cero.</span>
+              }
+            </div>
+          }
           <div class="modal-action">
-            <button class="btn btn-ghost" (click)="closeExitModal()">{{ 'APP.CANCEL' | translate }}</button>
-            <button class="btn btn-warning" [disabled]="saving()" (click)="processExit()">
-              @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
-              {{ 'APP.CONFIRM' | translate }}
-            </button>
+            <button class="btn btn-ghost" (click)="closeExitModal()">{{ 'APP.CLOSE' | translate }}</button>
+            @if (!settlement()) {
+              <button class="btn btn-warning" [disabled]="saving()" (click)="processExit()">
+                @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
+                {{ 'APP.CONFIRM' | translate }}
+              </button>
+            }
           </div>
         </div>
         <div class="modal-backdrop" (click)="closeExitModal()"></div>
@@ -166,6 +180,7 @@ export class MemberListComponent implements OnInit {
   showAddModal = signal(false);
   showExitModal = signal(false);
   selectedMemberId = signal('');
+  settlement = signal<{ memberReceives: number; memberPays: number } | null>(null);
 
   months = Array.from({ length: 12 }, (_, i) => i + 1);
   addForm: CreateMemberRequest = { firstName: '', lastName: '', phone: '', position: 1, joinedMonth: new Date().getMonth() + 1, joinedYear: new Date().getFullYear() };
@@ -185,11 +200,12 @@ export class MemberListComponent implements OnInit {
 
   openExitModal(memberId: string): void {
     this.selectedMemberId.set(memberId);
+    this.settlement.set(null);
     this.exitForm = { leftMonth: new Date().getMonth() + 1, leftYear: new Date().getFullYear(), accumulatedContributions: 0, remainingLoanBalance: 0 };
     this.showExitModal.set(true);
   }
 
-  closeExitModal(): void { this.showExitModal.set(false); }
+  closeExitModal(): void { this.showExitModal.set(false); this.settlement.set(null); }
 
   save(): void {
     if (!this.addForm.firstName || !this.addForm.lastName) return;
@@ -204,7 +220,7 @@ export class MemberListComponent implements OnInit {
     if (!this.exitForm.leftMonth || !this.exitForm.leftYear) return;
     this.saving.set(true);
     this.service.exit(this.groupId, this.selectedMemberId(), this.exitForm).subscribe({
-      next: () => { this.saving.set(false); this.closeExitModal(); },
+      next: (result) => { this.saving.set(false); this.settlement.set(result); },
       error: () => this.saving.set(false),
     });
   }

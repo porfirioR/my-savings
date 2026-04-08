@@ -8,5 +8,6 @@ export class ParallelLoanPaymentModel {
     public status: 'paid' | 'pending',
     public paidAt: string | null,
     public createdAt: string,
+    public updatedAt?: string,
   ) {}
 }

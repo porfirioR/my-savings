@@ -12,7 +12,10 @@ export interface ParallelLoan {
   status: 'active' | 'completed';
   startMonth: number;
   startYear: number;
+  endMonth: number | null;
+  endYear: number | null;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface ParallelLoanPayment {
@@ -23,6 +26,7 @@ export interface ParallelLoanPayment {
   year: number;
   status: 'paid' | 'pending';
   paidAt: string | null;
+  createdAt: string;
 }
 
 export interface CreateParallelLoanRequest {
