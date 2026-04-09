@@ -21,7 +21,8 @@
       "Bash(node_modules/.bin/tsc --noEmit -p tsconfig.app.json)",
       "Bash(npm install:*)",
       "Bash(node_modules/.bin/ng build:*)",
-      "Bash(find c:/Users/GreenLight-05/Documents/Cursos/my-savings/api/src -type f \\\\\\( -name \"*.js\" -o -name \"*.d.ts\" -o -name \"*.js.map\" \\\\\\) -delete)"
+      "Bash(find c:/Users/GreenLight-05/Documents/Cursos/my-savings/api/src -type f \\\\\\( -name \"*.js\" -o -name \"*.d.ts\" -o -name \"*.js.map\" \\\\\\) -delete)",
+      "Bash(npx ng:*)"
     ]
   }
 }

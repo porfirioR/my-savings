@@ -1,0 +1,31 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: oklch(var(--bc) / 0.2);
+  border-radius: 9999px;
+}
+
+.page-header {
+  @apply flex items-center justify-between mb-6;
+}
+
+.section-title {
+  @apply text-2xl font-bold tracking-tight;
+}

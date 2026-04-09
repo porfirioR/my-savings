@@ -12,54 +12,68 @@ import { DecimalPipe } from '@angular/common';
   standalone: true,
   imports: [FormsModule, DecimalPipe, TranslateModule],
   template: `
-    <div class="p-4">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">{{ 'PARALLEL_LOANS.TITLE' | translate }}</h2>
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-2xl font-bold tracking-tight">{{ 'PARALLEL_LOANS.TITLE' | translate }}</h2>
         <button class="btn btn-primary btn-sm" (click)="openCreateModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
           {{ 'PARALLEL_LOANS.NEW' | translate }}
         </button>
       </div>
+      <div class="divider mt-0 mb-6"></div>
 
       @if (service.loading()) {
-        <div class="flex justify-center py-8">
-          <span class="loading loading-spinner loading-md"></span>
+        <div class="flex justify-center py-16">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
         </div>
       } @else if (service.loans().length === 0) {
-        <div class="text-center py-8 text-base-content/50">
+        <div class="text-center py-16 text-base-content/50 text-sm">
           {{ 'PARALLEL_LOANS.EMPTY' | translate }}
         </div>
       } @else {
-        <div class="grid gap-3">
+        <div class="grid gap-4">
           @for (loan of service.loans(); track loan.id) {
-            <div class="card bg-base-200 shadow-sm">
-              <div class="card-body p-4">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 class="font-semibold">{{ loan.memberName }}</h3>
-                    <p class="text-sm text-base-content/70">
-                      {{ 'PARALLEL_LOANS.START_DATE' | translate }}: {{ 'MONTHS.' + loan.startMonth | translate }} {{ loan.startYear }}
-                    </p>
-                    <div class="mt-1">
-                      <progress class="progress progress-primary w-40"
-                        [value]="loan.installmentsPaid"
-                        [max]="loan.totalInstallments">
-                      </progress>
-                      <span class="text-xs ml-2">{{ loan.installmentsPaid }}/{{ loan.totalInstallments }}</span>
-                    </div>
+            <div class="card bg-base-200 border border-base-300">
+              <div class="card-body p-5">
+                <!-- Header: name + status badge -->
+                <div class="flex items-start justify-between mb-1">
+                  <h3 class="font-bold text-base">{{ loan.memberName }}</h3>
+                  <span class="badge badge-sm"
+                    [class.badge-success]="loan.status === 'active'"
+                    [class.badge-neutral]="loan.status === 'completed'">
+                    {{ ('PARALLEL_LOANS.STATUS_' + loan.status.toUpperCase()) | translate }}
+                  </span>
+                </div>
+                <p class="text-xs text-base-content/50 mb-3">
+                  {{ 'PARALLEL_LOANS.START_DATE' | translate }}: {{ 'MONTHS.' + loan.startMonth | translate }} {{ loan.startYear }}
+                </p>
+
+                <!-- Financial details -->
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <div class="bg-base-100 rounded-lg p-3">
+                    <p class="text-xs text-base-content/50 mb-0.5">{{ 'PARALLEL_LOANS.AMOUNT' | translate }}</p>
+                    <p class="font-semibold text-sm">{{ loan.amount | number:'1.0-0' }} Gs</p>
                   </div>
-                  <div class="text-right text-sm">
-                    <div>{{ 'PARALLEL_LOANS.AMOUNT' | translate }}: <strong>{{ loan.amount | number:'1.0-0' }} Gs</strong></div>
-                    <div>{{ 'PARALLEL_LOANS.INSTALLMENT' | translate }}: <strong>{{ loan.installmentAmount | number:'1.0-0' }} Gs</strong></div>
-                    <div>
-                      <span class="badge badge-sm" [class.badge-success]="loan.status === 'active'" [class.badge-neutral]="loan.status === 'completed'">
-                        {{ ('PARALLEL_LOANS.STATUS_' + loan.status.toUpperCase()) | translate }}
-                      </span>
-                    </div>
+                  <div class="bg-base-100 rounded-lg p-3">
+                    <p class="text-xs text-base-content/50 mb-0.5">{{ 'PARALLEL_LOANS.INSTALLMENT' | translate }}</p>
+                    <p class="font-semibold text-sm">{{ loan.installmentAmount | number:'1.0-0' }} Gs</p>
                   </div>
                 </div>
+
+                <!-- Progress bar -->
+                <div class="flex items-center gap-3">
+                  <progress class="progress progress-primary flex-1"
+                    [value]="loan.installmentsPaid"
+                    [max]="loan.totalInstallments">
+                  </progress>
+                  <span class="text-xs text-base-content/60 shrink-0">{{ loan.installmentsPaid }}/{{ loan.totalInstallments }}</span>
+                </div>
+
                 @if (loan.status === 'active') {
-                  <div class="card-actions justify-end mt-2">
-                    <button class="btn btn-outline btn-xs" (click)="openPaymentsModal(loan)">
+                  <div class="card-actions justify-end mt-3">
+                    <button class="btn btn-outline btn-sm" (click)="openPaymentsModal(loan)">
                       {{ 'PARALLEL_LOANS.PAYMENTS' | translate }}
                     </button>
                   </div>
@@ -75,11 +89,12 @@ import { DecimalPipe } from '@angular/common';
     @if (showCreateModal()) {
       <div class="modal modal-open">
         <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ 'PARALLEL_LOANS.NEW' | translate }}</h3>
+          <h3 class="font-bold text-lg mb-1">{{ 'PARALLEL_LOANS.NEW' | translate }}</h3>
+          <p class="text-sm text-base-content/50 mb-4">Configura los datos del nuevo préstamo.</p>
 
-          <div class="form-control mb-3">
-            <label class="label"><span class="label-text">{{ 'PARALLEL_LOANS.MEMBER' | translate }}</span></label>
-            <select class="select select-bordered" [(ngModel)]="form.memberId">
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.MEMBER' | translate }}</legend>
+            <select class="select select-bordered w-full" [(ngModel)]="form.memberId">
               <option value="">-- Seleccionar --</option>
               @for (m of membersService.members(); track m.id) {
                 @if (m.isActive) {
@@ -87,39 +102,44 @@ import { DecimalPipe } from '@angular/common';
                 }
               }
             </select>
-          </div>
+          </fieldset>
 
-          <div class="form-control mb-3">
-            <label class="label"><span class="label-text">{{ 'PARALLEL_LOANS.AMOUNT' | translate }} (Gs)</span></label>
-            <input type="number" class="input input-bordered" [(ngModel)]="form.amount" min="0" />
-          </div>
-
-          <div class="form-control mb-3">
-            <label class="label"><span class="label-text">{{ 'PARALLEL_LOANS.INTEREST' | translate }} (%)</span></label>
-            <input type="number" class="input input-bordered" [(ngModel)]="form.interestRate" step="0.5" />
-          </div>
-
-          <div class="form-control mb-3">
-            <label class="label"><span class="label-text">{{ 'PARALLEL_LOANS.TOTAL_INSTALLMENTS' | translate }}</span></label>
-            <input type="number" class="input input-bordered" [(ngModel)]="form.totalInstallments" min="1" />
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="form-control">
-              <label class="label"><span class="label-text">{{ 'PAYMENTS.MONTH' | translate }} inicio</span></label>
-              <select class="select select-bordered" [(ngModel)]="form.startMonth">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.AMOUNT' | translate }} (Gs)</legend>
+              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.amount" min="0" />
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.INTEREST' | translate }} (%)</legend>
+              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.interestRate" step="0.5" />
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.TOTAL_INSTALLMENTS' | translate }}</legend>
+              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.totalInstallments" min="1" />
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }} (Gs)</legend>
+              <select class="select select-bordered w-full" [(ngModel)]="form.roundingUnit">
+                <option [ngValue]="500">500</option>
+                <option [ngValue]="1000">1000</option>
+              </select>
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }} inicio</legend>
+              <select class="select select-bordered w-full" [(ngModel)]="form.startMonth">
                 @for (m of months; track m.value) {
                   <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
                 }
               </select>
-            </div>
-            <div class="form-control">
-              <label class="label"><span class="label-text">{{ 'PAYMENTS.YEAR' | translate }}</span></label>
-              <input type="number" class="input input-bordered" [(ngModel)]="form.startYear" />
-            </div>
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }}</legend>
+              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.startYear" />
+            </fieldset>
           </div>
 
-          <div class="modal-action">
+          <div class="divider my-2"></div>
+          <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="closeCreateModal()">{{ 'APP.CANCEL' | translate }}</button>
             <button class="btn btn-primary" [disabled]="saving()" (click)="save()">
               @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
@@ -135,35 +155,38 @@ import { DecimalPipe } from '@angular/common';
     @if (showPaymentsModal()) {
       <div class="modal modal-open">
         <div class="modal-box w-11/12 max-w-lg">
-          <h3 class="font-bold text-lg mb-4">
-            {{ 'PARALLEL_LOANS.PAYMENTS' | translate }} — {{ selectedLoan()?.memberName }}
+          <h3 class="font-bold text-lg mb-1">
+            {{ 'PARALLEL_LOANS.PAYMENTS' | translate }}
           </h3>
+          <p class="text-sm text-base-content/50 mb-4">{{ selectedLoan()?.memberName }}</p>
 
-          <div class="overflow-y-auto max-h-96">
+          <div class="overflow-y-auto max-h-96 rounded-box border border-base-300">
             <table class="table table-sm w-full">
               <thead>
-                <tr>
-                  <th>#</th>
+                <tr class="bg-base-200">
+                  <th class="w-10">#</th>
                   <th>{{ 'CASH_BOX.DATE' | translate }}</th>
                   <th class="text-right">{{ 'PARALLEL_LOANS.INSTALLMENT' | translate }}</th>
                   <th class="text-center">Estado</th>
-                  <th></th>
+                  <th class="w-12"></th>
                 </tr>
               </thead>
               <tbody>
                 @for (p of service.payments(); track p.id; let i = $index) {
-                  <tr [class.opacity-50]="p.status === 'paid'">
-                    <td>{{ i + 1 }}</td>
-                    <td>{{ 'MONTHS.' + p.month | translate }} {{ p.year }}</td>
-                    <td class="text-right">{{ p.amount | number:'1.0-0' }} Gs</td>
+                  <tr class="hover:bg-base-200/50" [class.opacity-50]="p.status === 'paid'">
+                    <td class="text-base-content/40 text-xs">{{ i + 1 }}</td>
+                    <td class="text-base-content/70">{{ 'MONTHS.' + p.month | translate }} {{ p.year }}</td>
+                    <td class="text-right font-medium">{{ p.amount | number:'1.0-0' }} Gs</td>
                     <td class="text-center">
-                      <span class="badge badge-xs" [class.badge-success]="p.status === 'paid'" [class.badge-warning]="p.status === 'pending'">
+                      <span class="badge badge-xs badge-outline"
+                        [class.badge-success]="p.status === 'paid'"
+                        [class.badge-warning]="p.status === 'pending'">
                         {{ (p.status === 'paid' ? 'PAYMENTS.PAID' : 'PAYMENTS.PENDING') | translate }}
                       </span>
                     </td>
-                    <td>
+                    <td class="text-center">
                       @if (p.status === 'pending') {
-                        <button class="btn btn-success btn-xs" [disabled]="toggling() === p.id" (click)="markPaid(p.id)">
+                        <button class="btn btn-circle btn-xs btn-success" [disabled]="toggling() === p.id" (click)="markPaid(p.id)">
                           @if (toggling() === p.id) { <span class="loading loading-spinner loading-xs"></span> }
                           @else { ✓ }
                         </button>
@@ -175,8 +198,9 @@ import { DecimalPipe } from '@angular/common';
             </table>
           </div>
 
-          <div class="modal-action">
-            <button class="btn" (click)="closePaymentsModal()">{{ 'APP.CLOSE' | translate }}</button>
+          <div class="divider my-2"></div>
+          <div class="modal-action mt-0">
+            <button class="btn btn-ghost" (click)="closePaymentsModal()">{{ 'APP.CLOSE' | translate }}</button>
           </div>
         </div>
         <div class="modal-backdrop" (click)="closePaymentsModal()"></div>
@@ -201,6 +225,7 @@ export class ParallelLoanListComponent implements OnInit {
     amount: 0,
     interestRate: 5,
     totalInstallments: 15,
+    roundingUnit: 500,
     startMonth: new Date().getMonth() + 1,
     startYear: new Date().getFullYear(),
   };
@@ -214,7 +239,7 @@ export class ParallelLoanListComponent implements OnInit {
   }
 
   openCreateModal(): void {
-    this.form = { memberId: '', amount: 0, interestRate: 5, totalInstallments: 15, startMonth: new Date().getMonth() + 1, startYear: new Date().getFullYear() };
+    this.form = { memberId: '', amount: 0, interestRate: 5, totalInstallments: 15, roundingUnit: 500, startMonth: new Date().getMonth() + 1, startYear: new Date().getFullYear() };
     this.showCreateModal.set(true);
   }
 

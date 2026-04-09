@@ -11,27 +11,31 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
   standalone: true,
   imports: [FormsModule, DecimalPipe, TranslateModule],
   template: `
-    <div class="p-4">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">{{ 'CASH_BOX.TITLE' | translate }}</h2>
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-2xl font-bold tracking-tight">{{ 'CASH_BOX.TITLE' | translate }}</h2>
         <button class="btn btn-primary btn-sm" (click)="openModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
           {{ 'CASH_BOX.ADD_MOVEMENT' | translate }}
         </button>
       </div>
+      <div class="divider mt-0 mb-6"></div>
 
-      <!-- Balance card -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-        <div class="stat bg-success/10 rounded-box p-4">
+      <!-- Stats -->
+      <div class="stats stats-vertical md:stats-horizontal shadow w-full mb-6">
+        <div class="stat">
           <div class="stat-title">{{ 'CASH_BOX.TYPE_IN' | translate }}</div>
           <div class="stat-value text-success text-xl">{{ service.balance().totalIn | number:'1.0-0' }} Gs</div>
         </div>
-        <div class="stat bg-error/10 rounded-box p-4">
+        <div class="stat">
           <div class="stat-title">{{ 'CASH_BOX.TYPE_OUT' | translate }}</div>
           <div class="stat-value text-error text-xl">{{ service.balance().totalOut | number:'1.0-0' }} Gs</div>
         </div>
-        <div class="stat bg-primary/10 rounded-box p-4">
+        <div class="stat">
           <div class="stat-title">{{ 'CASH_BOX.BALANCE' | translate }}</div>
-          <div class="stat-value text-primary text-xl"
+          <div class="stat-value text-xl"
             [class.text-success]="service.balance().balance >= 0"
             [class.text-error]="service.balance().balance < 0">
             {{ service.balance().balance | number:'1.0-0' }} Gs
@@ -40,23 +44,23 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
       </div>
 
       <!-- Movements list -->
-      <h3 class="font-semibold mb-2">{{ 'CASH_BOX.MOVEMENTS' | translate }}</h3>
+      <h3 class="font-semibold text-base mb-3">{{ 'CASH_BOX.MOVEMENTS' | translate }}</h3>
 
       @if (service.loading()) {
-        <div class="flex justify-center py-8">
-          <span class="loading loading-spinner loading-md"></span>
+        <div class="flex justify-center py-16">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
         </div>
       } @else if (service.movements().length === 0) {
-        <div class="text-center py-8 text-base-content/50">
+        <div class="text-center py-16 text-base-content/50 text-sm">
           {{ 'CASH_BOX.EMPTY' | translate }}
         </div>
       } @else {
-        <div class="overflow-x-auto">
-          <table class="table table-zebra w-full text-sm">
+        <div class="overflow-x-auto rounded-box border border-base-300">
+          <table class="table table-pin-rows w-full text-sm">
             <thead>
-              <tr>
+              <tr class="bg-base-200">
                 <th>{{ 'CASH_BOX.DATE' | translate }}</th>
-                <th>{{ 'CASH_BOX.TYPE_IN' | translate }} / {{ 'CASH_BOX.TYPE_OUT' | translate }}</th>
+                <th>Tipo</th>
                 <th>{{ 'CASH_BOX.DESCRIPTION' | translate }}</th>
                 <th>{{ 'CASH_BOX.CATEGORY' | translate }}</th>
                 <th class="text-right">{{ 'CASH_BOX.AMOUNT' | translate }}</th>
@@ -64,15 +68,17 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
             </thead>
             <tbody>
               @for (m of service.movements(); track m.id) {
-                <tr>
-                  <td>{{ 'MONTHS.' + m.month | translate }} {{ m.year }}</td>
+                <tr class="hover:bg-base-200/50">
+                  <td class="text-base-content/60">{{ 'MONTHS.' + m.month | translate }} {{ m.year }}</td>
                   <td>
-                    <span class="badge badge-sm" [class.badge-success]="m.type === 'in'" [class.badge-error]="m.type === 'out'">
+                    <span class="badge badge-sm badge-outline"
+                      [class.badge-success]="m.type === 'in'"
+                      [class.badge-error]="m.type === 'out'">
                       {{ (m.type === 'in' ? 'CASH_BOX.TYPE_IN' : 'CASH_BOX.TYPE_OUT') | translate }}
                     </span>
                   </td>
                   <td>{{ m.description }}</td>
-                  <td>{{ m.category ?? '-' }}</td>
+                  <td class="text-base-content/60">{{ m.category || '-' }}</td>
                   <td class="text-right font-semibold"
                     [class.text-success]="m.type === 'in'"
                     [class.text-error]="m.type === 'out'">
@@ -90,11 +96,12 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
     @if (showModal()) {
       <div class="modal modal-open">
         <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">{{ 'CASH_BOX.ADD_MOVEMENT' | translate }}</h3>
+          <h3 class="font-bold text-lg mb-1">{{ 'CASH_BOX.ADD_MOVEMENT' | translate }}</h3>
+          <p class="text-sm text-base-content/50 mb-4">Registra un nuevo movimiento en la caja.</p>
 
-          <div class="form-control mb-3">
-            <label class="label"><span class="label-text">Tipo</span></label>
-            <div class="join">
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">Tipo</legend>
+            <div class="join w-full">
               <button type="button" class="btn join-item flex-1"
                 [class.btn-success]="form.type === 'in'"
                 [class.btn-outline]="form.type !== 'in'"
@@ -108,21 +115,21 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
                 {{ 'CASH_BOX.TYPE_OUT' | translate }}
               </button>
             </div>
-          </div>
+          </fieldset>
 
-          <div class="form-control mb-3">
-            <label class="label"><span class="label-text">{{ 'CASH_BOX.AMOUNT' | translate }} (Gs)</span></label>
-            <input type="number" class="input input-bordered" [(ngModel)]="form.amount" min="0" />
-          </div>
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ 'CASH_BOX.AMOUNT' | translate }} (Gs)</legend>
+            <input type="number" class="input input-bordered w-full" [(ngModel)]="form.amount" min="0" />
+          </fieldset>
 
-          <div class="form-control mb-3">
-            <label class="label"><span class="label-text">{{ 'CASH_BOX.DESCRIPTION' | translate }}</span></label>
-            <input type="text" class="input input-bordered" [(ngModel)]="form.description" />
-          </div>
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ 'CASH_BOX.DESCRIPTION' | translate }}</legend>
+            <input type="text" class="input input-bordered w-full" [(ngModel)]="form.description" />
+          </fieldset>
 
-          <div class="form-control mb-3">
-            <label class="label"><span class="label-text">{{ 'CASH_BOX.CATEGORY' | translate }}</span></label>
-            <select class="select select-bordered" [(ngModel)]="form.category">
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ 'CASH_BOX.CATEGORY' | translate }}</legend>
+            <select class="select select-bordered w-full" [(ngModel)]="form.category">
               <option value="contribution">Aporte</option>
               <option value="rueda_collection">Cobro rueda</option>
               <option value="rueda_disbursement">Desembolso rueda</option>
@@ -132,24 +139,25 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
               <option value="member_exit">Salida de miembro</option>
               <option value="adjustment">Ajuste</option>
             </select>
-          </div>
+          </fieldset>
 
           <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="form-control">
-              <label class="label"><span class="label-text">{{ 'PAYMENTS.MONTH' | translate }}</span></label>
-              <select class="select select-bordered" [(ngModel)]="form.month">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }}</legend>
+              <select class="select select-bordered w-full" [(ngModel)]="form.month">
                 @for (m of months; track m.value) {
                   <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
                 }
               </select>
-            </div>
-            <div class="form-control">
-              <label class="label"><span class="label-text">{{ 'PAYMENTS.YEAR' | translate }}</span></label>
-              <input type="number" class="input input-bordered" [(ngModel)]="form.year" />
-            </div>
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }}</legend>
+              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.year" />
+            </fieldset>
           </div>
 
-          <div class="modal-action">
+          <div class="divider my-2"></div>
+          <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="closeModal()">{{ 'APP.CANCEL' | translate }}</button>
             <button class="btn btn-primary" [disabled]="saving()" (click)="save()">
               @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
