@@ -128,7 +128,7 @@ import { CreateRuedaRequest } from '../../models/rueda.model';
               </legend>
               <div class="join w-full">
                 <input type="number" class="input input-bordered join-item flex-1" [(ngModel)]="form.loanAmount" />
-                <button type="button" class="btn join-item btn-outline btn-sm" (click)="getSuggestion()">
+                <button type="button" class="btn join-item btn-outline" (click)="getSuggestion()">
                   {{ 'RUEDAS.CALCULATE' | translate }}
                 </button>
               </div>
