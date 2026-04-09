@@ -99,8 +99,9 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
           <h3 class="font-bold text-lg mb-1">{{ 'CASH_BOX.ADD_MOVEMENT' | translate }}</h3>
           <p class="text-sm text-base-content/50 mb-4">Registra un nuevo movimiento en la caja.</p>
 
+          <form #movementForm="ngForm">
           <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">Tipo</legend>
+            <legend class="fieldset-legend">Tipo <span class="text-error">*</span></legend>
             <div class="join w-full">
               <button type="button" class="btn join-item flex-1"
                 [class.btn-success]="form.type === 'in'"
@@ -118,18 +119,31 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
           </fieldset>
 
           <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">{{ 'CASH_BOX.AMOUNT' | translate }} (Gs)</legend>
-            <input type="number" class="input input-bordered w-full" [(ngModel)]="form.amount" min="0" />
+            <legend class="fieldset-legend">{{ 'CASH_BOX.AMOUNT' | translate }} (Gs) <span class="text-error">*</span></legend>
+            <input type="number" class="input input-bordered w-full" name="amount"
+              [(ngModel)]="form.amount" required min="1" #amount="ngModel"
+              [class.input-error]="amount.invalid && amount.touched" />
+            @if (amount.invalid && amount.touched) {
+              <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
+            }
           </fieldset>
 
           <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">{{ 'CASH_BOX.DESCRIPTION' | translate }}</legend>
-            <input type="text" class="input input-bordered w-full" [(ngModel)]="form.description" />
+            <legend class="fieldset-legend">{{ 'CASH_BOX.DESCRIPTION' | translate }} <span class="text-error">*</span></legend>
+            <input type="text" class="input input-bordered w-full" name="description"
+              [(ngModel)]="form.description" required #description="ngModel"
+              [class.input-error]="description.invalid && description.touched" />
+            @if (description.invalid && description.touched) {
+              <span class="text-error text-xs mt-1">Campo requerido</span>
+            }
           </fieldset>
 
           <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">{{ 'CASH_BOX.CATEGORY' | translate }}</legend>
-            <select class="select select-bordered w-full" [(ngModel)]="form.category">
+            <legend class="fieldset-legend">{{ 'CASH_BOX.CATEGORY' | translate }} <span class="text-error">*</span></legend>
+            <select class="select select-bordered w-full" name="category"
+              [(ngModel)]="form.category" required #category="ngModel"
+              [class.select-error]="category.invalid && category.touched">
+              <option value="">-- Seleccionar --</option>
               <option value="contribution">Aporte</option>
               <option value="rueda_collection">Cobro rueda</option>
               <option value="rueda_disbursement">Desembolso rueda</option>
@@ -139,27 +153,37 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
               <option value="member_exit">Salida de miembro</option>
               <option value="adjustment">Ajuste</option>
             </select>
+            @if (category.invalid && category.touched) {
+              <span class="text-error text-xs mt-1">Campo requerido</span>
+            }
           </fieldset>
 
           <div class="grid grid-cols-2 gap-3 mb-4">
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }}</legend>
-              <select class="select select-bordered w-full" [(ngModel)]="form.month">
+              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }} <span class="text-error">*</span></legend>
+              <select class="select select-bordered w-full" name="month"
+                [(ngModel)]="form.month" required>
                 @for (m of months; track m.value) {
                   <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
                 }
               </select>
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }}</legend>
-              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.year" />
+              <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }} <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="year"
+                [(ngModel)]="form.year" required min="2000" #year="ngModel"
+                [class.input-error]="year.invalid && year.touched" />
+              @if (year.invalid && year.touched) {
+                <span class="text-error text-xs mt-1">Año inválido</span>
+              }
             </fieldset>
           </div>
+          </form>
 
           <div class="divider my-2"></div>
           <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="closeModal()">{{ 'APP.CANCEL' | translate }}</button>
-            <button class="btn btn-primary" [disabled]="saving()" (click)="save()">
+            <button class="btn btn-primary" [disabled]="movementForm.invalid || saving()" (click)="save()">
               @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
               {{ 'APP.SAVE' | translate }}
             </button>
@@ -196,7 +220,7 @@ export class CashBoxComponent implements OnInit {
   }
 
   openModal(): void {
-    this.form = { type: 'in', amount: 0, description: '', category: '', month: new Date().getMonth() + 1, year: new Date().getFullYear() };
+    this.form = { type: 'in', amount: 0, description: '', category: 'adjustment', month: new Date().getMonth() + 1, year: new Date().getFullYear() };
     this.showModal.set(true);
   }
 

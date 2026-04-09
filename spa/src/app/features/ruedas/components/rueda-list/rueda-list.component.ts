@@ -102,24 +102,27 @@ import { CreateRuedaRequest } from '../../models/rueda.model';
           <h3 class="font-bold text-lg mb-1">{{ 'RUEDAS.NEW' | translate }}</h3>
           <p class="text-sm text-base-content/50 mb-4">Configura los parámetros de la nueva rueda.</p>
 
+          <form #ruedaForm="ngForm">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.TYPE' | translate }}</legend>
-              <select class="select select-bordered w-full" [(ngModel)]="form.type">
+              <legend class="fieldset-legend">{{ 'RUEDAS.TYPE' | translate }} <span class="text-error">*</span></legend>
+              <select class="select select-bordered w-full" name="type"
+                [(ngModel)]="form.type" required>
                 <option value="new">{{ 'RUEDAS.TYPE_NEW' | translate }}</option>
                 <option value="continua">{{ 'RUEDAS.TYPE_CONTINUA' | translate }}</option>
               </select>
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }} (500/1000)</legend>
-              <select class="select select-bordered w-full" [(ngModel)]="form.roundingUnit">
+              <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }} (500/1000) <span class="text-error">*</span></legend>
+              <select class="select select-bordered w-full" name="roundingUnit"
+                [(ngModel)]="form.roundingUnit" required>
                 <option [ngValue]="500">500</option>
                 <option [ngValue]="1000">1000</option>
               </select>
             </fieldset>
             <fieldset class="fieldset">
               <legend class="fieldset-legend">
-                {{ 'RUEDAS.LOAN_AMOUNT' | translate }} (Gs)
+                {{ 'RUEDAS.LOAN_AMOUNT' | translate }} (Gs) <span class="text-error">*</span>
                 @if (suggested()) {
                   <span class="text-info cursor-pointer ml-2 font-normal" (click)="useSuggestion()">
                     {{ 'RUEDAS.SUGGESTION' | translate }}: {{ suggested() | number:'1.0-0' }}
@@ -127,32 +130,51 @@ import { CreateRuedaRequest } from '../../models/rueda.model';
                 }
               </legend>
               <div class="join w-full">
-                <input type="number" class="input input-bordered join-item flex-1" [(ngModel)]="form.loanAmount" />
+                <input type="number" class="input input-bordered join-item flex-1" name="loanAmount"
+                  [(ngModel)]="form.loanAmount" required min="1" #loanAmount="ngModel"
+                  [class.input-error]="loanAmount.invalid && loanAmount.touched" />
                 <button type="button" class="btn join-item btn-outline" (click)="getSuggestion()">
                   {{ 'RUEDAS.CALCULATE' | translate }}
                 </button>
               </div>
+              @if (loanAmount.invalid && loanAmount.touched) {
+                <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
+              }
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.INTEREST_RATE' | translate }} (%)</legend>
-              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.interestRate" step="0.5" />
+              <legend class="fieldset-legend">{{ 'RUEDAS.INTEREST_RATE' | translate }} (%) <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="interestRate"
+                [(ngModel)]="form.interestRate" required min="0" step="0.5" #interestRate="ngModel"
+                [class.input-error]="interestRate.invalid && interestRate.touched" />
+              @if (interestRate.invalid && interestRate.touched) {
+                <span class="text-error text-xs mt-1">Campo requerido</span>
+              }
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.CONTRIBUTION' | translate }} (Gs)</legend>
-              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.contributionAmount" />
+              <legend class="fieldset-legend">{{ 'RUEDAS.CONTRIBUTION' | translate }} (Gs) <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="contributionAmount"
+                [(ngModel)]="form.contributionAmount" required min="1" #contributionAmount="ngModel"
+                [class.input-error]="contributionAmount.invalid && contributionAmount.touched" />
+              @if (contributionAmount.invalid && contributionAmount.touched) {
+                <span class="text-error text-xs mt-1">Campo requerido (mayor a 0)</span>
+              }
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">Mes / Año inicio</legend>
+              <legend class="fieldset-legend">Mes / Año inicio <span class="text-error">*</span></legend>
               <div class="join w-full">
-                <select class="select select-bordered join-item flex-1" [(ngModel)]="form.startMonth">
+                <select class="select select-bordered join-item flex-1" name="startMonth"
+                  [(ngModel)]="form.startMonth" required>
                   @for (m of months; track m.value) {
                     <option [ngValue]="m.value">{{ m.label }}</option>
                   }
                 </select>
-                <input type="number" class="input input-bordered join-item w-24" [(ngModel)]="form.startYear" />
+                <input type="number" class="input input-bordered join-item w-24" name="startYear"
+                  [(ngModel)]="form.startYear" required min="2000" #startYear="ngModel"
+                  [class.input-error]="startYear.invalid && startYear.touched" />
               </div>
             </fieldset>
           </div>
+          </form>
 
           <!-- Slot assignment -->
           <div class="mt-5">
@@ -175,7 +197,7 @@ import { CreateRuedaRequest } from '../../models/rueda.model';
           <div class="divider my-3"></div>
           <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="closeModal()">{{ 'APP.CANCEL' | translate }}</button>
-            <button class="btn btn-primary" [disabled]="saving()" (click)="save()">
+            <button class="btn btn-primary" [disabled]="ruedaForm.invalid || saving()" (click)="save()">
               @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
               {{ 'APP.SAVE' | translate }}
             </button>

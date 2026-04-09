@@ -1,2 +1,2 @@
-export const SUPA_BASE_URL = 'SUPABASE_URL';
-export const SUPA_BASE_KEY = 'SUPABASE_KEY';
+export const SUPA_BASE_URL = 'SUPA_BASE_URL';
+export const SUPA_BASE_KEY = 'SUPA_BASE_KEY';

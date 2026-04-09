@@ -92,9 +92,12 @@ import { DecimalPipe } from '@angular/common';
           <h3 class="font-bold text-lg mb-1">{{ 'PARALLEL_LOANS.NEW' | translate }}</h3>
           <p class="text-sm text-base-content/50 mb-4">Configura los datos del nuevo préstamo.</p>
 
+          <form #loanForm="ngForm">
           <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.MEMBER' | translate }}</legend>
-            <select class="select select-bordered w-full" [(ngModel)]="form.memberId">
+            <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.MEMBER' | translate }} <span class="text-error">*</span></legend>
+            <select class="select select-bordered w-full" name="memberId"
+              [(ngModel)]="form.memberId" required #memberId="ngModel"
+              [class.select-error]="memberId.invalid && memberId.touched">
               <option value="">-- Seleccionar --</option>
               @for (m of membersService.members(); track m.id) {
                 @if (m.isActive) {
@@ -102,46 +105,72 @@ import { DecimalPipe } from '@angular/common';
                 }
               }
             </select>
+            @if (memberId.invalid && memberId.touched) {
+              <span class="text-error text-xs mt-1">Selecciona un miembro</span>
+            }
           </fieldset>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.AMOUNT' | translate }} (Gs)</legend>
-              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.amount" min="0" />
+              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.AMOUNT' | translate }} (Gs) <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="amount"
+                [(ngModel)]="form.amount" required min="1" #loanAmount="ngModel"
+                [class.input-error]="loanAmount.invalid && loanAmount.touched" />
+              @if (loanAmount.invalid && loanAmount.touched) {
+                <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
+              }
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.INTEREST' | translate }} (%)</legend>
-              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.interestRate" step="0.5" />
+              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.INTEREST' | translate }} (%) <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="interestRate"
+                [(ngModel)]="form.interestRate" required min="0" step="0.5" #interestRate="ngModel"
+                [class.input-error]="interestRate.invalid && interestRate.touched" />
+              @if (interestRate.invalid && interestRate.touched) {
+                <span class="text-error text-xs mt-1">Campo requerido</span>
+              }
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.TOTAL_INSTALLMENTS' | translate }}</legend>
-              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.totalInstallments" min="1" />
+              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.TOTAL_INSTALLMENTS' | translate }} <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="totalInstallments"
+                [(ngModel)]="form.totalInstallments" required min="1" #totalInstallments="ngModel"
+                [class.input-error]="totalInstallments.invalid && totalInstallments.touched" />
+              @if (totalInstallments.invalid && totalInstallments.touched) {
+                <span class="text-error text-xs mt-1">Mínimo 1 cuota</span>
+              }
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }} (Gs)</legend>
-              <select class="select select-bordered w-full" [(ngModel)]="form.roundingUnit">
+              <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }} (Gs) <span class="text-error">*</span></legend>
+              <select class="select select-bordered w-full" name="roundingUnit"
+                [(ngModel)]="form.roundingUnit" required>
                 <option [ngValue]="500">500</option>
                 <option [ngValue]="1000">1000</option>
               </select>
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }} inicio</legend>
-              <select class="select select-bordered w-full" [(ngModel)]="form.startMonth">
+              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }} inicio <span class="text-error">*</span></legend>
+              <select class="select select-bordered w-full" name="startMonth"
+                [(ngModel)]="form.startMonth" required>
                 @for (m of months; track m.value) {
                   <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
                 }
               </select>
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }}</legend>
-              <input type="number" class="input input-bordered w-full" [(ngModel)]="form.startYear" />
+              <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }} <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="startYear"
+                [(ngModel)]="form.startYear" required min="2000" #startYear="ngModel"
+                [class.input-error]="startYear.invalid && startYear.touched" />
+              @if (startYear.invalid && startYear.touched) {
+                <span class="text-error text-xs mt-1">Año inválido</span>
+              }
             </fieldset>
           </div>
+          </form>
 
           <div class="divider my-2"></div>
           <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="closeCreateModal()">{{ 'APP.CANCEL' | translate }}</button>
-            <button class="btn btn-primary" [disabled]="saving()" (click)="save()">
+            <button class="btn btn-primary" [disabled]="loanForm.invalid || saving()" (click)="save()">
               @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
               {{ 'APP.SAVE' | translate }}
             </button>

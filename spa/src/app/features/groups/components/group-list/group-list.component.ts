@@ -72,26 +72,43 @@ import { CreateGroupRequest } from '../../models/group.model';
       <div class="modal-box">
         <h3 class="font-bold text-lg mb-1">{{ 'GROUPS.NEW' | translate }}</h3>
         <p class="text-sm text-base-content/50 mb-4">Completa los datos del nuevo grupo de ahorro.</p>
-        <fieldset class="fieldset mb-3">
-          <legend class="fieldset-legend">{{ 'GROUPS.NAME' | translate }}</legend>
-          <input type="text" class="input input-bordered w-full" [(ngModel)]="form.name" />
-        </fieldset>
-        <div class="grid grid-cols-2 gap-3 mb-3">
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">Mes inicio</legend>
-            <input type="number" class="input input-bordered w-full" [(ngModel)]="form.startMonth" min="1" max="12" />
+        <form #groupForm="ngForm">
+          <fieldset class="fieldset mb-3">
+            <legend class="fieldset-legend">{{ 'GROUPS.NAME' | translate }} <span class="text-error">*</span></legend>
+            <input type="text" class="input input-bordered w-full" name="name"
+              [(ngModel)]="form.name" required #name="ngModel"
+              [class.input-error]="name.invalid && name.touched" />
+            @if (name.invalid && name.touched) {
+              <span class="text-error text-xs mt-1">Campo requerido</span>
+            }
           </fieldset>
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">Año inicio</legend>
-            <input type="number" class="input input-bordered w-full" [(ngModel)]="form.startYear" min="2000" />
-          </fieldset>
-        </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">Mes inicio <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="startMonth"
+                [(ngModel)]="form.startMonth" required min="1" max="12" #startMonth="ngModel"
+                [class.input-error]="startMonth.invalid && startMonth.touched" />
+              @if (startMonth.invalid && startMonth.touched) {
+                <span class="text-error text-xs mt-1">Valor entre 1 y 12</span>
+              }
+            </fieldset>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">Año inicio <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" name="startYear"
+                [(ngModel)]="form.startYear" required min="2000" #startYear="ngModel"
+                [class.input-error]="startYear.invalid && startYear.touched" />
+              @if (startYear.invalid && startYear.touched) {
+                <span class="text-error text-xs mt-1">Año inválido</span>
+              }
+            </fieldset>
+          </div>
+        </form>
         <div class="divider my-2"></div>
         <div class="modal-action mt-0">
           <form method="dialog">
             <button class="btn btn-ghost">{{ 'APP.CANCEL' | translate }}</button>
           </form>
-          <button class="btn btn-primary" (click)="create()" [disabled]="saving()">
+          <button class="btn btn-primary" (click)="create()" [disabled]="groupForm.invalid || saving()">
             @if (saving()) { <span class="loading loading-spinner loading-sm"></span> }
             {{ 'APP.SAVE' | translate }}
           </button>
