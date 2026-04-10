@@ -144,6 +144,48 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
             </div>
           </div>
 
+          <!-- Previous rueda amounts (continua only) -->
+          @if (form.controls.type.value === 'continua') {
+            <div class="mt-4">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-sm">{{ 'RUEDAS.PREV_AMOUNTS_TITLE' | translate }}</h4>
+                <div class="join">
+                  <button type="button" class="btn btn-xs join-item"
+                    [class.btn-warning]="prevAmountMode === 'constant'"
+                    [class.btn-outline]="prevAmountMode !== 'constant'"
+                    (click)="setPrevAmountMode('constant')">
+                    {{ 'RUEDAS.SLOT_MODE_CONSTANT' | translate }}
+                  </button>
+                  <button type="button" class="btn btn-xs join-item"
+                    [class.btn-warning]="prevAmountMode === 'variable'"
+                    [class.btn-outline]="prevAmountMode !== 'variable'"
+                    (click)="setPrevAmountMode('variable')">
+                    {{ 'RUEDAS.SLOT_MODE_VARIABLE' | translate }}
+                  </button>
+                </div>
+              </div>
+              <p class="text-xs text-base-content/50 mb-2">{{ 'RUEDAS.PREV_AMOUNTS_HINT' | translate }}</p>
+              @if (prevAmountMode === 'constant') {
+                <input type="number" class="input input-bordered input-sm w-full"
+                  [(ngModel)]="constantPrevAmount"
+                  (input)="applyConstantPrevAmount()"
+                  [placeholder]="'RUEDAS.PREV_LOAN_AMOUNT' | translate" />
+              } @else {
+                <div class="grid gap-1 max-h-40 overflow-y-auto pr-1">
+                  @for (slot of slots; track slot.position) {
+                    <div class="flex items-center gap-2 bg-base-200 rounded-lg px-2 py-1">
+                      <span class="badge badge-xs badge-warning shrink-0">{{ slot.position }}</span>
+                      <span class="text-xs flex-1">{{ getMemberName(slot.memberId) }}</span>
+                      <input type="number" class="input input-bordered input-xs w-32"
+                        [(ngModel)]="slot.previousLoanAmount"
+                        [placeholder]="'RUEDAS.PREV_LOAN_AMOUNT' | translate" />
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
           <div class="divider my-3"></div>
           <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="onCancel()">{{ 'APP.CANCEL' | translate }}</button>
@@ -171,10 +213,13 @@ export class CreateRuedaDialogComponent implements OnChanges {
   saving = signal(false);
   suggested = signal<number | null>(null);
 
-  slots: { position: number; memberId: string; loanAmount: number }[] = Array.from(
+  slots: { position: number; memberId: string; loanAmount: number; previousLoanAmount: number }[] = Array.from(
     { length: 15 },
-    (_, i) => ({ position: i + 1, memberId: '', loanAmount: 0 }),
+    (_, i) => ({ position: i + 1, memberId: '', loanAmount: 0, previousLoanAmount: 0 }),
   );
+
+  prevAmountMode: 'constant' | 'variable' = 'constant';
+  constantPrevAmount = 0;
 
   months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
 
@@ -193,10 +238,13 @@ export class CreateRuedaDialogComponent implements OnChanges {
   ngOnChanges(): void {
     if (this.show) {
       this.suggested.set(null);
+      this.prevAmountMode = 'constant';
+      this.constantPrevAmount = 0;
       this.slots = Array.from({ length: 15 }, (_, i) => ({
         position: i + 1,
         memberId: '',
         loanAmount: 0,
+        previousLoanAmount: 0,
       }));
       this.form.reset({
         type: 'new',
@@ -210,6 +258,24 @@ export class CreateRuedaDialogComponent implements OnChanges {
         previousRuedaId: '',
       });
     }
+  }
+
+  setPrevAmountMode(mode: 'constant' | 'variable'): void {
+    this.prevAmountMode = mode;
+    if (mode === 'constant') {
+      this.applyConstantPrevAmount();
+    }
+  }
+
+  applyConstantPrevAmount(): void {
+    const amount = this.constantPrevAmount;
+    this.slots.forEach(s => s.previousLoanAmount = amount);
+  }
+
+  getMemberName(memberId: string): string {
+    if (!memberId) return '—';
+    const m = this.membersService.members().find(m => m.id === memberId);
+    return m ? `${m.firstName} ${m.lastName}` : '—';
   }
 
   getSuggestion(): void {
@@ -228,18 +294,21 @@ export class CreateRuedaDialogComponent implements OnChanges {
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
     const isVariable = raw.slotAmountMode === 'variable';
+    const isContinua = raw.type === 'continua';
     const filteredSlots = this.slots
       .filter(s => s.memberId)
       .map(s => ({
         position: s.position,
         memberId: s.memberId,
         ...(isVariable && s.loanAmount > 0 ? { loanAmount: s.loanAmount } : {}),
+        ...(isContinua && s.previousLoanAmount > 0 ? { previousLoanAmount: s.previousLoanAmount } : {}),
       }));
 
+    const { previousRuedaId, ...restRaw } = raw;
     const payload = {
-      ...raw,
+      ...restRaw,
       slots: filteredSlots,
-      ...(raw.previousRuedaId ? { previousRuedaId: raw.previousRuedaId } : {}),
+      ...(previousRuedaId ? { previousRuedaId } : {}),
     };
 
     this.saving.set(true);

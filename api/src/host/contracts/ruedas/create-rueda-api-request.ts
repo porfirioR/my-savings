@@ -25,6 +25,11 @@ export class CreateRuedaSlotApiRequest {
   @IsNumber()
   @Min(1)
   loanAmount?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  previousLoanAmount?: number;
 }
 
 export class CreateRuedaApiRequest {

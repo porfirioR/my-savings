@@ -17,13 +17,17 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
         }
       </div>
 
-      @if (timeline().length > 0) {
+      @if (!loading() && timeline().length === 0) {
+        <p class="text-xs text-base-content/50 text-center py-4">{{ 'RUEDAS.TIMELINE_EMPTY' | translate }}</p>
+      }
+
+      @if (timeline().length > 0 && current(); as c) {
         <!-- Month navigation -->
         <div class="flex items-center gap-2 mb-3">
           <button class="btn btn-xs btn-ghost" (click)="prev()" [disabled]="activeIndex() === 0">‹</button>
           <span class="text-sm font-medium flex-1 text-center">
-            {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ activeIndex() + 1 }} /15
-            — {{ 'MONTHS.' + current().calendarMonth | translate }} {{ current().calendarYear }}
+            {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position }}/{{ timeline().length }}
+            — {{ 'MONTHS.' + c.calendarMonth | translate }} {{ c.calendarYear }}
           </span>
           <button class="btn btn-xs btn-ghost" (click)="next()" [disabled]="activeIndex() === timeline().length - 1">›</button>
         </div>
@@ -35,44 +39,60 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
           </svg>
           <span>
             {{ 'RUEDAS.TIMELINE_DISBURSED' | translate }}
-            <strong>{{ current().disbursedToMemberName }}</strong>:
-            {{ current().disbursedAmount | number:'1.0-0' }} Gs
+            <strong>{{ c.disbursedToMemberName }}</strong>:
+            {{ c.disbursedAmount | number:'1.0-0' }} Gs
+            <span class="text-base-content/60 ml-1">({{ 'RUEDAS.TIMELINE_TOTAL' | translate }}: {{ c.totalCollected | number:'1.0-0' }} Gs)</span>
           </span>
         </div>
 
-        <!-- Payment table -->
+        <!-- Summary table: Name | Amount | Cuota | Status -->
         <div class="overflow-x-auto">
-          <table class="table table-xs">
+          <table class="table table-xs w-full">
             <thead>
-              <tr>
-                <th>{{ 'RUEDAS.SLOTS' | translate }}</th>
+              <tr class="text-base-content/60">
+                <th class="w-6">#</th>
                 <th>{{ 'MEMBERS.TITLE' | translate }}</th>
-                <th>{{ 'RUEDAS.TIMELINE_PAYMENT_TYPE' | translate }}</th>
-                <th class="text-right">{{ 'RUEDAS.LOAN_AMOUNT' | translate }}</th>
+                <th class="text-right">{{ 'RUEDAS.INSTALLMENT' | translate }} (Gs)</th>
+                <th class="text-center">{{ 'RUEDAS.TIMELINE_CUOTA' | translate }}</th>
+                <th class="text-center">{{ 'RUEDAS.TIMELINE_STATUS' | translate }}</th>
               </tr>
             </thead>
             <tbody>
-              @for (p of current().payments; track p.slotPosition) {
-                <tr>
-                  <td class="text-base-content/50">{{ p.slotPosition }}</td>
-                  <td>{{ p.memberName }}</td>
-                  <td>
-                    <span class="badge badge-xs"
-                      [class.badge-primary]="p.type === 'contribution'"
-                      [class.badge-warning]="p.type === 'installment'">
-                      {{ (p.type === 'contribution' ? 'RUEDAS.TIMELINE_CONTRIBUTION' : 'RUEDAS.TIMELINE_INSTALLMENT') | translate }}
-                    </span>
+              @for (p of c.payments; track p.slotPosition) {
+                <tr [class.opacity-50]="p.isPaid">
+                  <td class="text-base-content/40 text-xs">{{ p.slotPosition }}</td>
+                  <td class="font-medium">{{ p.memberName }}</td>
+                  <td class="text-right font-mono text-sm">{{ p.amount | number:'1.0-0' }}</td>
+                  <td class="text-center">
+                    @if (p.cuotaNumber === 0) {
+                      <span class="badge badge-xs badge-ghost">—</span>
+                    } @else {
+                      <span class="text-xs font-semibold"
+                        [class.text-warning]="p.paymentType === 'previous_rueda'"
+                        [class.text-primary]="p.paymentType === 'current_rueda'">
+                        {{ p.cuotaNumber }}/15
+                      </span>
+                    }
+                    @if (p.paymentType === 'previous_rueda') {
+                      <span class="badge badge-xs badge-warning ml-1">{{ 'RUEDAS.TIMELINE_PREV' | translate }}</span>
+                    }
                   </td>
-                  <td class="text-right font-mono">{{ p.amount | number:'1.0-0' }}</td>
+                  <td class="text-center">
+                    @if (!p.hasPaymentRecord) {
+                      <span class="badge badge-xs badge-ghost">—</span>
+                    } @else if (p.isPaid) {
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    } @else {
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-error inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    }
+                  </td>
                 </tr>
               }
             </tbody>
-            <tfoot>
-              <tr class="font-semibold">
-                <td colspan="3" class="text-right text-sm">{{ 'RUEDAS.TIMELINE_TOTAL' | translate }}</td>
-                <td class="text-right font-mono">{{ current().totalCollected | number:'1.0-0' }}</td>
-              </tr>
-            </tfoot>
           </table>
         </div>
       }
@@ -100,8 +120,8 @@ export class RuedaTimelineComponent implements OnChanges {
     }
   }
 
-  current(): RuedaTimelineMonth {
-    return this.timeline()[this.activeIndex()];
+  current(): RuedaTimelineMonth | null {
+    return this.timeline()[this.activeIndex()] ?? null;
   }
 
   prev(): void {

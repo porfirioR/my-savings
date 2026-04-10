@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BaseAccessService, DbContextService } from '.';
-import { RuedaEntity, RuedaSlotEntity } from '../entities';
+import { RuedaEntity, RuedaMonthlyPaymentEntity, RuedaSlotEntity } from '../entities';
 import { CreateRuedaAccessRequest, CreateRuedaSlotAccessRequest, RuedaAccessModel, RuedaSlotAccessModel, UpdateRuedaAccessRequest } from '../../../access/contracts/ruedas';
 
 interface CashBalanceSuggestion {
@@ -32,6 +32,7 @@ export class RuedasAccess extends BaseAccessService {
       status: entity.status,
       createdAt: entity.created_at,
       updatedAt: entity.updated_at,
+      previousLoanAmount: entity.previous_loan_amount,
     };
   }
 
@@ -191,6 +192,7 @@ export class RuedasAccess extends BaseAccessService {
       loan_month: s.loanMonth,
       loan_year: s.loanYear,
       status: s.status,
+      previous_loan_amount: s.previousLoanAmount ?? null,
     }));
 
     const { data, error } = await this.dbContext
@@ -233,6 +235,15 @@ export class RuedasAccess extends BaseAccessService {
       cajaBalance,
       projectedMonthlyIncome,
     };
+  }
+
+  async findMonthlyPaymentsByRueda(ruedaId: string): Promise<RuedaMonthlyPaymentEntity[]> {
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('*')
+      .eq('rueda_id', ruedaId);
+    if (error) throw new Error(error.message);
+    return (data ?? []) as RuedaMonthlyPaymentEntity[];
   }
 
   async delete(id: string): Promise<void> {

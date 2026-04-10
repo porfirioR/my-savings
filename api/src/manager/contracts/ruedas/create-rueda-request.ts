@@ -3,6 +3,7 @@ export class CreateRuedaSlotRequest {
     public memberId: string,
     public position: number,
     public loanAmount?: number,
+    public previousLoanAmount?: number,
   ) {}
 }
 

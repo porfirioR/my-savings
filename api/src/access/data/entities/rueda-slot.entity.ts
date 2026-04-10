@@ -5,6 +5,7 @@ export interface RuedaSlotEntity {
   slot_position: number;
   loan_amount: number;
   installment_amount: number;
+  previous_loan_amount: number | null;
   total_to_return: number;
   loan_month: number;
   loan_year: number;

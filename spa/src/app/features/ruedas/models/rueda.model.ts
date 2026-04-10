@@ -37,14 +37,18 @@ export interface RuedaSlot {
   status: 'pending' | 'active' | 'completed';
   createdAt: string;
   updatedAt: string;
+  previousLoanAmount?: number | null;
 }
 
 export interface RuedaTimelinePayment {
   slotPosition: number;
   memberId: string;
   memberName: string;
-  type: 'contribution' | 'installment';
+  paymentType: 'current_rueda' | 'previous_rueda' | 'contribution_only';
   amount: number;
+  cuotaNumber: number;
+  isPaid: boolean;
+  hasPaymentRecord: boolean;
 }
 
 export interface RuedaTimelineMonth {
@@ -68,7 +72,7 @@ export interface CreateRuedaRequest {
   startYear: number;
   slotAmountMode: 'constant' | 'variable';
   previousRuedaId?: string;
-  slots: { position: number; memberId: string; loanAmount?: number; }[];
+  slots: { position: number; memberId: string; loanAmount?: number; previousLoanAmount?: number; }[];
 }
 
 export interface UpdateRuedaRequest {
@@ -82,5 +86,7 @@ export interface UpdateRuedaRequest {
   endMonth?: number;
   endYear?: number;
   status?: 'pending' | 'active' | 'completed';
+  previousRuedaId?: string | null;
+  slotAmountMode?: 'constant' | 'variable';
   notes?: string;
 }

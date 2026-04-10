@@ -12,6 +12,7 @@ export class RuedaSlotModel {
     public status: 'pending' | 'active' | 'completed',
     public createdAt: string,
     public updatedAt: string,
+    public previousLoanAmount: number | null = null,
     public memberName?: string,
   ) {}
 }

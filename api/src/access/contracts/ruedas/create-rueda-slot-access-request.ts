@@ -9,5 +9,6 @@ export class CreateRuedaSlotAccessRequest {
     public loanMonth: number,
     public loanYear: number,
     public status: 'pending' | 'active' | 'completed',
+    public previousLoanAmount?: number,
   ) {}
 }

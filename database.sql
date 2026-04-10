@@ -82,6 +82,8 @@ CREATE TABLE rueda_slots (
     -- Per-slot amounts (may differ from rueda defaults in early ruedas)
     loan_amount        NUMERIC(15,0) NOT NULL CHECK (loan_amount > 0),
     installment_amount NUMERIC(15,0) NOT NULL CHECK (installment_amount > 0),
+    -- For 'continua' ruedas: loan amount from the PREVIOUS rueda that this member is still paying
+    previous_loan_amount NUMERIC(15,0) CHECK (previous_loan_amount > 0),
     total_to_return    NUMERIC(15,0) NOT NULL CHECK (total_to_return > 0),
     loan_month         SMALLINT NOT NULL CHECK (loan_month BETWEEN 1 AND 12),
     loan_year          SMALLINT NOT NULL CHECK (loan_year >= 2000),
