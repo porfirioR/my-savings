@@ -37,6 +37,12 @@ export class RuedasService {
     );
   }
 
+  delete(groupId: string, ruedaId: string): Observable<void> {
+    return this.api.delete<void>(`groups/${groupId}/ruedas/${ruedaId}`).pipe(
+      tap(() => this.ruedas.update(list => list.filter(r => r.id !== ruedaId))),
+    );
+  }
+
   suggestLoanAmount(groupId: string): Observable<{ suggested: number }> {
     return this.api.get<{ suggested: number }>(`groups/${groupId}/ruedas/suggest-amount`);
   }

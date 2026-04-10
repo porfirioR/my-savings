@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import {
   CreateRuedaApiRequest,
   UpdateRuedaApiRequest,
@@ -45,5 +45,11 @@ export class RuedasController {
     @Body() body: UpdateRuedaApiRequest,
   ): Promise<RuedaModel> {
     return this.ruedasManager.update(id, body);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(@Param('id') id: string): Promise<void> {
+    return this.ruedasManager.delete(id);
   }
 }

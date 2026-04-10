@@ -49,8 +49,15 @@ export interface CreateRuedaRequest {
 }
 
 export interface UpdateRuedaRequest {
-  status?: 'pending' | 'active' | 'completed';
+  type?: 'new' | 'continua';
+  loanAmount?: number;
+  interestRate?: number;
+  contributionAmount?: number;
+  roundingUnit?: 0 | 500 | 1000;
+  startMonth?: number;
+  startYear?: number;
   endMonth?: number;
   endYear?: number;
+  status?: 'pending' | 'active' | 'completed';
   notes?: string;
 }

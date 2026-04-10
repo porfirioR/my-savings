@@ -227,4 +227,9 @@ export class RuedasAccess extends BaseAccessService {
       projectedMonthlyIncome,
     };
   }
+
+  async delete(id: string): Promise<void> {
+    const { error } = await this.dbContext.from('ruedas').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+  }
 }

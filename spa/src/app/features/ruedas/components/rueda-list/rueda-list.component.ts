@@ -4,17 +4,19 @@ import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { RuedasService } from '../../services/ruedas.service';
 import { MembersService } from '../../../members/services/members.service';
+import { Rueda } from '../../models/rueda.model';
 import { CreateRuedaDialogComponent } from '../create-rueda-dialog/create-rueda-dialog.component';
+import { EditRuedaDialogComponent } from '../edit-rueda-dialog/edit-rueda-dialog.component';
 
 @Component({
   selector: 'app-rueda-list',
   standalone: true,
-  imports: [DecimalPipe, TranslateModule, CreateRuedaDialogComponent],
+  imports: [DecimalPipe, TranslateModule, CreateRuedaDialogComponent, EditRuedaDialogComponent],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
         <h2 class="text-2xl font-bold tracking-tight">{{ 'RUEDAS.TITLE' | translate }}</h2>
-        <button class="btn btn-primary btn-sm" (click)="openModal()">
+        <button class="btn btn-primary btn-sm" (click)="showCreateModal.set(true)">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -36,17 +38,40 @@ import { CreateRuedaDialogComponent } from '../create-rueda-dialog/create-rueda-
           @for (r of service.ruedas(); track r.id) {
             <div class="card bg-base-200 border border-base-300">
               <div class="card-body p-5">
-                <!-- Card header: number + status -->
+                <!-- Card header: number + status + actions -->
                 <div class="flex items-center justify-between mb-3">
                   <h3 class="font-bold text-base">
                     {{ 'RUEDAS.NUMBER' | translate }} {{ r.ruedaNumber }}
                   </h3>
-                  <span class="badge badge-sm"
-                    [class.badge-warning]="r.status === 'pending'"
-                    [class.badge-success]="r.status === 'active'"
-                    [class.badge-neutral]="r.status === 'completed'">
-                    {{ ('RUEDAS.STATUS_' + r.status.toUpperCase()) | translate }}
-                  </span>
+                  <div class="flex items-center gap-2">
+                    <span class="badge badge-sm"
+                      [class.badge-warning]="r.status === 'pending'"
+                      [class.badge-success]="r.status === 'active'"
+                      [class.badge-neutral]="r.status === 'completed'">
+                      {{ ('RUEDAS.STATUS_' + r.status.toUpperCase()) | translate }}
+                    </span>
+                    <!-- Edit button -->
+                    <button class="btn btn-ghost btn-xs" (click)="openEdit(r)" [title]="'RUEDAS.EDIT' | translate">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <!-- Delete button -->
+                    <button class="btn btn-ghost btn-xs text-error"
+                      [disabled]="deleting() === r.id"
+                      (click)="confirmDelete(r)"
+                      [title]="'RUEDAS.DELETE' | translate">
+                      @if (deleting() === r.id) {
+                        <span class="loading loading-spinner loading-xs"></span>
+                      } @else {
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a1 1 0 01-1 1H8a1 1 0 01-1-1m2-4h4a1 1 0 011 1v1H8V4a1 1 0 011-1z"/>
+                        </svg>
+                      }
+                    </button>
+                  </div>
                 </div>
                 <p class="text-xs text-base-content/50 -mt-2 mb-3">
                   {{ r.type === 'new' ? ('RUEDAS.TYPE_NEW' | translate) : ('RUEDAS.TYPE_CONTINUA' | translate) }}
@@ -95,10 +120,35 @@ import { CreateRuedaDialogComponent } from '../create-rueda-dialog/create-rueda-
     </div>
 
     <app-create-rueda-dialog
-      [show]="showModal()"
+      [show]="showCreateModal()"
       [groupId]="groupId"
-      (closed)="showModal.set(false)"
-      (saved)="showModal.set(false)" />
+      (closed)="showCreateModal.set(false)"
+      (saved)="showCreateModal.set(false)" />
+
+    <app-edit-rueda-dialog
+      [show]="showEditModal()"
+      [rueda]="selectedRueda()"
+      [groupId]="groupId"
+      (closed)="closeEdit()"
+      (saved)="closeEdit()" />
+
+    <!-- Delete confirm dialog -->
+    @if (showDeleteConfirm()) {
+      <div class="modal modal-open">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg mb-2">{{ 'RUEDAS.DELETE' | translate }}</h3>
+          <p class="text-sm text-base-content/70">{{ 'RUEDAS.DELETE_CONFIRM' | translate }}</p>
+          <div class="modal-action mt-4">
+            <button class="btn btn-ghost" (click)="showDeleteConfirm.set(false)">{{ 'APP.CANCEL' | translate }}</button>
+            <button class="btn btn-error" [disabled]="deleting() !== ''" (click)="deleteRueda()">
+              @if (deleting() !== '') { <span class="loading loading-spinner loading-xs"></span> }
+              {{ 'RUEDAS.DELETE' | translate }}
+            </button>
+          </div>
+        </div>
+        <div class="modal-backdrop" (click)="showDeleteConfirm.set(false)"></div>
+      </div>
+    }
   `,
 })
 export class RuedaListComponent implements OnInit {
@@ -108,7 +158,11 @@ export class RuedaListComponent implements OnInit {
 
   groupId = '';
   updating = signal('');
-  showModal = signal(false);
+  deleting = signal('');
+  showCreateModal = signal(false);
+  showEditModal = signal(false);
+  showDeleteConfirm = signal(false);
+  selectedRueda = signal<Rueda | null>(null);
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
@@ -116,12 +170,33 @@ export class RuedaListComponent implements OnInit {
     this.membersService.loadByGroup(this.groupId);
   }
 
-  openModal(): void {
-    this.showModal.set(true);
+  openEdit(rueda: Rueda): void {
+    this.selectedRueda.set(rueda);
+    this.showEditModal.set(true);
   }
 
-  closeModal(): void {
-    this.showModal.set(false);
+  closeEdit(): void {
+    this.showEditModal.set(false);
+    this.selectedRueda.set(null);
+  }
+
+  confirmDelete(rueda: Rueda): void {
+    this.selectedRueda.set(rueda);
+    this.showDeleteConfirm.set(true);
+  }
+
+  deleteRueda(): void {
+    const rueda = this.selectedRueda();
+    if (!rueda) return;
+    this.deleting.set(rueda.id);
+    this.service.delete(this.groupId, rueda.id).subscribe({
+      next: () => {
+        this.deleting.set('');
+        this.showDeleteConfirm.set(false);
+        this.selectedRueda.set(null);
+      },
+      error: () => { this.deleting.set(''); },
+    });
   }
 
   changeStatus(ruedaId: string, status: 'active' | 'completed'): void {

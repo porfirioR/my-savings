@@ -157,6 +157,10 @@ export class RuedasManager {
     return this.mapToModel(result);
   }
 
+  async delete(id: string): Promise<void> {
+    await this.ruedasAccess.delete(id);
+  }
+
   async calculateSuggestion(groupId: string): Promise<{
     suggestedLoanAmount: number;
     cajaBalance: number;
