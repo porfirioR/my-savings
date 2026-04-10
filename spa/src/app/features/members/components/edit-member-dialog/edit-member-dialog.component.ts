@@ -22,7 +22,7 @@ import { UpdateMemberFormGroup } from '../../../../core/forms';
                 <input type="text" class="input input-bordered w-full" formControlName="firstName"
                   [class.input-error]="form.controls.firstName.invalid && form.controls.firstName.touched" />
                 @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
-                  <span class="text-error text-xs mt-1">Campo requerido</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
                 }
               </fieldset>
               <fieldset class="fieldset">
@@ -30,7 +30,7 @@ import { UpdateMemberFormGroup } from '../../../../core/forms';
                 <input type="text" class="input input-bordered w-full" formControlName="lastName"
                   [class.input-error]="form.controls.lastName.invalid && form.controls.lastName.touched" />
                 @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
-                  <span class="text-error text-xs mt-1">Campo requerido</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
                 }
               </fieldset>
             </div>
@@ -44,7 +44,7 @@ import { UpdateMemberFormGroup } from '../../../../core/forms';
                 <input type="number" class="input input-bordered w-full" formControlName="position"
                   [class.input-error]="form.controls.position.invalid && form.controls.position.touched" />
                 @if (form.controls.position.invalid && form.controls.position.touched) {
-                  <span class="text-error text-xs mt-1">Posición entre 1 y 15</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.POSITION_RANGE' | translate }}</span>
                 }
               </fieldset>
             </div>
@@ -60,7 +60,7 @@ import { UpdateMemberFormGroup } from '../../../../core/forms';
                   [class.input-error]="form.controls.joinedYear.invalid && form.controls.joinedYear.touched" />
               </div>
               @if (form.controls.joinedYear.invalid && form.controls.joinedYear.touched) {
-                <span class="text-error text-xs mt-1">Año inválido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.YEAR_INVALID' | translate }}</span>
               }
             </fieldset>
           </form>

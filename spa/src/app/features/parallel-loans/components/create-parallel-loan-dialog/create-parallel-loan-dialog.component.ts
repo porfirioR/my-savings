@@ -14,14 +14,14 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
       <div class="modal modal-open">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-1">{{ 'PARALLEL_LOANS.NEW' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">Configura los datos del nuevo préstamo.</p>
+          <p class="text-sm text-base-content/50 mb-4">{{ 'PARALLEL_LOANS.NEW_SUBTITLE' | translate }}</p>
 
           <form [formGroup]="form">
           <fieldset class="fieldset mb-3">
             <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.MEMBER' | translate }} <span class="text-error">*</span></legend>
             <select class="select select-bordered w-full" formControlName="memberId"
               [class.select-error]="form.controls.memberId.invalid && form.controls.memberId.touched">
-              <option value="">-- Seleccionar --</option>
+              <option value="">-- {{ 'VALIDATION.MEMBER_REQUIRED' | translate }} --</option>
               @for (m of membersService.members(); track m.id) {
                 @if (m.isActive) {
                   <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
@@ -29,7 +29,7 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
               }
             </select>
             @if (form.controls.memberId.invalid && form.controls.memberId.touched) {
-              <span class="text-error text-xs mt-1">Selecciona un miembro</span>
+              <span class="text-error text-xs mt-1">{{ 'VALIDATION.MEMBER_REQUIRED' | translate }}</span>
             }
           </fieldset>
 
@@ -39,7 +39,7 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
               <input type="number" class="input input-bordered w-full" formControlName="amount"
                 [class.input-error]="form.controls.amount.invalid && form.controls.amount.touched" />
               @if (form.controls.amount.invalid && form.controls.amount.touched) {
-                <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset">
@@ -47,7 +47,7 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
               <input type="number" class="input input-bordered w-full" formControlName="interestRate"
                 [class.input-error]="form.controls.interestRate.invalid && form.controls.interestRate.touched" />
               @if (form.controls.interestRate.invalid && form.controls.interestRate.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset">
@@ -55,13 +55,13 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
               <input type="number" class="input input-bordered w-full" formControlName="totalInstallments"
                 [class.input-error]="form.controls.totalInstallments.invalid && form.controls.totalInstallments.touched" />
               @if (form.controls.totalInstallments.invalid && form.controls.totalInstallments.touched) {
-                <span class="text-error text-xs mt-1">Mínimo 1 cuota</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.INSTALLMENTS_MIN' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset">
               <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }}</legend>
               <select class="select select-bordered w-full" formControlName="roundingUnit">
-                <option [ngValue]="0">Sin redondeo</option>
+                <option [ngValue]="0">{{ 'RUEDAS.ROUNDING_NONE' | translate }}</option>
                 <option [ngValue]="500">500 Gs</option>
                 <option [ngValue]="1000">1.000 Gs</option>
               </select>
@@ -79,7 +79,7 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
               <input type="number" class="input input-bordered w-full" formControlName="startYear"
                 [class.input-error]="form.controls.startYear.invalid && form.controls.startYear.touched" />
               @if (form.controls.startYear.invalid && form.controls.startYear.touched) {
-                <span class="text-error text-xs mt-1">Año inválido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.YEAR_INVALID' | translate }}</span>
               }
             </fieldset>
           </div>

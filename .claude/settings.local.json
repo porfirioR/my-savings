@@ -22,7 +22,10 @@
       "Bash(npm install:*)",
       "Bash(node_modules/.bin/ng build:*)",
       "Bash(find c:/Users/GreenLight-05/Documents/Cursos/my-savings/api/src -type f \\\\\\( -name \"*.js\" -o -name \"*.d.ts\" -o -name \"*.js.map\" \\\\\\) -delete)",
-      "Bash(npx ng:*)"
+      "Bash(npx ng:*)",
+      "Bash(sort -u grep -rhoPh \"'[A-Z_]+\\\\.[A-Z_]+'\" \"/c/Users/GreenLight-05/Documents/Cursos/my-savings/spa/src/app/features/payments\" --include=\"*.ts\")",
+      "Bash(sort -u grep -rhoPh \"'[A-Z_]+\\\\.[A-Z_]+'\" \"/c/Users/GreenLight-05/Documents/Cursos/my-savings/spa/src/app/layout\" --include=\"*.ts\")",
+      "Bash(sort -u grep -rhoPh \"'[A-Z_]+\\\\.[A-Z_]+'\" \"/c/Users/GreenLight-05/Documents/Cursos/my-savings/spa/src/app/features/groups\" --include=\"*.ts\")"
     ]
   }
 }

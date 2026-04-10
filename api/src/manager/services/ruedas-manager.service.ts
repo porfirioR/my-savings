@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RuedasAccess } from '../../access/data/services';
 import { RuedaAccessModel, RuedaSlotAccessModel } from '../../access/contracts/ruedas';
 import { calculateInstallment } from '../../utility/helpers';
-import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, UpdateRuedaRequest } from '../contracts/ruedas';
+import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest } from '../contracts/ruedas';
 
 
 @Injectable()
@@ -45,6 +45,8 @@ export class RuedasManager {
       endYear: accessModel.endYear,
       status: accessModel.status,
       historicalContributionTotal: accessModel.historicalContributionTotal,
+      previousRuedaId: accessModel.previousRuedaId,
+      slotAmountMode: accessModel.slotAmountMode,
       notes: accessModel.notes,
       createdAt: accessModel.createdAt,
       updatedAt: accessModel.updatedAt,
@@ -95,7 +97,9 @@ export class RuedasManager {
       startMonth: req.startMonth,
       startYear: req.startYear,
       status: 'pending',
+      slotAmountMode: req.slotAmountMode,
       historicalContributionTotal: req.historicalContributionTotal,
+      previousRuedaId: req.previousRuedaId,
       notes: req.notes,
     });
 
@@ -159,6 +163,59 @@ export class RuedasManager {
 
   async delete(id: string): Promise<void> {
     await this.ruedasAccess.delete(id);
+  }
+
+  async getTimeline(id: string): Promise<RuedaTimelineMonth[]> {
+    const rueda = await this.ruedasAccess.findById(id);
+    const slots = rueda.slots ?? [];
+
+    const timeline: RuedaTimelineMonth[] = [];
+
+    for (let position = 1; position <= 15; position++) {
+      const disbursedSlot = slots.find((s) => s.position === position);
+      if (!disbursedSlot) continue;
+
+      const payments: RuedaTimelinePayment[] = [];
+      let totalCollected = 0;
+
+      for (const slot of slots) {
+        if (slot.position < position) {
+          // Already received loan → pays installment
+          payments.push({
+            slotPosition: slot.position,
+            memberId: slot.memberId,
+            memberName: slot.memberName ?? '',
+            type: 'installment',
+            amount: slot.installmentAmount,
+          });
+          totalCollected += slot.installmentAmount;
+        } else if (slot.position > position) {
+          // Not yet received → pays contribution
+          payments.push({
+            slotPosition: slot.position,
+            memberId: slot.memberId,
+            memberName: slot.memberName ?? '',
+            type: 'contribution',
+            amount: rueda.contributionAmount,
+          });
+          totalCollected += rueda.contributionAmount;
+        }
+        // Slot at position = disbursement month, not collecting from them
+      }
+
+      timeline.push({
+        position,
+        calendarMonth: disbursedSlot.loanMonth,
+        calendarYear: disbursedSlot.loanYear,
+        disbursedToMemberId: disbursedSlot.memberId,
+        disbursedToMemberName: disbursedSlot.memberName ?? '',
+        disbursedAmount: disbursedSlot.loanAmount,
+        totalCollected,
+        payments,
+      });
+    }
+
+    return timeline;
   }
 
   async calculateSuggestion(groupId: string): Promise<{

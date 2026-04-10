@@ -7,11 +7,12 @@ import { MembersService } from '../../../members/services/members.service';
 import { Rueda } from '../../models/rueda.model';
 import { CreateRuedaDialogComponent } from '../create-rueda-dialog/create-rueda-dialog.component';
 import { EditRuedaDialogComponent } from '../edit-rueda-dialog/edit-rueda-dialog.component';
+import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.component';
 
 @Component({
   selector: 'app-rueda-list',
   standalone: true,
-  imports: [DecimalPipe, TranslateModule, CreateRuedaDialogComponent, EditRuedaDialogComponent],
+  imports: [DecimalPipe, TranslateModule, CreateRuedaDialogComponent, EditRuedaDialogComponent, RuedaTimelineComponent],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
@@ -92,25 +93,36 @@ import { EditRuedaDialogComponent } from '../edit-rueda-dialog/edit-rueda-dialog
                     <p class="font-semibold text-sm">{{ r.contributionAmount | number:'1.0-0' }} Gs</p>
                   </div>
                 </div>
-                @if (r.status !== 'completed') {
-                  <div class="flex justify-end mt-4 gap-2">
-                    @if (r.status === 'pending') {
-                      <button class="btn btn-success btn-sm"
-                        [disabled]="updating() === r.id"
-                        (click)="changeStatus(r.id, 'active')">
-                        @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
-                        @else { Activar }
-                      </button>
-                    }
-                    @if (r.status === 'active') {
-                      <button class="btn btn-neutral btn-sm"
-                        [disabled]="updating() === r.id"
-                        (click)="changeStatus(r.id, 'completed')">
-                        @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
-                        @else { Completar }
-                      </button>
-                    }
-                  </div>
+                <div class="flex items-center justify-between mt-4">
+                  <button class="btn btn-ghost btn-xs gap-1" (click)="toggleTimeline(r.id)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    {{ 'RUEDAS.TIMELINE' | translate }}
+                  </button>
+                  @if (r.status !== 'completed') {
+                    <div class="flex gap-2">
+                      @if (r.status === 'pending') {
+                        <button class="btn btn-success btn-sm"
+                          [disabled]="updating() === r.id"
+                          (click)="changeStatus(r.id, 'active')">
+                          @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
+                          @else { {{ 'RUEDAS.ACTIVATE' | translate }} }
+                        </button>
+                      }
+                      @if (r.status === 'active') {
+                        <button class="btn btn-neutral btn-sm"
+                          [disabled]="updating() === r.id"
+                          (click)="changeStatus(r.id, 'completed')">
+                          @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
+                          @else { {{ 'RUEDAS.COMPLETE' | translate }} }
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+                @if (timelineRuedaId() === r.id) {
+                  <app-rueda-timeline [groupId]="groupId" [ruedaId]="r.id" />
                 }
               </div>
             </div>
@@ -163,11 +175,16 @@ export class RuedaListComponent implements OnInit {
   showEditModal = signal(false);
   showDeleteConfirm = signal(false);
   selectedRueda = signal<Rueda | null>(null);
+  timelineRuedaId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
     this.service.loadByGroup(this.groupId);
     this.membersService.loadByGroup(this.groupId);
+  }
+
+  toggleTimeline(ruedaId: string): void {
+    this.timelineRuedaId.update(id => id === ruedaId ? null : ruedaId);
   }
 
   openEdit(rueda: Rueda): void {

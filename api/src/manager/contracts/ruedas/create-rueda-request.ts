@@ -17,7 +17,9 @@ export class CreateRuedaRequest {
     public startMonth: number,
     public startYear: number,
     public slots: CreateRuedaSlotRequest[],
+    public slotAmountMode: 'constant' | 'variable' = 'constant',
     public historicalContributionTotal?: number,
+    public previousRuedaId?: string,
     public notes?: string,
   ) {}
 }

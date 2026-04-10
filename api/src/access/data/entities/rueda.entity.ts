@@ -15,6 +15,8 @@ export interface RuedaEntity {
   end_year: number | null;
   status: 'pending' | 'active' | 'completed';
   historical_contribution_total: number | null;
+  previous_rueda_id: string | null;
+  slot_amount_mode: 'constant' | 'variable';
   notes: string | null;
   created_at: string;
   updated_at: string;

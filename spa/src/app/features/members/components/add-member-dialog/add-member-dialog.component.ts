@@ -13,14 +13,14 @@ import { CreateMemberFormGroup } from '../../../../core/forms';
       <div class="modal modal-open">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-1">{{ 'MEMBERS.ADD' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">Ingresa los datos del nuevo miembro.</p>
+          <p class="text-sm text-base-content/50 mb-4">{{ 'MEMBERS.ADD_SUBTITLE' | translate }}</p>
           <form [formGroup]="form">
             <fieldset class="fieldset mb-3">
               <legend class="fieldset-legend">{{ 'MEMBERS.FIRST_NAME' | translate }} <span class="text-error">*</span></legend>
               <input type="text" class="input input-bordered w-full" formControlName="firstName"
                 [class.input-error]="form.controls.firstName.invalid && form.controls.firstName.touched" />
               @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset mb-3">
@@ -28,7 +28,7 @@ import { CreateMemberFormGroup } from '../../../../core/forms';
               <input type="text" class="input input-bordered w-full" formControlName="lastName"
                 [class.input-error]="form.controls.lastName.invalid && form.controls.lastName.touched" />
               @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset mb-3">
@@ -40,7 +40,7 @@ import { CreateMemberFormGroup } from '../../../../core/forms';
               <input type="number" class="input input-bordered w-full" formControlName="position"
                 [class.input-error]="form.controls.position.invalid && form.controls.position.touched" />
               @if (form.controls.position.invalid && form.controls.position.touched) {
-                <span class="text-error text-xs mt-1">Posición entre 1 y 15</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.POSITION_RANGE' | translate }}</span>
               }
             </fieldset>
             <div class="grid grid-cols-2 gap-3 mb-4">
@@ -57,7 +57,7 @@ import { CreateMemberFormGroup } from '../../../../core/forms';
                 <input type="number" class="input input-bordered w-full" formControlName="joinedYear"
                   [class.input-error]="form.controls.joinedYear.invalid && form.controls.joinedYear.touched" />
                 @if (form.controls.joinedYear.invalid && form.controls.joinedYear.touched) {
-                  <span class="text-error text-xs mt-1">Año inválido</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.YEAR_INVALID' | translate }}</span>
                 }
               </fieldset>
             </div>

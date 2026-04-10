@@ -13,11 +13,11 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
       <div class="modal modal-open">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-1">{{ 'CASH_BOX.ADD_MOVEMENT' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">Registra un nuevo movimiento en la caja.</p>
+          <p class="text-sm text-base-content/50 mb-4">{{ 'CASH_BOX.ADD_SUBTITLE' | translate }}</p>
 
           <form [formGroup]="form">
           <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">Tipo <span class="text-error">*</span></legend>
+            <legend class="fieldset-legend">{{ 'CASH_BOX.TYPE' | translate }} <span class="text-error">*</span></legend>
             <div class="join w-full">
               <button type="button" class="btn join-item flex-1"
                 [class.btn-success]="form.controls.type.value === 'in'"
@@ -39,7 +39,7 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
             <input type="number" class="input input-bordered w-full" formControlName="amount"
               [class.input-error]="form.controls.amount.invalid && form.controls.amount.touched" />
             @if (form.controls.amount.invalid && form.controls.amount.touched) {
-              <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
+              <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
             }
           </fieldset>
 
@@ -48,7 +48,7 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
             <input type="text" class="input input-bordered w-full" formControlName="description"
               [class.input-error]="form.controls.description.invalid && form.controls.description.touched" />
             @if (form.controls.description.invalid && form.controls.description.touched) {
-              <span class="text-error text-xs mt-1">Campo requerido</span>
+              <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
             }
           </fieldset>
 
@@ -67,7 +67,7 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
               <option value="adjustment">Ajuste</option>
             </select>
             @if (form.controls.category.invalid && form.controls.category.touched) {
-              <span class="text-error text-xs mt-1">Campo requerido</span>
+              <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
             }
           </fieldset>
 
@@ -85,7 +85,7 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
               <input type="number" class="input input-bordered w-full" formControlName="year"
                 [class.input-error]="form.controls.year.invalid && form.controls.year.touched" />
               @if (form.controls.year.invalid && form.controls.year.touched) {
-                <span class="text-error text-xs mt-1">Año inválido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.YEAR_INVALID' | translate }}</span>
               }
             </fieldset>
           </div>

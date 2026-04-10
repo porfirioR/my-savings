@@ -53,6 +53,8 @@ export class RuedasAccess extends BaseAccessService {
       endYear: entity.end_year,
       status: entity.status,
       historicalContributionTotal: entity.historical_contribution_total,
+      previousRuedaId: entity.previous_rueda_id,
+      slotAmountMode: entity.slot_amount_mode,
       notes: entity.notes,
       createdAt: entity.created_at,
       updatedAt: entity.updated_at,
@@ -134,6 +136,8 @@ export class RuedasAccess extends BaseAccessService {
         end_year: null,
         status: req.status,
         historical_contribution_total: req.historicalContributionTotal ?? null,
+        previous_rueda_id: req.previousRuedaId ?? null,
+        slot_amount_mode: req.slotAmountMode,
         notes: req.notes ?? null,
       })
       .select()
@@ -148,6 +152,7 @@ export class RuedasAccess extends BaseAccessService {
 
   async update(id: string, req: UpdateRuedaAccessRequest): Promise<RuedaAccessModel> {
     const updatePayload: Partial<RuedaEntity> = {};
+    if (req.type !== undefined) updatePayload.type = req.type;
     if (req.loanAmount !== undefined) updatePayload.loan_amount = req.loanAmount;
     if (req.interestRate !== undefined) updatePayload.interest_rate = req.interestRate;
     if (req.contributionAmount !== undefined) updatePayload.contribution_amount = req.contributionAmount;
@@ -160,6 +165,8 @@ export class RuedasAccess extends BaseAccessService {
     if (req.endYear !== undefined) updatePayload.end_year = req.endYear;
     if (req.status !== undefined) updatePayload.status = req.status;
     if (req.historicalContributionTotal !== undefined) updatePayload.historical_contribution_total = req.historicalContributionTotal;
+    if (req.previousRuedaId !== undefined) updatePayload.previous_rueda_id = req.previousRuedaId;
+    if (req.slotAmountMode !== undefined) updatePayload.slot_amount_mode = req.slotAmountMode;
     if (req.notes !== undefined) updatePayload.notes = req.notes;
 
     const { data, error } = await this.dbContext

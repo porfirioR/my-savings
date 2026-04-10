@@ -8,6 +8,8 @@ export interface CreateRuedaFormGroup {
   roundingUnit: FormControl<0 | 500 | 1000>
   startMonth: FormControl<number>
   startYear: FormControl<number>
+  slotAmountMode: FormControl<'constant' | 'variable'>
+  previousRuedaId: FormControl<string>
 }
 
 export interface UpdateRuedaFormGroup {

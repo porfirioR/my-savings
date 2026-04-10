@@ -3,7 +3,7 @@ import {
   CreateRuedaApiRequest,
   UpdateRuedaApiRequest,
 } from '../contracts/ruedas';
-import { RuedaModel } from '../../manager/contracts/ruedas';
+import { RuedaModel, RuedaTimelineMonth } from '../../manager/contracts/ruedas';
 import { RuedasManager } from '../../manager/services';
 
 @Controller('groups/:groupId/ruedas')
@@ -37,6 +37,11 @@ export class RuedasController {
   @Get(':id')
   async findById(@Param('id') id: string): Promise<RuedaModel> {
     return this.ruedasManager.findById(id);
+  }
+
+  @Get(':id/timeline')
+  async getTimeline(@Param('id') id: string): Promise<RuedaTimelineMonth[]> {
+    return this.ruedasManager.getTimeline(id);
   }
 
   @Put(':id')

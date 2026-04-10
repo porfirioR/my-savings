@@ -49,8 +49,8 @@ import { CreateGroupDialogComponent } from '../create-group-dialog/create-group-
                       <div class="min-w-0">
                         <h2 class="font-semibold text-base truncate">{{ group.name }}</h2>
                         <p class="text-xs text-base-content/50 mt-0.5">
-                          Inicio: {{ group.startMonth }}/{{ group.startYear }}
-                          &bull; {{ group.totalRuedas }} rueda(s)
+                          {{ 'GROUPS.START_DATE' | translate }}: {{ 'MONTHS.' + group.startMonth | translate }} {{ group.startYear }}
+                          &bull; {{ group.totalRuedas }} {{ 'GROUPS.TOTAL_RUEDAS' | translate }}
                         </p>
                       </div>
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

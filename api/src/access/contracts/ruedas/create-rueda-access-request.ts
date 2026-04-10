@@ -12,7 +12,9 @@ export class CreateRuedaAccessRequest {
     public startMonth: number,
     public startYear: number,
     public status: 'pending' | 'active' | 'completed',
+    public slotAmountMode: 'constant' | 'variable' = 'constant',
     public historicalContributionTotal?: number,
+    public previousRuedaId?: string,
     public notes?: string,
   ) {}
 }

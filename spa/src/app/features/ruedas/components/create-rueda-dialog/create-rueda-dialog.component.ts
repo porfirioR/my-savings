@@ -15,7 +15,7 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
       <div class="modal modal-open">
         <div class="modal-box w-11/12 max-w-2xl">
           <h3 class="font-bold text-lg mb-1">{{ 'RUEDAS.NEW' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">Configura los parámetros de la nueva rueda.</p>
+          <p class="text-sm text-base-content/50 mb-4">{{ 'RUEDAS.NEW_SUBTITLE' | translate }}</p>
 
           <form [formGroup]="form">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -29,11 +29,29 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
             <fieldset class="fieldset">
               <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }}</legend>
               <select class="select select-bordered w-full" formControlName="roundingUnit">
-                <option [ngValue]="0">Sin redondeo</option>
+                <option [ngValue]="0">{{ 'RUEDAS.ROUNDING_NONE' | translate }}</option>
                 <option [ngValue]="500">500 Gs</option>
                 <option [ngValue]="1000">1.000 Gs</option>
               </select>
             </fieldset>
+
+            @if (form.controls.type.value === 'continua') {
+              <fieldset class="fieldset sm:col-span-2">
+                <legend class="fieldset-legend">{{ 'RUEDAS.PREVIOUS_RUEDA' | translate }}</legend>
+                <select class="select select-bordered w-full" formControlName="previousRuedaId">
+                  <option value="">{{ 'RUEDAS.PREVIOUS_RUEDA_NONE' | translate }}</option>
+                  @for (r of service.ruedas(); track r.id) {
+                    @if (r.status === 'completed') {
+                      <option [value]="r.id">
+                        {{ 'RUEDAS.NUMBER' | translate }} {{ r.ruedaNumber }}
+                        — {{ 'MONTHS.' + r.startMonth | translate }} {{ r.startYear }}
+                      </option>
+                    }
+                  }
+                </select>
+              </fieldset>
+            }
+
             <fieldset class="fieldset">
               <legend class="fieldset-legend">
                 {{ 'RUEDAS.LOAN_AMOUNT' | translate }} (Gs) <span class="text-error">*</span>
@@ -51,7 +69,7 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
                 </button>
               </div>
               @if (form.controls.loanAmount.invalid && form.controls.loanAmount.touched) {
-                <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset">
@@ -59,7 +77,7 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
               <input type="number" class="input input-bordered w-full" formControlName="interestRate"
                 [class.input-error]="form.controls.interestRate.invalid && form.controls.interestRate.touched" />
               @if (form.controls.interestRate.invalid && form.controls.interestRate.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset">
@@ -67,15 +85,15 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
               <input type="number" class="input input-bordered w-full" formControlName="contributionAmount"
                 [class.input-error]="form.controls.contributionAmount.invalid && form.controls.contributionAmount.touched" />
               @if (form.controls.contributionAmount.invalid && form.controls.contributionAmount.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido (mayor a 0)</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">Mes / Año inicio <span class="text-error">*</span></legend>
+              <legend class="fieldset-legend">{{ 'RUEDAS.START_MONTH_YEAR' | translate }} <span class="text-error">*</span></legend>
               <div class="join w-full">
                 <select class="select select-bordered join-item flex-1" formControlName="startMonth">
                   @for (m of months; track m.value) {
-                    <option [ngValue]="m.value">{{ m.label }}</option>
+                    <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
                   }
                 </select>
                 <input type="number" class="input input-bordered join-item w-24" formControlName="startYear"
@@ -87,8 +105,26 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
 
           <!-- Slot assignment -->
           <div class="mt-5">
-            <h4 class="font-semibold text-sm mb-2">{{ 'RUEDAS.SLOTS' | translate }}</h4>
-            <div class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="font-semibold text-sm">{{ 'RUEDAS.SLOTS' | translate }}</h4>
+              <div class="join">
+                <button type="button" class="btn btn-xs join-item"
+                  [class.btn-primary]="form.controls.slotAmountMode.value === 'constant'"
+                  [class.btn-outline]="form.controls.slotAmountMode.value !== 'constant'"
+                  (click)="form.controls.slotAmountMode.setValue('constant')">
+                  {{ 'RUEDAS.SLOT_MODE_CONSTANT' | translate }}
+                </button>
+                <button type="button" class="btn btn-xs join-item"
+                  [class.btn-primary]="form.controls.slotAmountMode.value === 'variable'"
+                  [class.btn-outline]="form.controls.slotAmountMode.value !== 'variable'"
+                  (click)="form.controls.slotAmountMode.setValue('variable')">
+                  {{ 'RUEDAS.SLOT_MODE_VARIABLE' | translate }}
+                </button>
+              </div>
+            </div>
+            <div class="grid gap-2 max-h-56 overflow-y-auto pr-1"
+              [class.grid-cols-3]="form.controls.slotAmountMode.value === 'constant'"
+              [class.grid-cols-1]="form.controls.slotAmountMode.value === 'variable'">
               @for (slot of slots; track slot.position) {
                 <div class="flex items-center gap-2 bg-base-200 rounded-lg p-2">
                   <span class="badge badge-xs badge-outline shrink-0">{{ slot.position }}</span>
@@ -98,6 +134,11 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
                       <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
                     }
                   </select>
+                  @if (form.controls.slotAmountMode.value === 'variable') {
+                    <input type="number" class="input input-bordered input-xs w-32"
+                      [(ngModel)]="slot.loanAmount"
+                      [placeholder]="'RUEDAS.LOAN_AMOUNT' | translate" />
+                  }
                 </div>
               }
             </div>
@@ -123,19 +164,19 @@ export class CreateRuedaDialogComponent implements OnChanges {
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
-  private readonly service = inject(RuedasService);
+  readonly service = inject(RuedasService);
   readonly membersService = inject(MembersService);
   private readonly fb = inject(FormBuilder);
 
   saving = signal(false);
   suggested = signal<number | null>(null);
 
-  slots: { position: number; memberId: string }[] = Array.from({ length: 15 }, (_, i) => ({
-    position: i + 1,
-    memberId: '',
-  }));
+  slots: { position: number; memberId: string; loanAmount: number }[] = Array.from(
+    { length: 15 },
+    (_, i) => ({ position: i + 1, memberId: '', loanAmount: 0 }),
+  );
 
-  months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: String(i + 1) }));
+  months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
 
   form: FormGroup<CreateRuedaFormGroup> = this.fb.nonNullable.group({
     type: ['new' as 'new' | 'continua', Validators.required],
@@ -145,12 +186,18 @@ export class CreateRuedaDialogComponent implements OnChanges {
     roundingUnit: [0 as 0 | 500 | 1000, Validators.required],
     startMonth: [new Date().getMonth() + 1, Validators.required],
     startYear: [new Date().getFullYear(), [Validators.required, Validators.min(2000)]],
+    slotAmountMode: ['constant' as 'constant' | 'variable', Validators.required],
+    previousRuedaId: [''],
   });
 
   ngOnChanges(): void {
     if (this.show) {
       this.suggested.set(null);
-      this.slots = Array.from({ length: 15 }, (_, i) => ({ position: i + 1, memberId: '' }));
+      this.slots = Array.from({ length: 15 }, (_, i) => ({
+        position: i + 1,
+        memberId: '',
+        loanAmount: 0,
+      }));
       this.form.reset({
         type: 'new',
         loanAmount: 0,
@@ -159,6 +206,8 @@ export class CreateRuedaDialogComponent implements OnChanges {
         roundingUnit: 0,
         startMonth: new Date().getMonth() + 1,
         startYear: new Date().getFullYear(),
+        slotAmountMode: 'constant',
+        previousRuedaId: '',
       });
     }
   }
@@ -178,9 +227,23 @@ export class CreateRuedaDialogComponent implements OnChanges {
   save(): void {
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
-    const filteredSlots = this.slots.filter(s => s.memberId).map(s => ({ position: s.position, memberId: s.memberId }));
+    const isVariable = raw.slotAmountMode === 'variable';
+    const filteredSlots = this.slots
+      .filter(s => s.memberId)
+      .map(s => ({
+        position: s.position,
+        memberId: s.memberId,
+        ...(isVariable && s.loanAmount > 0 ? { loanAmount: s.loanAmount } : {}),
+      }));
+
+    const payload = {
+      ...raw,
+      slots: filteredSlots,
+      ...(raw.previousRuedaId ? { previousRuedaId: raw.previousRuedaId } : {}),
+    };
+
     this.saving.set(true);
-    this.service.create(this.groupId, { ...raw, slots: filteredSlots }).subscribe({
+    this.service.create(this.groupId, payload).subscribe({
       next: () => {
         this.saving.set(false);
         this.saved.emit();

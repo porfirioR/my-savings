@@ -1,5 +1,4 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MembersService } from '../../services/members.service';
@@ -8,13 +7,13 @@ import { ExitMemberFormGroup } from '../../../../core/forms';
 @Component({
   selector: 'app-exit-member-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DecimalPipe],
+  imports: [ReactiveFormsModule, TranslateModule],
   template: `
     @if (show) {
       <div class="modal modal-open">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-1">{{ 'MEMBERS.EXIT' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">Completa los datos de la baja del miembro.</p>
+          <p class="text-sm text-base-content/50 mb-4">{{ 'MEMBERS.EXIT_SUBTITLE' | translate }}</p>
           <form [formGroup]="form">
             <div class="grid grid-cols-2 gap-3 mb-3">
               <fieldset class="fieldset">
@@ -30,24 +29,24 @@ import { ExitMemberFormGroup } from '../../../../core/forms';
                 <input type="number" class="input input-bordered w-full" formControlName="leftYear"
                   [class.input-error]="form.controls.leftYear.invalid && form.controls.leftYear.touched" />
                 @if (form.controls.leftYear.invalid && form.controls.leftYear.touched) {
-                  <span class="text-error text-xs mt-1">Año inválido</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.YEAR_INVALID' | translate }}</span>
                 }
               </fieldset>
             </div>
             <fieldset class="fieldset mb-3">
-              <legend class="fieldset-legend">Aportes acumulados (Gs) <span class="text-error">*</span></legend>
+              <legend class="fieldset-legend">{{ 'MEMBERS.ACCUMULATED_CONTRIBUTIONS' | translate }} <span class="text-error">*</span></legend>
               <input type="number" class="input input-bordered w-full" formControlName="accumulatedContributions"
                 [class.input-error]="form.controls.accumulatedContributions.invalid && form.controls.accumulatedContributions.touched" />
               @if (form.controls.accumulatedContributions.invalid && form.controls.accumulatedContributions.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
               }
             </fieldset>
             <fieldset class="fieldset mb-4">
-              <legend class="fieldset-legend">Saldo préstamo restante (Gs) <span class="text-error">*</span></legend>
+              <legend class="fieldset-legend">{{ 'MEMBERS.REMAINING_LOAN_BALANCE' | translate }} <span class="text-error">*</span></legend>
               <input type="number" class="input input-bordered w-full" formControlName="remainingLoanBalance"
                 [class.input-error]="form.controls.remainingLoanBalance.invalid && form.controls.remainingLoanBalance.touched" />
               @if (form.controls.remainingLoanBalance.invalid && form.controls.remainingLoanBalance.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
               }
             </fieldset>
           </form>
@@ -57,14 +56,14 @@ import { ExitMemberFormGroup } from '../../../../core/forms';
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span>El miembro <strong>recibe</strong> {{ settlement()!.memberReceives | number:'1.0-0' }} Gs de la caja.</span>
+                <span>{{ 'MEMBERS.SETTLEMENT_RECEIVES' | translate:{ amount: settlement()!.memberReceives } }}</span>
               </div>
             } @else if (settlement()!.memberPays > 0) {
               <div class="alert alert-warning mb-3">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
-                <span>El miembro <strong>debe pagar</strong> {{ settlement()!.memberPays | number:'1.0-0' }} Gs a la caja.</span>
+                <span>{{ 'MEMBERS.SETTLEMENT_PAYS' | translate:{ amount: settlement()!.memberPays } }}</span>
               </div>
             } @else {
               <div class="alert mb-3">

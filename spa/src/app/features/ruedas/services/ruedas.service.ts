@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { CreateRuedaRequest, Rueda, RuedaSlot, UpdateRuedaRequest } from '../models/rueda.model';
+import { CreateRuedaRequest, Rueda, RuedaSlot, RuedaTimelineMonth, UpdateRuedaRequest } from '../models/rueda.model';
 
 @Injectable({ providedIn: 'root' })
 export class RuedasService {
@@ -45,5 +45,9 @@ export class RuedasService {
 
   suggestLoanAmount(groupId: string): Observable<{ suggested: number }> {
     return this.api.get<{ suggested: number }>(`groups/${groupId}/ruedas/suggest-amount`);
+  }
+
+  getTimeline(groupId: string, ruedaId: string): Observable<RuedaTimelineMonth[]> {
+    return this.api.get<RuedaTimelineMonth[]>(`groups/${groupId}/ruedas/${ruedaId}/timeline`);
   }
 }

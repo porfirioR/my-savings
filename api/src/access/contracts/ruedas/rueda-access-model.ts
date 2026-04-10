@@ -18,6 +18,8 @@ export class RuedaAccessModel {
     public endYear: number | null,
     public status: 'pending' | 'active' | 'completed',
     public historicalContributionTotal: number | null,
+    public previousRuedaId: string | null,
+    public slotAmountMode: 'constant' | 'variable',
     public notes: string | null,
     public createdAt: string,
     public updatedAt: string,

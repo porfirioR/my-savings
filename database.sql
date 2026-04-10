@@ -60,6 +60,10 @@ CREATE TABLE ruedas (
     status                        VARCHAR(10) NOT NULL DEFAULT 'active' CHECK (status IN ('pending', 'active', 'completed')),
     -- For 'continua' type: total contributions accumulated in all previous ruedas (same for all members)
     historical_contribution_total NUMERIC(15,0) CHECK (historical_contribution_total >= 0),
+    -- Link to previous rueda (optional, for 'continua' type)
+    previous_rueda_id             UUID REFERENCES ruedas(id) ON DELETE SET NULL,
+    -- How slot loan amounts are defined: 'constant' = all slots use rueda loanAmount, 'variable' = per slot
+    slot_amount_mode              VARCHAR(10) NOT NULL DEFAULT 'constant' CHECK (slot_amount_mode IN ('constant', 'variable')),
     notes                         TEXT,
     created_at                    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at                    TIMESTAMPTZ NOT NULL DEFAULT NOW(),

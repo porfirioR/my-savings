@@ -60,6 +60,13 @@ export class CreateRuedaApiRequest {
   historicalContributionTotal?: number;
 
   @IsOptional()
+  @IsUUID()
+  previousRuedaId?: string;
+
+  @IsEnum(['constant', 'variable'])
+  slotAmountMode: 'constant' | 'variable';
+
+  @IsOptional()
   @IsString()
   notes?: string;
 

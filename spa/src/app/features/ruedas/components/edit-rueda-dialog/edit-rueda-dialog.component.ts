@@ -30,7 +30,7 @@ import { UpdateRuedaFormGroup } from '../../../../core/forms';
               <fieldset class="fieldset">
                 <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }}</legend>
                 <select class="select select-bordered w-full" formControlName="roundingUnit">
-                  <option [ngValue]="0">Sin redondeo</option>
+                  <option [ngValue]="0">{{ 'RUEDAS.ROUNDING_NONE' | translate }}</option>
                   <option [ngValue]="500">500 Gs</option>
                   <option [ngValue]="1000">1.000 Gs</option>
                 </select>
@@ -40,7 +40,7 @@ import { UpdateRuedaFormGroup } from '../../../../core/forms';
                 <input type="number" class="input input-bordered w-full" formControlName="loanAmount"
                   [class.input-error]="form.controls.loanAmount.invalid && form.controls.loanAmount.touched" />
                 @if (form.controls.loanAmount.invalid && form.controls.loanAmount.touched) {
-                  <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
                 }
               </fieldset>
               <fieldset class="fieldset">
@@ -48,7 +48,7 @@ import { UpdateRuedaFormGroup } from '../../../../core/forms';
                 <input type="number" class="input input-bordered w-full" formControlName="interestRate"
                   [class.input-error]="form.controls.interestRate.invalid && form.controls.interestRate.touched" />
                 @if (form.controls.interestRate.invalid && form.controls.interestRate.touched) {
-                  <span class="text-error text-xs mt-1">Campo requerido</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
                 }
               </fieldset>
               <fieldset class="fieldset">
@@ -56,15 +56,15 @@ import { UpdateRuedaFormGroup } from '../../../../core/forms';
                 <input type="number" class="input input-bordered w-full" formControlName="contributionAmount"
                   [class.input-error]="form.controls.contributionAmount.invalid && form.controls.contributionAmount.touched" />
                 @if (form.controls.contributionAmount.invalid && form.controls.contributionAmount.touched) {
-                  <span class="text-error text-xs mt-1">Campo requerido (mayor a 0)</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
                 }
               </fieldset>
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Mes / Año inicio <span class="text-error">*</span></legend>
+                <legend class="fieldset-legend">{{ 'RUEDAS.START_MONTH_YEAR' | translate }} <span class="text-error">*</span></legend>
                 <div class="join w-full">
                   <select class="select select-bordered join-item flex-1" formControlName="startMonth">
                     @for (m of months; track m.value) {
-                      <option [ngValue]="m.value">{{ m.label }}</option>
+                      <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
                     }
                   </select>
                   <input type="number" class="input input-bordered join-item w-24" formControlName="startYear"
@@ -104,7 +104,7 @@ export class EditRuedaDialogComponent implements OnChanges {
 
   saving = signal(false);
 
-  months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: String(i + 1) }));
+  months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
 
   form: FormGroup<UpdateRuedaFormGroup> = this.fb.nonNullable.group({
     type: ['new' as 'new' | 'continua', Validators.required],
