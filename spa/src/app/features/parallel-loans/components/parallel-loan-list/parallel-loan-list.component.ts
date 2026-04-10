@@ -1,16 +1,17 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ParallelLoansService } from '../../services/parallel-loans.service';
 import { MembersService } from '../../../members/services/members.service';
-import { CreateParallelLoanRequest, ParallelLoan } from '../../models/parallel-loan.model';
-import { DecimalPipe } from '@angular/common';
+import { ParallelLoan } from '../../models/parallel-loan.model';
+import { CreateParallelLoanDialogComponent } from '../create-parallel-loan-dialog/create-parallel-loan-dialog.component';
+import { LoanPaymentsDialogComponent } from '../loan-payments-dialog/loan-payments-dialog.component';
 
 @Component({
   selector: 'app-parallel-loan-list',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, TranslateModule],
+  imports: [DecimalPipe, TranslateModule, CreateParallelLoanDialogComponent, LoanPaymentsDialogComponent],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
@@ -85,181 +86,28 @@ import { DecimalPipe } from '@angular/common';
       }
     </div>
 
-    <!-- Create Loan Modal -->
-    @if (showCreateModal()) {
-      <div class="modal modal-open">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-1">{{ 'PARALLEL_LOANS.NEW' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">Configura los datos del nuevo préstamo.</p>
+    <app-create-parallel-loan-dialog
+      [show]="showCreateModal()"
+      [groupId]="groupId"
+      (closed)="closeCreateModal()"
+      (saved)="closeCreateModal()" />
 
-          <form #loanForm="ngForm">
-          <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.MEMBER' | translate }} <span class="text-error">*</span></legend>
-            <select class="select select-bordered w-full" name="memberId"
-              [(ngModel)]="form.memberId" required #memberId="ngModel"
-              [class.select-error]="memberId.invalid && memberId.touched">
-              <option value="">-- Seleccionar --</option>
-              @for (m of membersService.members(); track m.id) {
-                @if (m.isActive) {
-                  <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
-                }
-              }
-            </select>
-            @if (memberId.invalid && memberId.touched) {
-              <span class="text-error text-xs mt-1">Selecciona un miembro</span>
-            }
-          </fieldset>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.AMOUNT' | translate }} (Gs) <span class="text-error">*</span></legend>
-              <input type="number" class="input input-bordered w-full" name="amount"
-                [(ngModel)]="form.amount" required min="1" #loanAmount="ngModel"
-                [class.input-error]="loanAmount.invalid && loanAmount.touched" />
-              @if (loanAmount.invalid && loanAmount.touched) {
-                <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
-              }
-            </fieldset>
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.INTEREST' | translate }} (%) <span class="text-error">*</span></legend>
-              <input type="number" class="input input-bordered w-full" name="interestRate"
-                [(ngModel)]="form.interestRate" required min="0" step="0.5" #interestRate="ngModel"
-                [class.input-error]="interestRate.invalid && interestRate.touched" />
-              @if (interestRate.invalid && interestRate.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido</span>
-              }
-            </fieldset>
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.TOTAL_INSTALLMENTS' | translate }} <span class="text-error">*</span></legend>
-              <input type="number" class="input input-bordered w-full" name="totalInstallments"
-                [(ngModel)]="form.totalInstallments" required min="1" #totalInstallments="ngModel"
-                [class.input-error]="totalInstallments.invalid && totalInstallments.touched" />
-              @if (totalInstallments.invalid && totalInstallments.touched) {
-                <span class="text-error text-xs mt-1">Mínimo 1 cuota</span>
-              }
-            </fieldset>
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }} (Gs) <span class="text-error">*</span></legend>
-              <select class="select select-bordered w-full" name="roundingUnit"
-                [(ngModel)]="form.roundingUnit" required>
-                <option [ngValue]="500">500</option>
-                <option [ngValue]="1000">1000</option>
-              </select>
-            </fieldset>
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }} inicio <span class="text-error">*</span></legend>
-              <select class="select select-bordered w-full" name="startMonth"
-                [(ngModel)]="form.startMonth" required>
-                @for (m of months; track m.value) {
-                  <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
-                }
-              </select>
-            </fieldset>
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }} <span class="text-error">*</span></legend>
-              <input type="number" class="input input-bordered w-full" name="startYear"
-                [(ngModel)]="form.startYear" required min="2000" #startYear="ngModel"
-                [class.input-error]="startYear.invalid && startYear.touched" />
-              @if (startYear.invalid && startYear.touched) {
-                <span class="text-error text-xs mt-1">Año inválido</span>
-              }
-            </fieldset>
-          </div>
-          </form>
-
-          <div class="divider my-2"></div>
-          <div class="modal-action mt-0">
-            <button class="btn btn-ghost" (click)="closeCreateModal()">{{ 'APP.CANCEL' | translate }}</button>
-            <button class="btn btn-primary" [disabled]="loanForm.invalid || saving()" (click)="save()">
-              @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
-              {{ 'APP.SAVE' | translate }}
-            </button>
-          </div>
-        </div>
-        <div class="modal-backdrop" (click)="closeCreateModal()"></div>
-      </div>
-    }
-
-    <!-- Payments Schedule Modal -->
-    @if (showPaymentsModal()) {
-      <div class="modal modal-open">
-        <div class="modal-box w-11/12 max-w-lg">
-          <h3 class="font-bold text-lg mb-1">
-            {{ 'PARALLEL_LOANS.PAYMENTS' | translate }}
-          </h3>
-          <p class="text-sm text-base-content/50 mb-4">{{ selectedLoan()?.memberName }}</p>
-
-          <div class="overflow-y-auto max-h-96 rounded-box border border-base-300">
-            <table class="table table-sm w-full">
-              <thead>
-                <tr class="bg-base-200">
-                  <th class="w-10">#</th>
-                  <th>{{ 'CASH_BOX.DATE' | translate }}</th>
-                  <th class="text-right">{{ 'PARALLEL_LOANS.INSTALLMENT' | translate }}</th>
-                  <th class="text-center">Estado</th>
-                  <th class="w-12"></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (p of service.payments(); track p.id; let i = $index) {
-                  <tr class="hover:bg-base-200/50" [class.opacity-50]="p.status === 'paid'">
-                    <td class="text-base-content/40 text-xs">{{ i + 1 }}</td>
-                    <td class="text-base-content/70">{{ 'MONTHS.' + p.month | translate }} {{ p.year }}</td>
-                    <td class="text-right font-medium">{{ p.amount | number:'1.0-0' }} Gs</td>
-                    <td class="text-center">
-                      <span class="badge badge-xs badge-outline"
-                        [class.badge-success]="p.status === 'paid'"
-                        [class.badge-warning]="p.status === 'pending'">
-                        {{ (p.status === 'paid' ? 'PAYMENTS.PAID' : 'PAYMENTS.PENDING') | translate }}
-                      </span>
-                    </td>
-                    <td class="text-center">
-                      @if (p.status === 'pending') {
-                        <button class="btn btn-circle btn-xs btn-success" [disabled]="toggling() === p.id" (click)="markPaid(p.id)">
-                          @if (toggling() === p.id) { <span class="loading loading-spinner loading-xs"></span> }
-                          @else { ✓ }
-                        </button>
-                      }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <div class="divider my-2"></div>
-          <div class="modal-action mt-0">
-            <button class="btn btn-ghost" (click)="closePaymentsModal()">{{ 'APP.CLOSE' | translate }}</button>
-          </div>
-        </div>
-        <div class="modal-backdrop" (click)="closePaymentsModal()"></div>
-      </div>
-    }
+    <app-loan-payments-dialog
+      [show]="showPaymentsModal()"
+      [groupId]="groupId"
+      [loan]="selectedLoan()"
+      (closed)="closePaymentsModal()" />
   `,
 })
 export class ParallelLoanListComponent implements OnInit {
   readonly service = inject(ParallelLoansService);
-  readonly membersService = inject(MembersService);
+  private readonly membersService = inject(MembersService);
   private readonly route = inject(ActivatedRoute);
 
-  private groupId = '';
-  saving = signal(false);
-  toggling = signal('');
+  groupId = '';
   showCreateModal = signal(false);
   showPaymentsModal = signal(false);
   selectedLoan = signal<ParallelLoan | null>(null);
-
-  form: CreateParallelLoanRequest = {
-    memberId: '',
-    amount: 0,
-    interestRate: 5,
-    totalInstallments: 15,
-    roundingUnit: 500,
-    startMonth: new Date().getMonth() + 1,
-    startYear: new Date().getFullYear(),
-  };
-
-  months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
@@ -268,36 +116,20 @@ export class ParallelLoanListComponent implements OnInit {
   }
 
   openCreateModal(): void {
-    this.form = { memberId: '', amount: 0, interestRate: 5, totalInstallments: 15, roundingUnit: 500, startMonth: new Date().getMonth() + 1, startYear: new Date().getFullYear() };
     this.showCreateModal.set(true);
   }
 
-  closeCreateModal(): void { this.showCreateModal.set(false); }
+  closeCreateModal(): void {
+    this.showCreateModal.set(false);
+  }
 
   openPaymentsModal(loan: ParallelLoan): void {
     this.selectedLoan.set(loan);
-    this.service.loadPayments(this.groupId, loan.id);
     this.showPaymentsModal.set(true);
   }
 
-  closePaymentsModal(): void { this.showPaymentsModal.set(false); this.selectedLoan.set(null); }
-
-  save(): void {
-    if (!this.form.memberId || !this.form.amount) return;
-    this.saving.set(true);
-    this.service.create(this.groupId, this.form).subscribe({
-      next: () => { this.saving.set(false); this.closeCreateModal(); },
-      error: () => this.saving.set(false),
-    });
-  }
-
-  markPaid(paymentId: string): void {
-    const loan = this.selectedLoan();
-    if (!loan) return;
-    this.toggling.set(paymentId);
-    this.service.markPayment(this.groupId, loan.id, paymentId).subscribe({
-      next: () => this.toggling.set(''),
-      error: () => this.toggling.set(''),
-    });
+  closePaymentsModal(): void {
+    this.showPaymentsModal.set(false);
+    this.selectedLoan.set(null);
   }
 }

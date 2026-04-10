@@ -47,6 +47,7 @@
     "INACTIVE": "Inactivo",
     "JOINED": "Ingresó",
     "LEFT": "Salió",
+    "EDIT": "Editar",
     "EXIT": "Procesar Salida",
     "EMPTY": "No hay miembros registrados"
   },

@@ -34,7 +34,7 @@ export class RuedasManager {
       ruedaNumber: accessModel.ruedaNumber,
       type: accessModel.type,
       loanAmount: accessModel.loanAmount,
-      interestRate: accessModel.interestRate,
+      interestRate: accessModel.interestRate * 100,
       contributionAmount: accessModel.contributionAmount,
       installmentAmount: accessModel.installmentAmount,
       totalToReturn: accessModel.totalToReturn,
@@ -70,9 +70,10 @@ export class RuedasManager {
   async create(req: CreateRuedaRequest): Promise<RuedaModel> {
     // Rueda has 15 slots (months)
     const totalMonths = 15;
+    const interestRateDecimal = req.interestRate / 100;
     const { installmentAmount, totalToReturn } = calculateInstallment(
       req.loanAmount,
-      req.interestRate,
+      interestRateDecimal,
       totalMonths,
       req.roundingUnit,
     );
@@ -86,7 +87,7 @@ export class RuedasManager {
       ruedaNumber,
       type: req.type,
       loanAmount: req.loanAmount,
-      interestRate: req.interestRate,
+      interestRate: interestRateDecimal,
       contributionAmount: req.contributionAmount,
       installmentAmount,
       totalToReturn,
@@ -103,7 +104,7 @@ export class RuedasManager {
         const slotLoanAmount = slot.loanAmount ?? req.loanAmount;
         const slotCalc = calculateInstallment(
           slotLoanAmount,
-          req.interestRate,
+          interestRateDecimal,
           totalMonths,
           req.roundingUnit,
         );
@@ -139,7 +140,8 @@ export class RuedasManager {
     if (req.loanAmount !== undefined || req.interestRate !== undefined || req.roundingUnit !== undefined) {
       const current = await this.ruedasAccess.findById(id);
       const loanAmount = req.loanAmount ?? current.loanAmount;
-      const interestRate = req.interestRate ?? current.interestRate;
+      // current.interestRate is already decimal (from DB); req.interestRate is percent
+      const interestRate = req.interestRate !== undefined ? req.interestRate / 100 : current.interestRate;
       const roundingUnit = req.roundingUnit ?? current.roundingUnit;
       const calc = calculateInstallment(loanAmount, interestRate, 15, roundingUnit);
       installmentAmount = calc.installmentAmount;
@@ -148,6 +150,7 @@ export class RuedasManager {
 
     const result = await this.ruedasAccess.update(id, {
       ...req,
+      interestRate: req.interestRate !== undefined ? req.interestRate / 100 : undefined,
       installmentAmount,
       totalToReturn,
     });

@@ -139,7 +139,10 @@ export class RuedasAccess extends BaseAccessService {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
     return this.mapToModel(data as RuedaEntity);
   }
 

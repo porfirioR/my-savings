@@ -33,6 +33,7 @@ export function calculateInstallment(
 }
 
 export function roundToUnit(amount: number, unit: number): number {
+  if (unit === 0) return Math.round(amount);
   return Math.round(amount / unit) * unit;
 }
 

@@ -34,7 +34,7 @@ export interface CreateParallelLoanRequest {
   amount: number;
   interestRate: number;
   totalInstallments: number;
-  roundingUnit: 500 | 1000;
+  roundingUnit: 0 | 500 | 1000;
   startMonth: number;
   startYear: number;
 }

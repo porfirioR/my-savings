@@ -26,7 +26,7 @@ export class ParallelLoansManager {
   private mapToModel(a: ParallelLoanAccessModel): ParallelLoanModel {
     return new ParallelLoanModel(
       a.id, a.groupId, a.memberId, a.memberName,
-      a.amount, a.interestRate, a.totalToReturn,
+      a.amount, a.interestRate * 100, a.totalToReturn,
       a.installmentAmount, a.totalInstallments, a.installmentsPaid,
       a.startMonth, a.startYear, a.status, a.createdAt, a.updatedAt,
       a.endMonth, a.endYear,
@@ -43,15 +43,16 @@ export class ParallelLoansManager {
   }
 
   async create(req: CreateParallelLoanRequest): Promise<ParallelLoanModel> {
+    const interestRateDecimal = req.interestRate / 100;
     const { installmentAmount, totalToReturn } = calculateInstallment(
-      req.amount, req.interestRate, req.totalInstallments, req.roundingUnit ?? 1000,
+      req.amount, interestRateDecimal, req.totalInstallments, req.roundingUnit ?? 1000,
     );
     return this.mapToModel(
       await this.parallelLoansAccess.create({
         groupId: req.groupId,
         memberId: req.memberId,
         amount: req.amount,
-        interestRate: req.interestRate,
+        interestRate: interestRateDecimal,
         totalToReturn,
         installmentAmount,
         totalInstallments: req.totalInstallments,

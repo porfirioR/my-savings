@@ -10,6 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { RoundingUnit } from '../../../utility/enums';
 
 export class CreateRuedaSlotApiRequest {
   @IsUUID()
@@ -42,8 +43,8 @@ export class CreateRuedaApiRequest {
   @Min(1)
   contributionAmount: number;
 
-  @IsEnum([500, 1000])
-  roundingUnit: 500 | 1000;
+  @IsEnum(RoundingUnit)
+  roundingUnit: 0 | 500 | 1000;
 
   @IsNumber()
   @Min(1)

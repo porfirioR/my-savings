@@ -47,6 +47,7 @@
     "INACTIVE": "Inactive",
     "JOINED": "Joined",
     "LEFT": "Left",
+    "EDIT": "Edit",
     "EXIT": "Process Exit",
     "EMPTY": "No members registered"
   },

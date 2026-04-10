@@ -1,20 +1,19 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CashBoxService } from '../../services/cash-box.service';
-import { CreateMovementRequest } from '../../models/cash-box.model';
+import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-dialog.component';
 
 @Component({
   selector: 'app-cash-box',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, TranslateModule],
+  imports: [DecimalPipe, TranslateModule, AddMovementDialogComponent],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
         <h2 class="text-2xl font-bold tracking-tight">{{ 'CASH_BOX.TITLE' | translate }}</h2>
-        <button class="btn btn-primary btn-sm" (click)="openModal()">
+        <button class="btn btn-primary btn-sm" (click)="showModal.set(true)">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -92,146 +91,23 @@ import { CreateMovementRequest } from '../../models/cash-box.model';
       }
     </div>
 
-    <!-- Add Movement Modal -->
-    @if (showModal()) {
-      <div class="modal modal-open">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-1">{{ 'CASH_BOX.ADD_MOVEMENT' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">Registra un nuevo movimiento en la caja.</p>
-
-          <form #movementForm="ngForm">
-          <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">Tipo <span class="text-error">*</span></legend>
-            <div class="join w-full">
-              <button type="button" class="btn join-item flex-1"
-                [class.btn-success]="form.type === 'in'"
-                [class.btn-outline]="form.type !== 'in'"
-                (click)="form.type = 'in'">
-                {{ 'CASH_BOX.TYPE_IN' | translate }}
-              </button>
-              <button type="button" class="btn join-item flex-1"
-                [class.btn-error]="form.type === 'out'"
-                [class.btn-outline]="form.type !== 'out'"
-                (click)="form.type = 'out'">
-                {{ 'CASH_BOX.TYPE_OUT' | translate }}
-              </button>
-            </div>
-          </fieldset>
-
-          <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">{{ 'CASH_BOX.AMOUNT' | translate }} (Gs) <span class="text-error">*</span></legend>
-            <input type="number" class="input input-bordered w-full" name="amount"
-              [(ngModel)]="form.amount" required min="1" #amount="ngModel"
-              [class.input-error]="amount.invalid && amount.touched" />
-            @if (amount.invalid && amount.touched) {
-              <span class="text-error text-xs mt-1">Monto requerido (mayor a 0)</span>
-            }
-          </fieldset>
-
-          <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">{{ 'CASH_BOX.DESCRIPTION' | translate }} <span class="text-error">*</span></legend>
-            <input type="text" class="input input-bordered w-full" name="description"
-              [(ngModel)]="form.description" required #description="ngModel"
-              [class.input-error]="description.invalid && description.touched" />
-            @if (description.invalid && description.touched) {
-              <span class="text-error text-xs mt-1">Campo requerido</span>
-            }
-          </fieldset>
-
-          <fieldset class="fieldset mb-3">
-            <legend class="fieldset-legend">{{ 'CASH_BOX.CATEGORY' | translate }} <span class="text-error">*</span></legend>
-            <select class="select select-bordered w-full" name="category"
-              [(ngModel)]="form.category" required #category="ngModel"
-              [class.select-error]="category.invalid && category.touched">
-              <option value="">-- Seleccionar --</option>
-              <option value="contribution">Aporte</option>
-              <option value="rueda_collection">Cobro rueda</option>
-              <option value="rueda_disbursement">Desembolso rueda</option>
-              <option value="parallel_loan_payment">Pago préstamo paralelo</option>
-              <option value="parallel_loan_disbursement">Desembolso préstamo paralelo</option>
-              <option value="member_entry">Ingreso de miembro</option>
-              <option value="member_exit">Salida de miembro</option>
-              <option value="adjustment">Ajuste</option>
-            </select>
-            @if (category.invalid && category.touched) {
-              <span class="text-error text-xs mt-1">Campo requerido</span>
-            }
-          </fieldset>
-
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }} <span class="text-error">*</span></legend>
-              <select class="select select-bordered w-full" name="month"
-                [(ngModel)]="form.month" required>
-                @for (m of months; track m.value) {
-                  <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
-                }
-              </select>
-            </fieldset>
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }} <span class="text-error">*</span></legend>
-              <input type="number" class="input input-bordered w-full" name="year"
-                [(ngModel)]="form.year" required min="2000" #year="ngModel"
-                [class.input-error]="year.invalid && year.touched" />
-              @if (year.invalid && year.touched) {
-                <span class="text-error text-xs mt-1">Año inválido</span>
-              }
-            </fieldset>
-          </div>
-          </form>
-
-          <div class="divider my-2"></div>
-          <div class="modal-action mt-0">
-            <button class="btn btn-ghost" (click)="closeModal()">{{ 'APP.CANCEL' | translate }}</button>
-            <button class="btn btn-primary" [disabled]="movementForm.invalid || saving()" (click)="save()">
-              @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
-              {{ 'APP.SAVE' | translate }}
-            </button>
-          </div>
-        </div>
-        <div class="modal-backdrop" (click)="closeModal()"></div>
-      </div>
-    }
+    <app-add-movement-dialog
+      [show]="showModal()"
+      [groupId]="groupId"
+      (closed)="showModal.set(false)"
+      (saved)="showModal.set(false)" />
   `,
 })
 export class CashBoxComponent implements OnInit {
   readonly service = inject(CashBoxService);
   private readonly route = inject(ActivatedRoute);
 
-  private groupId = '';
-  saving = signal(false);
+  groupId = '';
   showModal = signal(false);
-
-  form: CreateMovementRequest = {
-    type: 'in',
-    amount: 0,
-    description: '',
-    category: 'adjustment',
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
-  };
-
-  months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
     this.service.loadBalance(this.groupId);
     this.service.loadMovements(this.groupId);
-  }
-
-  openModal(): void {
-    this.form = { type: 'in', amount: 0, description: '', category: 'adjustment', month: new Date().getMonth() + 1, year: new Date().getFullYear() };
-    this.showModal.set(true);
-  }
-
-  closeModal(): void { this.showModal.set(false); }
-
-  save(): void {
-    if (!this.form.amount || !this.form.description) return;
-    this.saving.set(true);
-    this.service.addMovement(this.groupId, this.form).subscribe({
-      next: () => { this.saving.set(false); this.closeModal(); },
-      error: () => this.saving.set(false),
-    });
   }
 }

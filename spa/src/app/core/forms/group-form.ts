@@ -1,5 +1,7 @@
-export interface GroupFormValue {
-  name: string;
-  startMonth: number;
-  startYear: number;
+import { FormControl } from '@angular/forms'
+
+export interface CreateGroupFormGroup {
+  name: FormControl<string>
+  startMonth: FormControl<number>
+  startYear: FormControl<number>
 }

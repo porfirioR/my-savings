@@ -23,6 +23,15 @@ export interface CreateMemberRequest {
   joinedYear: number;
 }
 
+export interface UpdateMemberRequest {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  position?: number;
+  joinedMonth?: number;
+  joinedYear?: number;
+}
+
 export interface ExitMemberRequest {
   leftMonth: number;
   leftYear: number;

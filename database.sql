@@ -52,7 +52,7 @@ CREATE TABLE ruedas (
     contribution_amount           NUMERIC(15,0) NOT NULL DEFAULT 0 CHECK (contribution_amount >= 0),
     installment_amount            NUMERIC(15,0) NOT NULL CHECK (installment_amount > 0),
     total_to_return               NUMERIC(15,0) NOT NULL CHECK (total_to_return > 0),
-    rounding_unit                 SMALLINT NOT NULL DEFAULT 1000 CHECK (rounding_unit IN (500, 1000)),
+    rounding_unit                 SMALLINT NOT NULL DEFAULT 0 CHECK (rounding_unit IN (0, 500, 1000)),
     start_month                   SMALLINT NOT NULL CHECK (start_month BETWEEN 1 AND 12),
     start_year                    SMALLINT NOT NULL CHECK (start_year >= 2000),
     end_month                     SMALLINT CHECK (end_month BETWEEN 1 AND 12),

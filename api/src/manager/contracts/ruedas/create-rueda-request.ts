@@ -13,7 +13,7 @@ export class CreateRuedaRequest {
     public loanAmount: number,
     public interestRate: number,
     public contributionAmount: number,
-    public roundingUnit: 500 | 1000,
+    public roundingUnit: 0 | 500 | 1000,
     public startMonth: number,
     public startYear: number,
     public slots: CreateRuedaSlotRequest[],

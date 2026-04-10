@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { map, Observable, tap } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { CreateMemberRequest, ExitMemberRequest, Member } from '../models/member.model';
+import { CreateMemberRequest, ExitMemberRequest, Member, UpdateMemberRequest } from '../models/member.model';
 
 @Injectable({ providedIn: 'root' })
 export class MembersService {
@@ -24,9 +24,17 @@ export class MembersService {
     );
   }
 
+  update(groupId: string, memberId: string, req: UpdateMemberRequest): Observable<Member> {
+    return this.api.put<Member>(`groups/${groupId}/members/${memberId}`, req).pipe(
+      tap(updated => this.members.update(list =>
+        list.map(m => m.id === memberId ? updated : m)
+      )),
+    );
+  }
+
   exit(groupId: string, memberId: string, req: ExitMemberRequest): Observable<{ memberReceives: number; memberPays: number }> {
     return this.api.post<{ member: Member; memberReceives: number; memberPays: number }>(`groups/${groupId}/members/${memberId}/exit`, req).pipe(
-      tap(res => this.members.update(list =>
+      tap(() => this.members.update(list =>
         list.map(m => m.id === memberId ? { ...m, isActive: false } : m)
       )),
       map(res => ({ memberReceives: res.memberReceives, memberPays: res.memberPays })),

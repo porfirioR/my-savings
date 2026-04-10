@@ -11,7 +11,7 @@ export class RuedaModel {
     public contributionAmount: number,
     public installmentAmount: number,
     public totalToReturn: number,
-    public roundingUnit: 500 | 1000,
+    public roundingUnit: 0 | 500 | 1000,
     public startMonth: number,
     public startYear: number,
     public endMonth: number | null,
