@@ -19,6 +19,10 @@ export class RuedasService {
     });
   }
 
+  getById(groupId: string, ruedaId: string): Observable<Rueda> {
+    return this.api.get<Rueda>(`groups/${groupId}/ruedas/${ruedaId}`);
+  }
+
   loadSlots(groupId: string, ruedaId: string): void {
     this.api.get<RuedaSlot[]>(`groups/${groupId}/ruedas/${ruedaId}/slots`).subscribe({
       next: data => this.slots.set(data),

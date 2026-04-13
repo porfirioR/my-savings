@@ -246,6 +246,18 @@ export class RuedasAccess extends BaseAccessService {
     return (data ?? []) as RuedaMonthlyPaymentEntity[];
   }
 
+
+  async updateSlotsPreviousLoanAmount(ruedaId: string, slots: { position: number; previousLoanAmount?: number | null }[]): Promise<void> {
+    for (const slot of slots) {
+      const { error } = await this.dbContext
+        .from('rueda_slots')
+        .update({ previous_loan_amount: slot.previousLoanAmount ?? null })
+        .eq('rueda_id', ruedaId)
+        .eq('slot_position', slot.position);
+      if (error) throw new Error(error.message);
+    }
+  }
+
   async delete(id: string): Promise<void> {
     const { error } = await this.dbContext.from('ruedas').delete().eq('id', id);
     if (error) throw new Error(error.message);

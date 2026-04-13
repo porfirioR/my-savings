@@ -1,5 +1,7 @@
-import { IsEnum, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import { IsArray, IsEnum, IsNumber, IsOptional, IsString, IsUUID, Min, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { RoundingUnit } from '../../../utility/enums';
+import { UpdateRuedaSlotApiRequest } from './update-rueda-slot-api-request';
 
 export class UpdateRuedaApiRequest {
   @IsOptional() @IsEnum(['new', 'continua']) type?: 'new' | 'continua';
@@ -16,6 +18,8 @@ export class UpdateRuedaApiRequest {
   @IsOptional() @IsUUID() previousRuedaId?: string;
   @IsOptional() @IsEnum(['constant', 'variable']) slotAmountMode?: 'constant' | 'variable';
   @IsOptional() @IsString() notes?: string;
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => UpdateRuedaSlotApiRequest)
+  slots?: UpdateRuedaSlotApiRequest[];
 
   constructor(partial?: Partial<UpdateRuedaApiRequest>) {
     if (partial) Object.assign(this, partial);

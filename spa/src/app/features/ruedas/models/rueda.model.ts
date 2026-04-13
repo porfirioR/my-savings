@@ -89,4 +89,5 @@ export interface UpdateRuedaRequest {
   previousRuedaId?: string | null;
   slotAmountMode?: 'constant' | 'variable';
   notes?: string;
+  slots?: { position: number; previousLoanAmount?: number | null }[];
 }

@@ -1,3 +1,8 @@
+export interface UpdateRuedaSlotRequest {
+  position: number;
+  previousLoanAmount?: number | null;
+}
+
 export class UpdateRuedaRequest {
   constructor(
     public type?: 'new' | 'continua',
@@ -14,5 +19,6 @@ export class UpdateRuedaRequest {
     public previousRuedaId?: string | null,
     public slotAmountMode?: 'constant' | 'variable',
     public notes?: string,
+    public slots?: UpdateRuedaSlotRequest[],
   ) {}
 }

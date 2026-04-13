@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RuedasAccess } from '../../access/data/services';
 import { RuedaAccessModel, RuedaSlotAccessModel } from '../../access/contracts/ruedas';
 import { calculateInstallment } from '../../utility/helpers';
-import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest } from '../contracts/ruedas';
+import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest, UpdateRuedaSlotRequest } from '../contracts/ruedas';
 import { RuedaMonthlyPaymentEntity } from '../../access/data/entities';
 
 
@@ -155,13 +155,18 @@ export class RuedasManager {
       totalToReturn = calc.totalToReturn;
     }
 
-    const result = await this.ruedasAccess.update(id, {
+    await this.ruedasAccess.update(id, {
       ...req,
       interestRate: req.interestRate !== undefined ? req.interestRate / 100 : undefined,
       installmentAmount,
       totalToReturn,
     });
-    return this.mapToModel(result);
+
+    if (req.slots && req.slots.length > 0) {
+      await this.ruedasAccess.updateSlotsPreviousLoanAmount(id, req.slots);
+    }
+
+    return this.findById(id);
   }
 
   async delete(id: string): Promise<void> {
