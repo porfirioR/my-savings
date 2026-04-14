@@ -105,6 +105,8 @@
     "TIMELINE": "Timeline",
     "TIMELINE_EMPTY": "No slots assigned. Assign members to slots to see the timeline.",
     "TIMELINE_MONTH": "Month",
+    "TIMELINE_JUNTA": "Junta",
+    "TIMELINE_LAST_INSTALLMENT": "Last (prev.)",
     "TIMELINE_DISBURSED": "Disbursement to",
     "TIMELINE_PAYMENT_TYPE": "Type",
     "TIMELINE_CONTRIBUTION": "Contribution",
@@ -113,9 +115,9 @@
     "TIMELINE_CUOTA": "Installment #",
     "TIMELINE_STATUS": "Payment",
     "TIMELINE_PREV": "Prev.",
-    "PREV_AMOUNTS_TITLE": "Previous rueda loan amounts",
-    "PREV_AMOUNTS_HINT": "Enter the original loan amount from the previous rueda to calculate each member's pending installments.",
-    "PREV_LOAN_AMOUNT": "Prev. loan amount (Gs)",
+    "PREV_AMOUNTS_TITLE": "Previous rueda installments",
+    "PREV_AMOUNTS_HINT": "Enter the monthly installment amount each member was paying in the previous rueda.",
+    "PREV_LOAN_AMOUNT": "Prev. installment (Gs)",
     "EMPTY": "No ruedas registered"
   },
   "PAYMENTS": {

@@ -89,11 +89,11 @@ export function calculateMemberExitSettlement(
  *     -> payment_type = 'previous_rueda'
  */
 export function resolvePaymentType(
-  ruedaNumber: number,
+  ruedaType: 'new' | 'continua',
   slotPosition: number,
   currentMonthIndex: number,
 ): 'current_rueda' | 'previous_rueda' | 'contribution_only' {
-  if (ruedaNumber === 1) return 'contribution_only';
+  if (ruedaType === 'new') return 'contribution_only';
   if (slotPosition < currentMonthIndex) return 'current_rueda';
   return 'previous_rueda';
 }

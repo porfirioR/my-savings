@@ -258,6 +258,31 @@ export class RuedasAccess extends BaseAccessService {
     }
   }
 
+  async updateSlotsDates(ruedaId: string, startMonth: number, startYear: number): Promise<void> {
+    const { data, error } = await this.dbContext
+      .from('rueda_slots')
+      .select('slot_position')
+      .eq('rueda_id', ruedaId)
+      .order('slot_position', { ascending: true });
+
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) return;
+
+    for (const row of data as { slot_position: number }[]) {
+      const offset = startMonth - 1 + (row.slot_position - 1);
+      const loanMonth = (offset % 12) + 1;
+      const loanYear = startYear + Math.floor(offset / 12);
+
+      const { error: updateError } = await this.dbContext
+        .from('rueda_slots')
+        .update({ loan_month: loanMonth, loan_year: loanYear })
+        .eq('rueda_id', ruedaId)
+        .eq('slot_position', row.slot_position);
+
+      if (updateError) throw new Error(updateError.message);
+    }
+  }
+
   async delete(id: string): Promise<void> {
     const { error } = await this.dbContext.from('ruedas').delete().eq('id', id);
     if (error) throw new Error(error.message);

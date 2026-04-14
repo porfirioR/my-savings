@@ -17,8 +17,9 @@ export interface RuedaTimelineMonth {
   position: number;
   calendarMonth: number;
   calendarYear: number;
-  disbursedToMemberId: string;
-  disbursedToMemberName: string;
+  /** Null on the final "next junta" page (position 16) — no disbursement */
+  disbursedToMemberId: string | null;
+  disbursedToMemberName: string | null;
   disbursedAmount: number;
   totalCollected: number;
   payments: RuedaTimelinePayment[];

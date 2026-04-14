@@ -113,9 +113,11 @@
     "TIMELINE_CUOTA": "Cuota N°",
     "TIMELINE_STATUS": "Pago",
     "TIMELINE_PREV": "Ant.",
-    "PREV_AMOUNTS_TITLE": "Montos préstamo rueda anterior",
-    "PREV_AMOUNTS_HINT": "Ingresá el monto original del préstamo de la rueda anterior para calcular las cuotas pendientes de cada miembro.",
-    "PREV_LOAN_AMOUNT": "Monto préstamo ant. (Gs)",
+    "TIMELINE_JUNTA": "Junta",
+    "TIMELINE_LAST_INSTALLMENT": "Última (ant.)",
+    "PREV_AMOUNTS_TITLE": "Cuotas mensuales rueda anterior",
+    "PREV_AMOUNTS_HINT": "Ingresá la cuota mensual que cada miembro pagaba en la rueda anterior.",
+    "PREV_LOAN_AMOUNT": "Cuota ant. (Gs)",
     "EMPTY": "No hay ruedas registradas"
   },
   "PAYMENTS": {

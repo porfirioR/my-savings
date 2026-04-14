@@ -55,8 +55,8 @@ export interface RuedaTimelineMonth {
   position: number;
   calendarMonth: number;
   calendarYear: number;
-  disbursedToMemberId: string;
-  disbursedToMemberName: string;
+  disbursedToMemberId: string | null;
+  disbursedToMemberName: string | null;
   disbursedAmount: number;
   totalCollected: number;
   payments: RuedaTimelinePayment[];

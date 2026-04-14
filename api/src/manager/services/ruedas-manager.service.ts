@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RuedasAccess } from '../../access/data/services';
 import { RuedaAccessModel, RuedaSlotAccessModel } from '../../access/contracts/ruedas';
 import { calculateInstallment } from '../../utility/helpers';
-import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest, UpdateRuedaSlotRequest } from '../contracts/ruedas';
+import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest } from '../contracts/ruedas';
 import { RuedaMonthlyPaymentEntity } from '../../access/data/entities';
 
 
@@ -155,7 +155,7 @@ export class RuedasManager {
       totalToReturn = calc.totalToReturn;
     }
 
-    await this.ruedasAccess.update(id, {
+    const updated = await this.ruedasAccess.update(id, {
       ...req,
       interestRate: req.interestRate !== undefined ? req.interestRate / 100 : undefined,
       installmentAmount,
@@ -164,6 +164,10 @@ export class RuedasManager {
 
     if (req.slots && req.slots.length > 0) {
       await this.ruedasAccess.updateSlotsPreviousLoanAmount(id, req.slots);
+    }
+
+    if (req.startMonth !== undefined || req.startYear !== undefined) {
+      await this.ruedasAccess.updateSlotsDates(id, updated.startMonth, updated.startYear);
     }
 
     return this.findById(id);
@@ -196,38 +200,37 @@ export class RuedasManager {
       let totalCollected = 0;
 
       for (const slot of slots) {
-        if (slot.position === position) continue; // receiving member doesn't collect
-
         const paymentKey = `${slot.memberId}:${disbursedSlot.loanMonth}:${disbursedSlot.loanYear}`;
         const paymentRecord = paymentIndex.get(paymentKey);
         const isPaid = paymentRecord?.is_paid ?? false;
         const hasPaymentRecord = !!paymentRecord;
 
         if (slot.position < position) {
-          // Already received current loan → paying installment from current rueda
-          // cuota: for new rueda starts at 1 on disbursement month (P-S+1),
-          //        for continua starts at 1 on month AFTER disbursement (P-S)
-          const cuotaNumber = isContinua
-            ? position - slot.position
-            : position - slot.position + 1;
-
+          // Already received → paying current rueda, first cuota is month AFTER receiving
+          const cuotaNumber = position - slot.position;
+          const amount = slot.installmentAmount + rueda.contributionAmount;
           payments.push({
             slotPosition: slot.position,
             memberId: slot.memberId,
             memberName: slot.memberName ?? '',
             paymentType: 'current_rueda',
-            amount: slot.installmentAmount,
+            amount,
             cuotaNumber,
             isPaid,
             hasPaymentRecord,
           });
-          totalCollected += slot.installmentAmount;
+          totalCollected += amount;
 
         } else {
-          // slot.position > position: hasn't received current loan yet
+          // slot.position >= position: hasn't received current loan yet (includes receiver on disbursement month)
+          // Formula: cuota = 15 - (slot.position - position)
+          //   - receiver (slot.position == position): 15/15 (n/n)
+          //   - next one (slot.position == position+1): 14/15 (n-1/n)
+          //   - last slot (15) on page 1: 1/15
+          //   - last slot (15) on page 15 (their receipt): 15/15 (n/n)
 
           if (!isContinua) {
-            // New (first) rueda → pays contribution only, no installment
+            // New rueda: no previous loan → contribution only (receiver included)
             payments.push({
               slotPosition: slot.position,
               memberId: slot.memberId,
@@ -240,22 +243,8 @@ export class RuedasManager {
             });
             totalCollected += rueda.contributionAmount;
           } else {
-            // Continua rueda → paying installment from previous rueda
-            // cuota from previous = 16 - S + P (capped at 15 to handle P=S edge)
-            const cuotaNumber = Math.min(16 - slot.position + position, 15);
-
-            // Installment amount from previous loan
-            let prevAmount = rueda.installmentAmount; // fallback to current rueda default
-            if (slot.previousLoanAmount) {
-              const prevCalc = calculateInstallment(
-                slot.previousLoanAmount,
-                rueda.interestRate / 100, // interestRate in model is already *100 (percentage)
-                15,
-                rueda.roundingUnit as 0 | 500 | 1000,
-              );
-              prevAmount = prevCalc.installmentAmount;
-            }
-
+            const cuotaNumber = 15 - (slot.position - position);
+            const prevAmount = slot.previousLoanAmount ?? rueda.installmentAmount;
             payments.push({
               slotPosition: slot.position,
               memberId: slot.memberId,
@@ -281,6 +270,48 @@ export class RuedasManager {
         disbursedToMemberId: disbursedSlot.memberId,
         disbursedToMemberName: disbursedSlot.memberName ?? '',
         disbursedAmount: disbursedSlot.loanAmount,
+        totalCollected,
+        payments,
+      });
+    }
+
+    // Position 16: virtual "next junta" — all members pay their remaining cuota of current rueda
+    if (slots.length === 15) {
+      const lastSlot = slots.find((s) => s.position === 15)!;
+      const nextMonth = lastSlot.loanMonth === 12 ? 1 : lastSlot.loanMonth + 1;
+      const nextYear = lastSlot.loanMonth === 12 ? lastSlot.loanYear + 1 : lastSlot.loanYear;
+
+      const payments: RuedaTimelinePayment[] = [];
+      let totalCollected = 0;
+
+      for (const slot of slots) {
+        const cuotaNumber = 16 - slot.position;
+        const amount = slot.installmentAmount + rueda.contributionAmount;
+        const paymentKey = `${slot.memberId}:${nextMonth}:${nextYear}`;
+        const paymentRecord = paymentIndex.get(paymentKey);
+
+        payments.push({
+          slotPosition: slot.position,
+          memberId: slot.memberId,
+          memberName: slot.memberName ?? '',
+          paymentType: 'current_rueda',
+          amount,
+          cuotaNumber,
+          isPaid: paymentRecord?.is_paid ?? false,
+          hasPaymentRecord: !!paymentRecord,
+        });
+        totalCollected += amount;
+      }
+
+      payments.sort((a, b) => a.slotPosition - b.slotPosition);
+
+      timeline.push({
+        position: 16,
+        calendarMonth: nextMonth,
+        calendarYear: nextYear,
+        disbursedToMemberId: null,
+        disbursedToMemberName: null,
+        disbursedAmount: 0,
         totalCollected,
         payments,
       });

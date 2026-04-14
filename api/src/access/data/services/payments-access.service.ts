@@ -88,13 +88,17 @@ export class PaymentsAccess extends BaseAccessService {
 
     const records = slots.map((slot: any) => {
       const paymentType = resolvePaymentType(
-        rueda.rueda_number,
+        rueda.type,
         slot.slot_position,
         currentMonthIndex,
       );
 
       const installmentAmountDue =
-        paymentType === 'contribution_only' ? 0 : slot.installment_amount;
+        paymentType === 'contribution_only'
+          ? 0
+          : paymentType === 'previous_rueda'
+            ? (slot.previous_loan_amount ?? slot.installment_amount)
+            : slot.installment_amount;
       const contributionAmountDue = rueda.contribution_amount;
       const totalAmountDue = installmentAmountDue + contributionAmountDue;
 
