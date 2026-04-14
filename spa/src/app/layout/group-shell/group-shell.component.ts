@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 interface Group {
   id: string;
@@ -58,8 +59,8 @@ interface Group {
           </div>
 
           <!-- Navigation -->
-          <nav class="flex-1 p-3">
-            <ul class="flex flex-col gap-0.5">
+          <nav class="flex-1 p-3 flex flex-col">
+            <ul class="flex flex-col gap-0.5 flex-1">
               <li>
                 <a [routerLink]="['rueda']"
                    routerLinkActive="bg-primary/10 text-primary font-semibold"
@@ -111,6 +112,24 @@ interface Group {
                 </a>
               </li>
             </ul>
+
+            <!-- Theme toggle -->
+            <div class="pt-3 border-t border-base-300 mt-3">
+              <button (click)="theme.toggle()"
+                class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                @if (theme.isDark()) {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71m12.02 0-.71-.71M5.64 5.64l-.71-.71M12 5a7 7 0 100 14A7 7 0 0012 5z"/>
+                  </svg>
+                  Modo claro
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
+                  </svg>
+                  Modo oscuro
+                }
+              </button>
+            </div>
           </nav>
         </aside>
       </div>
@@ -120,6 +139,7 @@ interface Group {
 export class GroupShellComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(ApiService);
+  readonly theme = inject(ThemeService);
 
   group = signal<Group | null>(null);
 
