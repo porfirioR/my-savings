@@ -139,6 +139,8 @@
     "PAYMENT_TYPE_CURRENT": "Current Rueda",
     "PAYMENT_TYPE_PREVIOUS": "Previous Rueda",
     "PAYMENT_TYPE_CONTRIBUTION": "Contribution Only",
+    "SELECT_RUEDA": "Select a rueda to view payments.",
+    "ALL_PAID_WARNING": "All payments for this month are already marked as paid. The list cannot be regenerated.",
     "EMPTY": "No payments for this month. Generate the list first.",
     "SUMMARY": "Summary",
     "TOTAL_COLLECTED": "Total Collected",

@@ -93,13 +93,24 @@ export class PaymentsAccess extends BaseAccessService {
         currentMonthIndex,
       );
 
-      const installmentAmountDue =
-        paymentType === 'contribution_only'
-          ? 0
-          : paymentType === 'previous_rueda'
-            ? (slot.previous_loan_amount ?? slot.installment_amount)
-            : slot.installment_amount;
-      const contributionAmountDue = rueda.contribution_amount;
+      // previous_rueda: member hasn't received current rueda loan yet — pays previous installment only (no contribution)
+      // current_rueda:  member already received — pays current installment + contribution
+      // contribution_only: new rueda, no loan yet — pays contribution only
+      let installmentAmountDue: number;
+      let contributionAmountDue: number;
+
+      if (paymentType === 'previous_rueda') {
+        installmentAmountDue = slot.previous_loan_amount ?? slot.installment_amount;
+        contributionAmountDue = rueda.contribution_amount;
+      } else if (paymentType === 'current_rueda') {
+        installmentAmountDue = slot.installment_amount;
+        contributionAmountDue = rueda.contribution_amount;
+      } else {
+        // contribution_only
+        installmentAmountDue = 0;
+        contributionAmountDue = rueda.contribution_amount;
+      }
+
       const totalAmountDue = installmentAmountDue + contributionAmountDue;
 
       return {
@@ -120,7 +131,7 @@ export class PaymentsAccess extends BaseAccessService {
 
     const { data, error } = await this.dbContext
       .from('rueda_monthly_payments')
-      .insert(records)
+      .upsert(records, { onConflict: 'rueda_id,member_id,month,year', ignoreDuplicates: false })
       .select('*, members(first_name, last_name)');
 
     if (error) throw new Error(error.message);

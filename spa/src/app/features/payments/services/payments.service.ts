@@ -20,6 +20,10 @@ export class PaymentsService {
     };
   }
 
+  clearPayments(): void {
+    this.payments.set([]);
+  }
+
   loadByMonth(groupId: string, ruedaId: string, month: number, year: number): void {
     this.loading.set(true);
     this.api.get<MonthlyPayment[]>(`groups/${groupId}/ruedas/${ruedaId}/payments`, { month, year }).subscribe({

@@ -139,6 +139,8 @@
     "PAYMENT_TYPE_CURRENT": "Rueda Actual",
     "PAYMENT_TYPE_PREVIOUS": "Rueda Anterior",
     "PAYMENT_TYPE_CONTRIBUTION": "Solo Aporte",
+    "SELECT_RUEDA": "Seleccioná una rueda para ver los pagos.",
+    "ALL_PAID_WARNING": "Todos los pagos de este mes ya están registrados como pagados. No se puede regenerar la lista.",
     "EMPTY": "No hay pagos para este mes. Generá la lista primero.",
     "SUMMARY": "Resumen",
     "TOTAL_COLLECTED": "Total Recibido",

@@ -244,18 +244,19 @@ export class RuedasManager {
             totalCollected += rueda.contributionAmount;
           } else {
             const cuotaNumber = 15 - (slot.position - position);
-            const prevAmount = slot.previousLoanAmount ?? rueda.installmentAmount;
+            const prevInstallment = slot.previousLoanAmount ?? rueda.installmentAmount;
+            const amount = prevInstallment + rueda.contributionAmount;
             payments.push({
               slotPosition: slot.position,
               memberId: slot.memberId,
               memberName: slot.memberName ?? '',
               paymentType: 'previous_rueda',
-              amount: prevAmount,
+              amount,
               cuotaNumber,
               isPaid,
               hasPaymentRecord,
             });
-            totalCollected += prevAmount;
+            totalCollected += amount;
           }
         }
       }

@@ -1,10 +1,18 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { PaymentsService } from '../../services/payments.service';
 import { RuedasService } from '../../../ruedas/services/ruedas.service';
+import { Rueda } from '../../../ruedas/models/rueda.model';
 import { DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+interface ValidMonth {
+  month: number;
+  year: number;
+  label: string;
+  index: number; // 1-based position within rueda (1 = junta, 2..15 = cuota 1..14, 16 = next junta)
+}
 
 @Component({
   selector: 'app-payment-list',
@@ -20,23 +28,45 @@ import { DecimalPipe } from '@angular/common';
       <!-- Controls bar -->
       <div class="card bg-base-200 border border-base-300 p-4 mb-5">
         <div class="flex flex-wrap gap-3 items-center">
-          <select class="select select-bordered select-sm" [(ngModel)]="selectedRuedaId" (ngModelChange)="onRuedaChange()">
+          <!-- Rueda selector -->
+          <select class="select select-bordered select-sm" [ngModel]="selectedRuedaId()" (ngModelChange)="onRuedaChange($event)">
             <option value="">-- Rueda --</option>
             @for (r of ruedasService.ruedas(); track r.id) {
               <option [value]="r.id">{{ 'RUEDAS.NUMBER' | translate }} {{ r.ruedaNumber }}</option>
             }
           </select>
-          <select class="select select-bordered select-sm" [(ngModel)]="selectedMonth" (ngModelChange)="load()">
-            @for (m of months; track m.value) {
-              <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
-            }
-          </select>
-          <input type="number" class="input input-bordered input-sm w-24" [(ngModel)]="selectedYear" (change)="load()" />
-          <button class="btn btn-outline btn-sm ml-auto" (click)="generate()" [disabled]="!selectedRuedaId || generating()">
+
+          <!-- Month navigation — only visible once a rueda is selected -->
+          @if (selectedRueda()) {
+            <div class="flex items-center gap-1">
+              <button class="btn btn-xs btn-ghost" (click)="prevMonth()" [disabled]="activeMonthIndex() === 0">‹</button>
+              <span class="text-sm font-medium px-2 min-w-40 text-center">
+                @if (currentValidMonth(); as cm) {
+                  @if (cm.index === 1 || cm.index === 16) {
+                    {{ 'RUEDAS.TIMELINE_JUNTA' | translate }}
+                  } @else {
+                    {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index - 1 }}/15
+                  }
+                  &mdash; {{ 'MONTHS.' + cm.month | translate }} {{ cm.year }}
+                }
+              </span>
+              <button class="btn btn-xs btn-ghost" (click)="nextMonth()" [disabled]="activeMonthIndex() === validMonths().length - 1">›</button>
+            </div>
+          }
+
+          <button class="btn btn-outline btn-sm ml-auto" (click)="generate()" [disabled]="!selectedRuedaId() || !currentValidMonth() || generating() || allPaid()">
             @if (generating()) { <span class="loading loading-spinner loading-xs"></span> }
             {{ 'PAYMENTS.GENERATE' | translate }}
           </button>
         </div>
+        @if (allPaid()) {
+          <div class="mt-3 alert alert-success py-2 px-3 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ 'PAYMENTS.ALL_PAID_WARNING' | translate }}
+          </div>
+        }
       </div>
 
       <!-- Summary stats -->
@@ -58,6 +88,10 @@ import { DecimalPipe } from '@angular/common';
       @if (service.loading()) {
         <div class="flex justify-center py-16">
           <span class="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      } @else if (!selectedRuedaId) {
+        <div class="text-center py-16 text-base-content/50 text-sm">
+          {{ 'PAYMENTS.SELECT_RUEDA' | translate }}
         </div>
       } @else if (service.payments().length === 0) {
         <div class="text-center py-16 text-base-content/50 text-sm">
@@ -84,7 +118,7 @@ import { DecimalPipe } from '@angular/common';
                   <td>
                     <span class="badge badge-xs badge-outline"
                       [class.badge-primary]="p.paymentType === 'current_rueda'"
-                      [class.badge-secondary]="p.paymentType === 'previous_rueda'"
+                      [class.badge-warning]="p.paymentType === 'previous_rueda'"
                       [class.badge-ghost]="p.paymentType === 'contribution_only'">
                       @if (p.paymentType === 'current_rueda') { {{ 'PAYMENTS.PAYMENT_TYPE_CURRENT' | translate }} }
                       @else if (p.paymentType === 'previous_rueda') { {{ 'PAYMENTS.PAYMENT_TYPE_PREVIOUS' | translate }} }
@@ -136,37 +170,93 @@ export class PaymentListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   private groupId = '';
-  selectedRuedaId = '';
-  selectedMonth = new Date().getMonth() + 1;
-  selectedYear = new Date().getFullYear();
+  selectedRuedaId = signal('');
   generating = signal(false);
   toggling = signal('');
+  activeMonthIndex = signal(0);
 
-  months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
+  /** The selected rueda object */
+  selectedRueda = computed<Rueda | null>(() =>
+    this.ruedasService.ruedas().find(r => r.id === this.selectedRuedaId()) ?? null
+  );
+
+  /** 16 valid months for the selected rueda (position 1..16) */
+  validMonths = computed<ValidMonth[]>(() => {
+    const rueda = this.selectedRueda();
+    if (!rueda) return [];
+    const months: ValidMonth[] = [];
+    for (let i = 0; i < 16; i++) {
+      const totalOffset = rueda.startMonth - 1 + i;
+      const month = (totalOffset % 12) + 1;
+      const year = rueda.startYear + Math.floor(totalOffset / 12);
+      months.push({ month, year, label: `${month}/${year}`, index: i + 1 });
+    }
+    return months;
+  });
+
+  currentValidMonth = computed<ValidMonth | null>(() =>
+    this.validMonths()[this.activeMonthIndex()] ?? null
+  );
 
   totalAmount = computed(() =>
     this.service.payments().reduce((s, p) => s + p.totalAmount, 0)
   );
+
+  allPaid = computed(() => {
+    const list = this.service.payments();
+    return list.length > 0 && list.every(p => p.status === 'paid');
+  });
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
     this.ruedasService.loadByGroup(this.groupId);
   }
 
-  onRuedaChange(): void {
-    if (this.selectedRuedaId) this.load();
+  onRuedaChange(ruedaId: string): void {
+    this.selectedRuedaId.set(ruedaId);
+    if (!ruedaId) {
+      this.activeMonthIndex.set(0);
+      this.service.clearPayments();
+      return;
+    }
+    // Auto-select the month closest to today, clamped to valid range
+    const rueda = this.ruedasService.ruedas().find(r => r.id === ruedaId);
+    if (!rueda) return;
+    const now = new Date();
+    const nowMonth = now.getMonth() + 1;
+    const nowYear = now.getFullYear();
+    const months = this.validMonths();
+    const idx = months.findIndex(m => m.year === nowYear && m.month === nowMonth);
+    this.activeMonthIndex.set(idx >= 0 ? idx : 0);
+    this.load();
+  }
+
+  prevMonth(): void {
+    if (this.activeMonthIndex() > 0) {
+      this.activeMonthIndex.update(i => i - 1);
+      this.load();
+    }
+  }
+
+  nextMonth(): void {
+    if (this.activeMonthIndex() < this.validMonths().length - 1) {
+      this.activeMonthIndex.update(i => i + 1);
+      this.load();
+    }
   }
 
   load(): void {
-    if (!this.selectedRuedaId) return;
-    this.service.loadByMonth(this.groupId, this.selectedRuedaId, this.selectedMonth, this.selectedYear);
+    const cm = this.currentValidMonth();
+    if (!this.selectedRuedaId() || !cm) return;
+    this.service.loadByMonth(this.groupId, this.selectedRuedaId(), cm.month, cm.year);
   }
 
   generate(): void {
-    if (!this.selectedRuedaId) return;
+    const cm = this.currentValidMonth();
+    if (!this.selectedRuedaId() || !cm) return;
     this.generating.set(true);
-    this.service.generate(this.groupId, this.selectedRuedaId, { month: this.selectedMonth, year: this.selectedYear }).subscribe({
-      next: () => this.generating.set(false),
+    this.service.generate(this.groupId, this.selectedRuedaId(), { month: cm.month, year: cm.year }).subscribe({
+      next: () => { this.generating.set(false); this.load(); },
       error: () => this.generating.set(false),
     });
   }
@@ -174,8 +264,8 @@ export class PaymentListComponent implements OnInit {
   togglePaid(paymentId: string, action: 'paid' | 'unpaid'): void {
     this.toggling.set(paymentId);
     const obs = action === 'paid'
-      ? this.service.markPaid(this.groupId, this.selectedRuedaId, paymentId)
-      : this.service.markUnpaid(this.groupId, this.selectedRuedaId, paymentId);
+      ? this.service.markPaid(this.groupId, this.selectedRuedaId(), paymentId)
+      : this.service.markUnpaid(this.groupId, this.selectedRuedaId(), paymentId);
     obs.subscribe({
       next: () => this.toggling.set(''),
       error: () => this.toggling.set(''),

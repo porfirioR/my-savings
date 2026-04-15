@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { GroupsService } from '../../services/groups.service';
 import { CreateGroupDialogComponent } from '../create-group-dialog/create-group-dialog.component';
+import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-group-list',
@@ -14,12 +15,25 @@ import { CreateGroupDialogComponent } from '../create-group-dialog/create-group-
         <!-- Header -->
         <div class="flex items-center justify-between mb-2">
           <h1 class="text-2xl font-bold tracking-tight">{{ 'GROUPS.TITLE' | translate }}</h1>
-          <button class="btn btn-primary btn-sm" (click)="showCreateDialog.set(true)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            {{ 'GROUPS.NEW' | translate }}
-          </button>
+          <div class="flex items-center gap-2">
+            <button class="btn btn-ghost btn-sm btn-circle" (click)="theme.toggle()" [title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'">
+              @if (theme.isDark()) {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71m12.02 0-.71-.71M5.64 5.64l-.71-.71M12 5a7 7 0 100 14A7 7 0 0012 5z"/>
+                </svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
+                </svg>
+              }
+            </button>
+            <button class="btn btn-primary btn-sm" (click)="showCreateDialog.set(true)">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              {{ 'GROUPS.NEW' | translate }}
+            </button>
+          </div>
         </div>
         <div class="divider mt-0 mb-6"></div>
 
@@ -74,6 +88,7 @@ import { CreateGroupDialogComponent } from '../create-group-dialog/create-group-
 })
 export class GroupListComponent implements OnInit {
   readonly service = inject(GroupsService);
+  readonly theme = inject(ThemeService);
   showCreateDialog = signal(false);
 
   ngOnInit(): void {
