@@ -89,7 +89,7 @@ interface ValidMonth {
         <div class="flex justify-center py-16">
           <span class="loading loading-spinner loading-lg text-primary"></span>
         </div>
-      } @else if (!selectedRuedaId) {
+      } @else if (!selectedRuedaId()) {
         <div class="text-center py-16 text-base-content/50 text-sm">
           {{ 'PAYMENTS.SELECT_RUEDA' | translate }}
         </div>

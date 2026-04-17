@@ -138,6 +138,31 @@ export class PaymentsAccess extends BaseAccessService {
     return (data as any[]).map((e) => this.mapToModel(e));
   }
 
+  async checkMonthCompletion(
+    ruedaId: string,
+    month: number,
+    year: number,
+  ): Promise<{ allPaid: boolean; difference: number; ruedaNumber: number; groupId: string } | null> {
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('is_paid, total_amount_due, ruedas(rueda_number, group_id, loan_amount)')
+      .eq('rueda_id', ruedaId)
+      .eq('month', month)
+      .eq('year', year);
+
+    if (error || !data || (data as any[]).length === 0) return null;
+
+    const rows = data as any[];
+    const allPaid = rows.every((r) => r.is_paid);
+    const totalCollected = rows.reduce((s: number, r: any) => s + (r.total_amount_due ?? 0), 0);
+    const loanAmount: number = rows[0].ruedas?.loan_amount ?? 0;
+    const ruedaNumber: number = rows[0].ruedas?.rueda_number ?? 0;
+    const groupId: string = rows[0].ruedas?.group_id ?? '';
+    const difference = loanAmount - totalCollected;
+
+    return { allPaid, difference, ruedaNumber, groupId };
+  }
+
   async markPayment(
     id: string,
     req: MarkPaymentAccessRequest,

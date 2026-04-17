@@ -2,10 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PaymentAccessModel } from '../../access/contracts/payments';
 import { PaymentsAccess } from '../../access/data/services';
 import { GeneratePaymentsRequest, MarkPaymentRequest, PaymentModel } from '../contracts/payments';
+import { CashBoxManager } from './cash-box-manager.service';
+import { CreateCashMovementRequest } from '../contracts/cash-box';
 
 @Injectable()
 export class PaymentsManager {
-  constructor(private readonly paymentsAccess: PaymentsAccess) {}
+  constructor(
+    private readonly paymentsAccess: PaymentsAccess,
+    private readonly cashBoxManager: CashBoxManager,
+  ) {}
 
   private mapToModel(accessModel: PaymentAccessModel): PaymentModel {
     return {
@@ -45,6 +50,32 @@ export class PaymentsManager {
 
   async markPayment(id: string, req: MarkPaymentRequest): Promise<PaymentModel> {
     const result = await this.paymentsAccess.markPayment(id, req);
+
+    // After marking paid, check if all payments for this month are now complete
+    if (req.isPaid) {
+      const completion = await this.paymentsAccess.checkMonthCompletion(
+        result.ruedaId,
+        result.month,
+        result.year,
+      );
+
+      if (completion?.allPaid && completion.groupId && completion.difference !== 0) {
+        const isPositive = completion.difference > 0;
+        await this.cashBoxManager.createMovement(
+          new CreateCashMovementRequest(
+            completion.groupId,
+            isPositive ? 'in' : 'out',
+            'automatic',
+            isPositive ? 'rueda_collection' : 'rueda_disbursement',
+            Math.abs(completion.difference),
+            result.month,
+            result.year,
+            `Rueda ${completion.ruedaNumber} - ${result.month}/${result.year}`,
+          ),
+        );
+      }
+    }
+
     return this.mapToModel(result);
   }
 }
