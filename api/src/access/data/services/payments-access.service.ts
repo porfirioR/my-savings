@@ -138,6 +138,35 @@ export class PaymentsAccess extends BaseAccessService {
     return (data as any[]).map((e) => this.mapToModel(e));
   }
 
+  async getDisbursementInfo(
+    ruedaId: string,
+    month: number,
+    year: number,
+  ): Promise<{ groupId: string; memberId: string; loanAmount: number; ruedaNumber: number } | null> {
+    const { data, error } = await this.dbContext
+      .from('ruedas')
+      .select('group_id, rueda_number, start_month, start_year, loan_amount, rueda_slots(slot_position, member_id, loan_amount)')
+      .eq('id', ruedaId)
+      .single();
+
+    if (error || !data) return null;
+
+    const rueda = data as any;
+    const currentMonthIndex = (year - rueda.start_year) * 12 + (month - rueda.start_month) + 1;
+    const disbursedSlot = (rueda.rueda_slots as any[]).find(
+      (s: any) => s.slot_position === currentMonthIndex,
+    );
+
+    if (!disbursedSlot) return null;
+
+    return {
+      groupId: rueda.group_id,
+      memberId: disbursedSlot.member_id,
+      loanAmount: disbursedSlot.loan_amount ?? rueda.loan_amount,
+      ruedaNumber: rueda.rueda_number,
+    };
+  }
+
   async checkMonthCompletion(
     ruedaId: string,
     month: number,

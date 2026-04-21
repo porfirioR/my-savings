@@ -58,6 +58,29 @@ export class CashBoxAccess extends BaseAccessService {
     return (data as CashMovementEntity[]).map(e => this.mapToModel(e));
   }
 
+  async existsByReference(groupId: string, referenceId: string): Promise<boolean> {
+    const { data, error } = await this.dbContext
+      .from('cash_movements')
+      .select('id')
+      .eq('group_id', groupId)
+      .eq('reference_id', referenceId)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    return !!data;
+  }
+
+  async deleteByReference(groupId: string, referenceId: string): Promise<void> {
+    const { error } = await this.dbContext
+      .from('cash_movements')
+      .delete()
+      .eq('group_id', groupId)
+      .eq('reference_id', referenceId)
+      .eq('source_type', 'automatic');
+
+    if (error) throw new Error(error.message);
+  }
+
   async createMovement(req: CreateCashMovementAccessRequest): Promise<CashMovementAccessModel> {
     const { data, error } = await this.dbContext
       .from('cash_movements')

@@ -45,13 +45,35 @@ export class PaymentsManager {
 
   async generateMonthlyPayments(req: GeneratePaymentsRequest): Promise<PaymentModel[]> {
     const result = await this.paymentsAccess.generateMonthlyPayments(req);
+
+    const disbursement = await this.paymentsAccess.getDisbursementInfo(req.ruedaId, req.month, req.year);
+    if (disbursement) {
+      const referenceId = `disburse:${req.ruedaId}:${req.month}/${req.year}`;
+      const already = await this.cashBoxManager.existsByReference(disbursement.groupId, referenceId);
+      if (!already) {
+        await this.cashBoxManager.createMovement(
+          new CreateCashMovementRequest(
+            disbursement.groupId,
+            'out',
+            'automatic',
+            'rueda_disbursement',
+            disbursement.loanAmount,
+            req.month,
+            req.year,
+            `Rueda ${disbursement.ruedaNumber} - Desembolso ${req.month}/${req.year}`,
+            referenceId,
+          ),
+        );
+      }
+    }
+
     return result.map((m) => this.mapToModel(m));
   }
 
   async markPayment(id: string, req: MarkPaymentRequest): Promise<PaymentModel> {
     const result = await this.paymentsAccess.markPayment(id, req);
+    const referenceId = `rueda:${result.ruedaId}:${result.month}/${result.year}`;
 
-    // After marking paid, check if all payments for this month are now complete
     if (req.isPaid) {
       const completion = await this.paymentsAccess.checkMonthCompletion(
         result.ruedaId,
@@ -71,8 +93,19 @@ export class PaymentsManager {
             result.month,
             result.year,
             `Rueda ${completion.ruedaNumber} - ${result.month}/${result.year}`,
+            referenceId,
           ),
         );
+      }
+    } else {
+      const completion = await this.paymentsAccess.checkMonthCompletion(
+        result.ruedaId,
+        result.month,
+        result.year,
+      );
+
+      if (completion?.groupId) {
+        await this.cashBoxManager.deleteByReference(completion.groupId, referenceId);
       }
     }
 
