@@ -11,20 +11,8 @@ export async function createApp() {
   const spaUrl = config.get<string>(SPA_URL);
 
   app.setGlobalPrefix('api');
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-
   app.enableCors({
-    origin: spaUrl ? spaUrl.split(',').map((u) => u.trim()) : '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
+    origin: spaUrl ? spaUrl : '*',
   });
 
   await app.init();
