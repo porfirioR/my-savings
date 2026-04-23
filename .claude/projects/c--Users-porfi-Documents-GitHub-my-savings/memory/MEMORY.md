@@ -1,0 +1,1 @@
+- [Project structure](project-structure.md) — i-design flat layers (host/manager/access at src/), all contracts are classes with constructors
