@@ -38,6 +38,7 @@ jobs:
           npx nest build
           npx tsc -p tsconfig.functions.json
           cp main/function.json dist/main/function.json
+          sed -i 's|"../dist/main/index.js"|"./index.js"|' dist/main/function.json
           cp host.json dist/host.json
           cp package.json dist/package.json
           cp .npmrc dist/.npmrc
