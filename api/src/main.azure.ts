@@ -10,6 +10,8 @@ export async function createApp() {
   const config = app.get(ConfigService);
   const spaUrl = config.get<string>(SPA_URL);
 
+  app.setGlobalPrefix('api');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
