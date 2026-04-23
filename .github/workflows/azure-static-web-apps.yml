@@ -40,6 +40,7 @@ jobs:
           cp main/function.json dist/main/function.json
           cp host.json dist/host.json
           cp package.json dist/package.json
+          cp .npmrc dist/.npmrc
 
       - name: Build and Deploy
         id: builddeploy
