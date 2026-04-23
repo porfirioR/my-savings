@@ -19,22 +19,6 @@ jobs:
         with:
           submodules: true
           lfs: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Build API
-        working-directory: api
-        run: |
-          npm ci
-          npx nest build
-          npx tsc -p tsconfig.functions.json
-          cp main/function.json dist/main/function.json
-          cp host.json dist/host.json
-          cp package.json dist/package.json
-
       - name: Build and Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -43,7 +27,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/spa"
-          api_location: "api/dist"
+          api_location: "api"
           output_location: "dist/my-savings-spa/browser"
 
   close_pull_request_job:
