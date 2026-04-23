@@ -40,6 +40,7 @@ jobs:
           cp main/function.json dist/main/function.json
           cp host.json dist/host.json
           cp package.json dist/package.json
+          cp .npmrc dist/.npmrc
 
       - name: Build and Deploy
         id: builddeploy
@@ -52,6 +53,7 @@ jobs:
           api_location: "api/dist"
           output_location: ""
           skip_app_build: true
+          api_build_command: "echo 'API already built'"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
