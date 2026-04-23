@@ -53,7 +53,7 @@ jobs:
           api_location: "api/dist"
           output_location: ""
           skip_app_build: true
-          skip_api_build: true
+          api_build_command: "echo 'API already built'"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
