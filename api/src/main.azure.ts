@@ -1,15 +1,14 @@
-import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
-import { SPA_URL, PORT } from './utility/constants/environment.const';
+import { SPA_URL } from './utility/constants/environment.const';
 
-async function bootstrap() {
+export async function createApp() {
   const app = await NestFactory.create(AppModule);
 
   const config = app.get(ConfigService);
   const spaUrl = config.get<string>(SPA_URL);
-  const port = config.get<number>(PORT) ?? 3000;
 
   app.setGlobalPrefix('api');
 
@@ -22,13 +21,12 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: spaUrl ? spaUrl.split(',').map((x) => x.trim()) : '*',
+    origin: spaUrl ? spaUrl.split(',').map((u) => u.trim()) : '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
 
-  await app.listen(port);
-  console.log(`API running on port ${port} — CORS origin: ${spaUrl ?? '*'}`);
+  await app.init();
+  return app;
 }
-bootstrap();
