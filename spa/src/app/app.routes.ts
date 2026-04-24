@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -7,7 +8,15 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('./features/unauthorized/unauthorized.component').then(
+        m => m.UnauthorizedComponent,
+      ),
+  },
+  {
     path: 'groups',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/groups/components/group-list/group-list.component').then(
         m => m.GroupListComponent,
@@ -15,6 +24,7 @@ export const routes: Routes = [
   },
   {
     path: 'groups/:groupId',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./layout/group-shell/group-shell.component').then(
         m => m.GroupShellComponent,
