@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { ALLOWED_USER } from '../constants/auth.const';
 
 export interface SwaUser {
   userId: string;
@@ -8,8 +9,6 @@ export interface SwaUser {
   identityProvider: string;
   userRoles: string[];
 }
-
-const ALLOWED_USER = 'PorfirioR';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
