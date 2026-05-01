@@ -7,7 +7,6 @@ const config: Config = {
   testMatch: ['**/test/e2e/**/*.e2e-spec.ts'],
   transform: { '^.+\\.(t|j)s$': 'ts-jest' },
   testTimeout: 30000,
-  runInBand: true,
   setupFiles: ['<rootDir>/test/e2e/setup-env.ts'],
 };
 
