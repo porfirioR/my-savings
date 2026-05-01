@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ALLOWED_USER } from '../constants/auth.const';
+import { environment } from '../../../environments/environment';
 
 export interface SwaUser {
   userId: string;
@@ -9,6 +10,13 @@ export interface SwaUser {
   identityProvider: string;
   userRoles: string[];
 }
+
+const DEV_USER: SwaUser = {
+  userId: 'local-dev',
+  userDetails: ALLOWED_USER,
+  identityProvider: 'github',
+  userRoles: ['authenticated'],
+};
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -18,6 +26,11 @@ export class AuthService {
   checked = signal(false);
 
   async loadUser(): Promise<void> {
+    if (!environment.production) {
+      this.user.set(DEV_USER);
+      this.checked.set(true);
+      return;
+    }
     try {
       const response = await firstValueFrom(
         this.http.get<{ clientPrincipal: SwaUser | null }>('/.auth/me')
