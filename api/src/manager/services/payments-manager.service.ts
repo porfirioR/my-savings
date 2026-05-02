@@ -4,6 +4,7 @@ import { PaymentsAccess } from '../../access/data/services';
 import { GeneratePaymentsRequest, MarkPaymentRequest, PaymentModel } from '../contracts/payments';
 import { CashBoxManager } from './cash-box-manager.service';
 import { CreateCashMovementRequest } from '../contracts/cash-box';
+import { toReferenceUuid } from '../../utility/helpers';
 
 @Injectable()
 export class PaymentsManager {
@@ -48,7 +49,7 @@ export class PaymentsManager {
 
     const disbursement = await this.paymentsAccess.getDisbursementInfo(req.ruedaId, req.month, req.year);
     if (disbursement) {
-      const referenceId = `disburse:${req.ruedaId}:${req.month}/${req.year}`;
+      const referenceId = toReferenceUuid(`disburse:${req.ruedaId}:${req.month}/${req.year}`);
       const already = await this.cashBoxManager.existsByReference(disbursement.groupId, referenceId);
       if (!already) {
         await this.cashBoxManager.createMovement(
@@ -72,7 +73,7 @@ export class PaymentsManager {
 
   async markPayment(id: string, req: MarkPaymentRequest): Promise<PaymentModel> {
     const result = await this.paymentsAccess.markPayment(id, req);
-    const referenceId = `rueda:${result.ruedaId}:${result.month}/${result.year}`;
+    const referenceId = toReferenceUuid(`rueda:${result.ruedaId}:${result.month}/${result.year}`);
 
     if (req.isPaid) {
       const completion = await this.paymentsAccess.checkMonthCompletion(
