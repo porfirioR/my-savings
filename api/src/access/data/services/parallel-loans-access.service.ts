@@ -111,6 +111,51 @@ export class ParallelLoansAccess extends BaseAccessService {
     return (data as ParallelLoanPaymentEntity[]).map(e => this.mapPayment(e));
   }
 
+  async update(id: string, req: CreateParallelLoanAccessRequest): Promise<ParallelLoanAccessModel> {
+    const { data: existing, error: fetchError } = await this.dbContext
+      .from('parallel_loans')
+      .select('installments_paid')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) throw new Error(fetchError.message);
+    if ((existing as any).installments_paid > 0) {
+      throw new Error('Cannot edit a loan that already has payments recorded');
+    }
+
+    await this.dbContext.from('parallel_loan_payments').delete().eq('parallel_loan_id', id);
+
+    const { error } = await this.dbContext
+      .from('parallel_loans')
+      .update({
+        member_id: req.memberId,
+        amount: req.amount,
+        interest_rate: req.interestRate,
+        total_to_return: req.totalToReturn,
+        installment_amount: req.installmentAmount,
+        total_installments: req.totalInstallments,
+        start_month: req.startMonth,
+        start_year: req.startYear,
+      })
+      .eq('id', id);
+
+    if (error) throw new Error(error.message);
+
+    const schedule = Array.from({ length: req.totalInstallments }, (_, i) => {
+      const totalOffset = req.startMonth - 1 + i;
+      return {
+        parallel_loan_id: id,
+        month: (totalOffset % 12) + 1,
+        year: req.startYear + Math.floor(totalOffset / 12),
+        amount: req.installmentAmount,
+        is_paid: false,
+      };
+    });
+
+    await this.dbContext.from('parallel_loan_payments').insert(schedule);
+    return this.findById(id);
+  }
+
   async markPayment(
     paymentId: string,
     req: MarkLoanPaymentAccessRequest,

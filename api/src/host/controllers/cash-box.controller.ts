@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CashBoxManager } from '../../manager/services';
 import { CashBalanceModel, CashMovementModel } from '../../manager/contracts/cash-box';
-import { CreateCashMovementApiRequest } from '../contracts/cash-box';
+import { CreateCashMovementApiRequest, UpdateCashMovementApiRequest } from '../contracts/cash-box';
 
 @Controller('groups/:groupId/cash-box')
 export class CashBoxController {
@@ -34,6 +34,21 @@ export class CashBoxController {
       groupId,
       movementType: body.type,
       sourceType: 'manual',
+      category: body.category,
+      amount: body.amount,
+      month: body.month,
+      year: body.year,
+      description: body.description,
+    });
+  }
+
+  @Put('movements/:id')
+  updateMovement(
+    @Param('id') id: string,
+    @Body() body: UpdateCashMovementApiRequest,
+  ): Promise<CashMovementModel> {
+    return this.cashBoxManager.updateMovement(id, {
+      movementType: body.type,
       category: body.category,
       amount: body.amount,
       month: body.month,

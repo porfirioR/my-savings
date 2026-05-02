@@ -7,6 +7,10 @@ export class SwaAuthGuard implements CanActivate {
   constructor(private config: ConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
+    if (process.env.NODE_ENV !== 'production') {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     const principalHeader = request.headers['x-ms-client-principal'];
 

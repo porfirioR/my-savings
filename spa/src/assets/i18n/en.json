@@ -152,6 +152,8 @@
     "MOVEMENTS": "Movements",
     "ADD_MOVEMENT": "Record Movement",
     "ADD_SUBTITLE": "Register a new movement in the cash box.",
+    "EDIT_MOVEMENT": "Edit Movement",
+    "EDIT_SUBTITLE": "Modify the movement details.",
     "TYPE": "Type",
     "TYPE_IN": "Income",
     "TYPE_OUT": "Expense",
@@ -159,12 +161,22 @@
     "DESCRIPTION": "Description",
     "CATEGORY": "Category",
     "DATE": "Month / Year",
-    "EMPTY": "No movements registered"
+    "EMPTY": "No movements registered",
+    "CATEGORY_contribution": "Contribution",
+    "CATEGORY_rueda_collection": "Rueda collection",
+    "CATEGORY_rueda_disbursement": "Rueda disbursement",
+    "CATEGORY_parallel_loan_payment": "Parallel loan payment",
+    "CATEGORY_parallel_loan_disbursement": "Parallel loan disbursement",
+    "CATEGORY_member_entry": "Member entry",
+    "CATEGORY_member_exit": "Member exit",
+    "CATEGORY_adjustment": "Adjustment"
   },
   "PARALLEL_LOANS": {
     "TITLE": "Parallel Loans",
     "NEW": "New Loan",
     "NEW_SUBTITLE": "Configure the new loan details.",
+    "EDIT": "Edit Loan",
+    "EDIT_SUBTITLE": "Modify the loan details.",
     "MEMBER": "Member",
     "AMOUNT": "Amount",
     "INTEREST": "Interest",
@@ -179,6 +191,11 @@
     "START_DATE": "Start Date",
     "PAYMENTS": "Installments",
     "MARK_PAID": "Mark Paid",
-    "EMPTY": "No parallel loans"
+    "EMPTY": "No parallel loans",
+    "PREVIEW_TITLE": "Estimated summary",
+    "GAIN": "Gain",
+    "PAID_AMOUNT": "Already paid",
+    "REMAINING_AMOUNT": "Remaining",
+    "EDIT_BTN": "Edit"
   }
 }

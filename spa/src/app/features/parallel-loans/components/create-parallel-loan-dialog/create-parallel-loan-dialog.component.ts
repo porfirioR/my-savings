@@ -1,20 +1,28 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { startWith } from 'rxjs';
+import { DecimalPipe } from '@angular/common';
 import { ParallelLoansService } from '../../services/parallel-loans.service';
 import { MembersService } from '../../../members/services/members.service';
+import { ParallelLoan } from '../../models/parallel-loan.model';
 import { CreateParallelLoanFormGroup } from '../../../../core/forms';
 
 @Component({
   selector: 'app-create-parallel-loan-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule, DecimalPipe],
   template: `
     @if (show) {
       <div class="modal modal-open">
         <div class="modal-box">
-          <h3 class="font-bold text-lg mb-1">{{ 'PARALLEL_LOANS.NEW' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">{{ 'PARALLEL_LOANS.NEW_SUBTITLE' | translate }}</p>
+          <h3 class="font-bold text-lg mb-1">
+            {{ (editLoan ? 'PARALLEL_LOANS.EDIT' : 'PARALLEL_LOANS.NEW') | translate }}
+          </h3>
+          <p class="text-sm text-base-content/50 mb-4">
+            {{ (editLoan ? 'PARALLEL_LOANS.EDIT_SUBTITLE' : 'PARALLEL_LOANS.NEW_SUBTITLE') | translate }}
+          </p>
 
           <form [formGroup]="form">
           <fieldset class="fieldset mb-3">
@@ -85,6 +93,28 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
           </div>
           </form>
 
+          @if (preview()) {
+            <div class="bg-base-300 rounded-xl p-4 mb-3">
+              <p class="text-xs font-semibold text-base-content/60 mb-3 uppercase tracking-wide">
+                {{ 'PARALLEL_LOANS.PREVIEW_TITLE' | translate }}
+              </p>
+              <div class="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p class="text-xs text-base-content/50 mb-1">{{ 'PARALLEL_LOANS.INSTALLMENT' | translate }}</p>
+                  <p class="font-bold text-sm">{{ preview()!.installmentAmount | number:'1.0-0' }} Gs</p>
+                </div>
+                <div>
+                  <p class="text-xs text-base-content/50 mb-1">{{ 'PARALLEL_LOANS.TOTAL_TO_RETURN' | translate }}</p>
+                  <p class="font-bold text-sm">{{ preview()!.totalToReturn | number:'1.0-0' }} Gs</p>
+                </div>
+                <div>
+                  <p class="text-xs text-base-content/50 mb-1">{{ 'PARALLEL_LOANS.GAIN' | translate }}</p>
+                  <p class="font-bold text-sm text-success">{{ preview()!.gain | number:'1.0-0' }} Gs</p>
+                </div>
+              </div>
+            </div>
+          }
+
           <div class="divider my-2"></div>
           <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="onCancel()">{{ 'APP.CANCEL' | translate }}</button>
@@ -102,6 +132,7 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
 export class CreateParallelLoanDialogComponent implements OnChanges {
   @Input() show = false;
   @Input() groupId = '';
+  @Input() editLoan: ParallelLoan | null = null;
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
@@ -122,8 +153,38 @@ export class CreateParallelLoanDialogComponent implements OnChanges {
     startYear: [new Date().getFullYear(), [Validators.required, Validators.min(2000)]],
   });
 
+  private readonly formValues = toSignal(
+    this.form.valueChanges.pipe(startWith(this.form.value)),
+  );
+
+  preview = computed(() => {
+    const v = this.formValues();
+    const amount = v?.amount ?? 0;
+    const interestRate = v?.interestRate ?? 0;
+    const totalInstallments = v?.totalInstallments ?? 0;
+    const roundingUnit = v?.roundingUnit ?? 0;
+    if (amount <= 0 || totalInstallments <= 0) return null;
+    const rate = interestRate / 100;
+    const rawTotal = amount * (1 + rate);
+    const totalToReturn = this.roundToUnit(rawTotal, roundingUnit);
+    const installmentAmount = this.roundToUnit(totalToReturn / totalInstallments, roundingUnit);
+    const actualTotal = installmentAmount * totalInstallments;
+    return { installmentAmount, totalToReturn: actualTotal, gain: actualTotal - amount };
+  });
+
   ngOnChanges(): void {
-    if (this.show) {
+    if (!this.show) return;
+    if (this.editLoan) {
+      this.form.reset({
+        memberId: this.editLoan.memberId,
+        amount: this.editLoan.amount,
+        interestRate: this.editLoan.interestRate,
+        totalInstallments: this.editLoan.totalInstallments,
+        roundingUnit: this.inferRoundingUnit(this.editLoan.installmentAmount),
+        startMonth: this.editLoan.startMonth,
+        startYear: this.editLoan.startYear,
+      });
+    } else {
       this.form.reset({
         memberId: '',
         amount: 0,
@@ -139,16 +200,27 @@ export class CreateParallelLoanDialogComponent implements OnChanges {
   save(): void {
     if (this.form.invalid) return;
     this.saving.set(true);
-    this.service.create(this.groupId, this.form.getRawValue()).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.saved.emit();
-      },
+    const obs = this.editLoan
+      ? this.service.update(this.groupId, this.editLoan.id, this.form.getRawValue())
+      : this.service.create(this.groupId, this.form.getRawValue());
+    obs.subscribe({
+      next: () => { this.saving.set(false); this.saved.emit(); },
       error: () => { this.saving.set(false); },
     });
   }
 
   onCancel(): void {
     this.closed.emit();
+  }
+
+  private roundToUnit(amount: number, unit: number): number {
+    if (unit === 0) return Math.round(amount);
+    return Math.round(amount / unit) * unit;
+  }
+
+  private inferRoundingUnit(installmentAmount: number): 0 | 500 | 1000 {
+    if (installmentAmount % 1000 === 0) return 1000;
+    if (installmentAmount % 500 === 0) return 500;
+    return 0;
   }
 }

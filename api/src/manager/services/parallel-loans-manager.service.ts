@@ -10,6 +10,7 @@ import {
   MarkLoanPaymentRequest,
   ParallelLoanModel,
   ParallelLoanPaymentModel,
+  UpdateParallelLoanRequest,
 } from '../contracts/parallel-loans';
 
 @Injectable()
@@ -50,6 +51,26 @@ export class ParallelLoansManager {
     return this.mapToModel(
       await this.parallelLoansAccess.create({
         groupId: req.groupId,
+        memberId: req.memberId,
+        amount: req.amount,
+        interestRate: interestRateDecimal,
+        totalToReturn,
+        installmentAmount,
+        totalInstallments: req.totalInstallments,
+        startMonth: req.startMonth,
+        startYear: req.startYear,
+      }),
+    );
+  }
+
+  async update(id: string, req: UpdateParallelLoanRequest): Promise<ParallelLoanModel> {
+    const interestRateDecimal = req.interestRate / 100;
+    const { installmentAmount, totalToReturn } = calculateInstallment(
+      req.amount, interestRateDecimal, req.totalInstallments, req.roundingUnit ?? 1000,
+    );
+    return this.mapToModel(
+      await this.parallelLoansAccess.update(id, {
+        groupId: '',
         memberId: req.memberId,
         amount: req.amount,
         interestRate: interestRateDecimal,
