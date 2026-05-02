@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { ParallelLoansManager } from '../../manager/services';
-import { CreateParallelLoanRequest, MarkLoanPaymentRequest, ParallelLoanModel, ParallelLoanPaymentModel } from '../../manager/contracts/parallel-loans';
-import { CreateParallelLoanApiRequest } from '../contracts/parallel-loans';
+import { CreateParallelLoanRequest, MarkLoanPaymentRequest, ParallelLoanModel, ParallelLoanPaymentModel, UpdateParallelLoanRequest } from '../../manager/contracts/parallel-loans';
+import { CreateParallelLoanApiRequest, UpdateParallelLoanApiRequest } from '../contracts/parallel-loans';
 
 @Controller('groups/:groupId/parallel-loans')
 export class ParallelLoansController {
@@ -19,6 +19,15 @@ export class ParallelLoansController {
   ): Promise<ParallelLoanModel> {
     const request = new CreateParallelLoanRequest(groupId, body.memberId, body.amount, body.interestRate, body.totalInstallments, body.roundingUnit!, body.startMonth, body.startYear)
     return this.parallelLoansManager.create(request);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() body: UpdateParallelLoanApiRequest,
+  ): Promise<ParallelLoanModel> {
+    const request = new UpdateParallelLoanRequest(body.memberId, body.amount, body.interestRate, body.totalInstallments, body.roundingUnit!, body.startMonth, body.startYear);
+    return this.parallelLoansManager.update(id, request);
   }
 
   @Get(':id')

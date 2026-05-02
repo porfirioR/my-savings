@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { CashBalance, CashMovement, CreateMovementRequest } from '../models/cash-box.model';
+import { CashBalance, CashMovement, CreateMovementRequest, UpdateMovementRequest } from '../models/cash-box.model';
 
 @Injectable({ providedIn: 'root' })
 export class CashBoxService {
@@ -29,6 +29,15 @@ export class CashBoxService {
     return this.api.post<CashMovement>(`groups/${groupId}/cash-box/movements`, req).pipe(
       tap(m => {
         this.movements.update(list => [m, ...list]);
+        this.loadBalance(groupId);
+      }),
+    );
+  }
+
+  updateMovement(groupId: string, id: string, req: UpdateMovementRequest): Observable<CashMovement> {
+    return this.api.put<CashMovement>(`groups/${groupId}/cash-box/movements/${id}`, req).pipe(
+      tap(updated => {
+        this.movements.update(list => list.map(m => m.id === id ? updated : m));
         this.loadBalance(groupId);
       }),
     );

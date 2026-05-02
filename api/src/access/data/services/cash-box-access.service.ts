@@ -81,6 +81,29 @@ export class CashBoxAccess extends BaseAccessService {
     if (error) throw new Error(error.message);
   }
 
+  async updateMovement(
+    id: string,
+    req: Pick<CreateCashMovementAccessRequest, 'movementType' | 'category' | 'amount' | 'month' | 'year' | 'description'>,
+  ): Promise<CashMovementAccessModel> {
+    const { data, error } = await this.dbContext
+      .from('cash_movements')
+      .update({
+        movement_type: req.movementType,
+        category: req.category,
+        amount: req.amount,
+        month: req.month,
+        year: req.year,
+        description: req.description ?? null,
+      })
+      .eq('id', id)
+      .eq('source_type', 'manual')
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return this.mapToModel(data as CashMovementEntity);
+  }
+
   async createMovement(req: CreateCashMovementAccessRequest): Promise<CashMovementAccessModel> {
     const { data, error } = await this.dbContext
       .from('cash_movements')

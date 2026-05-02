@@ -38,3 +38,13 @@ export interface CreateParallelLoanRequest {
   startMonth: number;
   startYear: number;
 }
+
+export interface UpdateParallelLoanRequest {
+  memberId: string;
+  amount: number;
+  interestRate: number;
+  totalInstallments: number;
+  roundingUnit: 0 | 500 | 1000;
+  startMonth: number;
+  startYear: number;
+}

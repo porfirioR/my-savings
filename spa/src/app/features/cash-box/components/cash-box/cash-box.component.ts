@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CashBoxService } from '../../services/cash-box.service';
+import { CashMovement } from '../../models/cash-box.model';
 import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-dialog.component';
 
 @Component({
@@ -13,7 +14,7 @@ import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-
     <div>
       <div class="flex items-center justify-between mb-2">
         <h2 class="text-2xl font-bold tracking-tight">{{ 'CASH_BOX.TITLE' | translate }}</h2>
-        <button class="btn btn-primary btn-sm" (click)="showModal.set(true)">
+        <button class="btn btn-primary btn-sm" (click)="openCreateModal()">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -49,7 +50,7 @@ import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-
         <div class="flex justify-center py-16">
           <span class="loading loading-spinner loading-lg text-primary"></span>
         </div>
-      } @else if (service.movements().length === 0) {
+      } @else if (sortedMovements().length === 0) {
         <div class="text-center py-16 text-base-content/50 text-sm">
           {{ 'CASH_BOX.EMPTY' | translate }}
         </div>
@@ -59,16 +60,17 @@ import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-
             <thead>
               <tr class="bg-base-200">
                 <th>{{ 'CASH_BOX.DATE' | translate }}</th>
-                <th>Tipo</th>
+                <th>{{ 'CASH_BOX.TYPE' | translate }}</th>
                 <th>{{ 'CASH_BOX.DESCRIPTION' | translate }}</th>
                 <th>{{ 'CASH_BOX.CATEGORY' | translate }}</th>
                 <th class="text-right">{{ 'CASH_BOX.AMOUNT' | translate }}</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              @for (m of service.movements(); track m.id) {
+              @for (m of sortedMovements(); track m.id) {
                 <tr class="hover:bg-base-200/50">
-                  <td class="text-base-content/60">{{ 'MONTHS.' + m.month | translate }} {{ m.year }}</td>
+                  <td class="text-base-content/60 whitespace-nowrap">{{ 'MONTHS.' + m.month | translate }} {{ m.year }}</td>
                   <td>
                     <span class="badge badge-sm badge-outline"
                       [class.badge-success]="m.type === 'in'"
@@ -77,11 +79,20 @@ import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-
                     </span>
                   </td>
                   <td>{{ m.description }}</td>
-                  <td class="text-base-content/60">{{ m.category || '-' }}</td>
-                  <td class="text-right font-semibold"
+                  <td class="text-base-content/60">
+                    {{ m.category ? ('CASH_BOX.CATEGORY_' + m.category | translate) : '-' }}
+                  </td>
+                  <td class="text-right font-semibold whitespace-nowrap"
                     [class.text-success]="m.type === 'in'"
                     [class.text-error]="m.type === 'out'">
                     {{ m.type === 'out' ? '-' : '+' }}{{ m.amount | number:'1.0-0' }} Gs
+                  </td>
+                  <td class="text-right">
+                    @if (m.sourceType === 'manual') {
+                      <button class="btn btn-ghost btn-xs" (click)="openEditModal(m)">
+                        {{ 'APP.EDIT' | translate }}
+                      </button>
+                    }
                   </td>
                 </tr>
               }
@@ -94,8 +105,9 @@ import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-
     <app-add-movement-dialog
       [show]="showModal()"
       [groupId]="groupId"
-      (closed)="showModal.set(false)"
-      (saved)="showModal.set(false)" />
+      [editMovement]="editingMovement()"
+      (closed)="closeModal()"
+      (saved)="closeModal()" />
   `,
 })
 export class CashBoxComponent implements OnInit {
@@ -104,10 +116,33 @@ export class CashBoxComponent implements OnInit {
 
   groupId = '';
   showModal = signal(false);
+  editingMovement = signal<CashMovement | null>(null);
+
+  sortedMovements = computed(() =>
+    [...this.service.movements()].sort((a, b) => {
+      if (a.year !== b.year) return b.year - a.year;
+      return b.month - a.month;
+    }),
+  );
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
     this.service.loadBalance(this.groupId);
     this.service.loadMovements(this.groupId);
+  }
+
+  openCreateModal(): void {
+    this.editingMovement.set(null);
+    this.showModal.set(true);
+  }
+
+  openEditModal(movement: CashMovement): void {
+    this.editingMovement.set(movement);
+    this.showModal.set(true);
+  }
+
+  closeModal(): void {
+    this.showModal.set(false);
+    this.editingMovement.set(null);
   }
 }

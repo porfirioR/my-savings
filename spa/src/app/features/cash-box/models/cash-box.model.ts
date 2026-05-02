@@ -26,3 +26,12 @@ export interface CreateMovementRequest {
   month: number;
   year: number;
 }
+
+export interface UpdateMovementRequest {
+  type: 'in' | 'out';
+  amount: number;
+  description: string;
+  category: string;
+  month: number;
+  year: number;
+}

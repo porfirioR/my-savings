@@ -1,7 +1,8 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CashBoxService } from '../../services/cash-box.service';
+import { CashMovement } from '../../models/cash-box.model';
 import { CreateMovementFormGroup } from '../../../../core/forms';
 
 @Component({
@@ -12,8 +13,12 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
     @if (show) {
       <div class="modal modal-open">
         <div class="modal-box">
-          <h3 class="font-bold text-lg mb-1">{{ 'CASH_BOX.ADD_MOVEMENT' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">{{ 'CASH_BOX.ADD_SUBTITLE' | translate }}</p>
+          <h3 class="font-bold text-lg mb-1">
+            {{ (editMovement ? 'CASH_BOX.EDIT_MOVEMENT' : 'CASH_BOX.ADD_MOVEMENT') | translate }}
+          </h3>
+          <p class="text-sm text-base-content/50 mb-4">
+            {{ (editMovement ? 'CASH_BOX.EDIT_SUBTITLE' : 'CASH_BOX.ADD_SUBTITLE') | translate }}
+          </p>
 
           <form [formGroup]="form">
           <fieldset class="fieldset mb-3">
@@ -57,14 +62,14 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
             <select class="select select-bordered w-full" formControlName="category"
               [class.select-error]="form.controls.category.invalid && form.controls.category.touched">
               <option value="">-- Seleccionar --</option>
-              <option value="contribution">Aporte</option>
-              <option value="rueda_collection">Cobro rueda</option>
-              <option value="rueda_disbursement">Desembolso rueda</option>
-              <option value="parallel_loan_payment">Pago préstamo paralelo</option>
-              <option value="parallel_loan_disbursement">Desembolso préstamo paralelo</option>
-              <option value="member_entry">Ingreso de miembro</option>
-              <option value="member_exit">Salida de miembro</option>
-              <option value="adjustment">Ajuste</option>
+              <option value="contribution">{{ 'CASH_BOX.CATEGORY_contribution' | translate }}</option>
+              <option value="rueda_collection">{{ 'CASH_BOX.CATEGORY_rueda_collection' | translate }}</option>
+              <option value="rueda_disbursement">{{ 'CASH_BOX.CATEGORY_rueda_disbursement' | translate }}</option>
+              <option value="parallel_loan_payment">{{ 'CASH_BOX.CATEGORY_parallel_loan_payment' | translate }}</option>
+              <option value="parallel_loan_disbursement">{{ 'CASH_BOX.CATEGORY_parallel_loan_disbursement' | translate }}</option>
+              <option value="member_entry">{{ 'CASH_BOX.CATEGORY_member_entry' | translate }}</option>
+              <option value="member_exit">{{ 'CASH_BOX.CATEGORY_member_exit' | translate }}</option>
+              <option value="adjustment">{{ 'CASH_BOX.CATEGORY_adjustment' | translate }}</option>
             </select>
             @if (form.controls.category.invalid && form.controls.category.touched) {
               <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
@@ -94,8 +99,8 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
           <div class="divider my-2"></div>
           <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="onCancel()">{{ 'APP.CANCEL' | translate }}</button>
-            <button class="btn btn-primary" [disabled]="form.invalid || saving" (click)="save()">
-              @if (saving) { <span class="loading loading-spinner loading-xs"></span> }
+            <button class="btn btn-primary" [disabled]="form.invalid || saving()" (click)="save()">
+              @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
               {{ 'APP.SAVE' | translate }}
             </button>
           </div>
@@ -108,13 +113,14 @@ import { CreateMovementFormGroup } from '../../../../core/forms';
 export class AddMovementDialogComponent implements OnChanges {
   @Input() show = false;
   @Input() groupId = '';
+  @Input() editMovement: CashMovement | null = null;
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
   private readonly service = inject(CashBoxService);
   private readonly fb = inject(FormBuilder);
 
-  saving = false;
+  saving = signal(false);
   months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
 
   form: FormGroup<CreateMovementFormGroup> = this.fb.nonNullable.group({
@@ -127,7 +133,17 @@ export class AddMovementDialogComponent implements OnChanges {
   });
 
   ngOnChanges(): void {
-    if (this.show) {
+    if (!this.show) return;
+    if (this.editMovement) {
+      this.form.reset({
+        type: this.editMovement.type,
+        amount: this.editMovement.amount,
+        description: this.editMovement.description ?? '',
+        category: this.editMovement.category ?? 'adjustment',
+        month: this.editMovement.month,
+        year: this.editMovement.year,
+      });
+    } else {
       this.form.reset({
         type: 'in',
         amount: 0,
@@ -141,13 +157,14 @@ export class AddMovementDialogComponent implements OnChanges {
 
   save(): void {
     if (this.form.invalid) return;
-    this.saving = true;
-    this.service.addMovement(this.groupId, this.form.getRawValue()).subscribe({
-      next: () => {
-        this.saving = false;
-        this.saved.emit();
-      },
-      error: () => { this.saving = false; },
+    this.saving.set(true);
+    const raw = this.form.getRawValue();
+    const obs = this.editMovement
+      ? this.service.updateMovement(this.groupId, this.editMovement.id, raw)
+      : this.service.addMovement(this.groupId, raw);
+    obs.subscribe({
+      next: () => { this.saving.set(false); this.saved.emit(); },
+      error: () => { this.saving.set(false); },
     });
   }
 

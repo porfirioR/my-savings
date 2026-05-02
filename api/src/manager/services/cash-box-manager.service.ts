@@ -35,6 +35,13 @@ export class CashBoxManager {
     return this.mapMovement(await this.cashBoxAccess.createMovement(req));
   }
 
+  async updateMovement(
+    id: string,
+    req: { movementType: 'in' | 'out'; category: string; amount: number; month: number; year: number; description?: string },
+  ): Promise<CashMovementModel> {
+    return this.mapMovement(await this.cashBoxAccess.updateMovement(id, req));
+  }
+
   async existsByReference(groupId: string, referenceId: string): Promise<boolean> {
     return this.cashBoxAccess.existsByReference(groupId, referenceId);
   }

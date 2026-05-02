@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { CreateParallelLoanRequest, ParallelLoan, ParallelLoanPayment } from '../models/parallel-loan.model';
+import { CreateParallelLoanRequest, ParallelLoan, ParallelLoanPayment, UpdateParallelLoanRequest } from '../models/parallel-loan.model';
 
 @Injectable({ providedIn: 'root' })
 export class ParallelLoansService {
@@ -28,6 +28,12 @@ export class ParallelLoansService {
   create(groupId: string, req: CreateParallelLoanRequest): Observable<ParallelLoan> {
     return this.api.post<ParallelLoan>(`groups/${groupId}/parallel-loans`, req).pipe(
       tap(l => this.loans.update(list => [l, ...list])),
+    );
+  }
+
+  update(groupId: string, loanId: string, req: UpdateParallelLoanRequest): Observable<ParallelLoan> {
+    return this.api.put<ParallelLoan>(`groups/${groupId}/parallel-loans/${loanId}`, req).pipe(
+      tap(updated => this.loans.update(list => list.map(l => l.id === loanId ? updated : l))),
     );
   }
 

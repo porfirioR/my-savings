@@ -152,6 +152,8 @@
     "MOVEMENTS": "Movimientos",
     "ADD_MOVEMENT": "Registrar Movimiento",
     "ADD_SUBTITLE": "Registrá un nuevo movimiento en la caja.",
+    "EDIT_MOVEMENT": "Editar Movimiento",
+    "EDIT_SUBTITLE": "Modificá los datos del movimiento.",
     "TYPE": "Tipo",
     "TYPE_IN": "Entrada",
     "TYPE_OUT": "Salida",
@@ -159,12 +161,22 @@
     "DESCRIPTION": "Descripción",
     "CATEGORY": "Categoría",
     "DATE": "Mes / Año",
-    "EMPTY": "No hay movimientos registrados"
+    "EMPTY": "No hay movimientos registrados",
+    "CATEGORY_contribution": "Aporte",
+    "CATEGORY_rueda_collection": "Cobro rueda",
+    "CATEGORY_rueda_disbursement": "Desembolso rueda",
+    "CATEGORY_parallel_loan_payment": "Pago préstamo paralelo",
+    "CATEGORY_parallel_loan_disbursement": "Desembolso préstamo paralelo",
+    "CATEGORY_member_entry": "Ingreso de miembro",
+    "CATEGORY_member_exit": "Salida de miembro",
+    "CATEGORY_adjustment": "Ajuste"
   },
   "PARALLEL_LOANS": {
     "TITLE": "Préstamos Paralelos",
     "NEW": "Nuevo Préstamo",
     "NEW_SUBTITLE": "Configurá los datos del nuevo préstamo.",
+    "EDIT": "Editar Préstamo",
+    "EDIT_SUBTITLE": "Modificá los datos del préstamo.",
     "MEMBER": "Miembro",
     "AMOUNT": "Monto",
     "INTEREST": "Interés",
@@ -179,6 +191,11 @@
     "START_DATE": "Inicio",
     "PAYMENTS": "Cuotas",
     "MARK_PAID": "Marcar Pagada",
-    "EMPTY": "No hay préstamos paralelos"
+    "EMPTY": "No hay préstamos paralelos",
+    "PREVIEW_TITLE": "Resumen estimado",
+    "GAIN": "Ganancia",
+    "PAID_AMOUNT": "Ya pagado",
+    "REMAINING_AMOUNT": "Por pagar",
+    "EDIT_BTN": "Editar"
   }
 }
