@@ -77,6 +77,36 @@ export class GroupsAccess extends BaseAccessService {
     return this.mapToModel(data as GroupEntity);
   }
 
+  async delete(id: string): Promise<void> {
+    const { data: ruedaData } = await this.dbContext
+      .from('ruedas')
+      .select('id')
+      .eq('group_id', id);
+    const ruedaIds = ((ruedaData ?? []) as { id: string }[]).map(r => r.id);
+
+    const { data: loanData } = await this.dbContext
+      .from('parallel_loans')
+      .select('id')
+      .eq('group_id', id);
+    const loanIds = ((loanData ?? []) as { id: string }[]).map(l => l.id);
+
+    if (loanIds.length > 0) {
+      await this.dbContext.from('parallel_loan_payments').delete().in('parallel_loan_id', loanIds);
+    }
+    await this.dbContext.from('parallel_loans').delete().eq('group_id', id);
+
+    if (ruedaIds.length > 0) {
+      await this.dbContext.from('rueda_monthly_payments').delete().in('rueda_id', ruedaIds);
+      await this.dbContext.from('rueda_slots').delete().in('rueda_id', ruedaIds);
+    }
+    await this.dbContext.from('ruedas').delete().eq('group_id', id);
+    await this.dbContext.from('cash_movements').delete().eq('group_id', id);
+    await this.dbContext.from('members').delete().eq('group_id', id);
+
+    const { error } = await this.dbContext.from('groups').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+  }
+
   async incrementTotalRuedas(id: string): Promise<void> {
     const current = await this.findById(id);
     const { error } = await this.dbContext

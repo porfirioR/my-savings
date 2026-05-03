@@ -37,6 +37,16 @@ export class ParallelLoansAccess extends BaseAccessService {
     );
   }
 
+  async hasActiveByMember(memberId: string): Promise<boolean> {
+    const { count, error } = await this.dbContext
+      .from('parallel_loans')
+      .select('id', { count: 'exact', head: true })
+      .eq('member_id', memberId)
+      .eq('status', 'active');
+    if (error) throw new Error(error.message);
+    return (count ?? 0) > 0;
+  }
+
   async findByGroup(groupId: string): Promise<ParallelLoanAccessModel[]> {
     const { data, error } = await this.dbContext
       .from('parallel_loans')

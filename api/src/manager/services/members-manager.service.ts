@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { MembersAccess } from '../../access/data/services';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { MembersAccess, ParallelLoansAccess } from '../../access/data/services';
 import { MemberAccessModel } from '../../access/contracts/members';
 import {
   CreateMemberRequest,
@@ -11,7 +11,10 @@ import { calculateMemberExitSettlement } from '../../utility/helpers';
 
 @Injectable()
 export class MembersManager {
-  constructor(private readonly membersAccess: MembersAccess) {}
+  constructor(
+    private readonly membersAccess: MembersAccess,
+    private readonly parallelLoansAccess: ParallelLoansAccess,
+  ) {}
 
   private mapToModel(a: MemberAccessModel): MemberModel {
     return new MemberModel(
@@ -43,6 +46,10 @@ export class MembersManager {
     accumulatedContributions: number,
     remainingLoanBalance: number,
   ): Promise<{ member: MemberModel; memberReceives: number; memberPays: number }> {
+    const hasActiveLoans = await this.parallelLoansAccess.hasActiveByMember(id);
+    if (hasActiveLoans) {
+      throw new BadRequestException('ACTIVE_PARALLEL_LOANS');
+    }
     const settlement = calculateMemberExitSettlement(accumulatedContributions, remainingLoanBalance);
     const updated = await this.membersAccess.processExit(id, req);
     return { member: this.mapToModel(updated), ...settlement };

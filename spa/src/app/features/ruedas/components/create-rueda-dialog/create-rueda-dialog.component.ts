@@ -131,7 +131,9 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
                   <select class="select select-bordered select-xs flex-1 min-w-0" [(ngModel)]="slot.memberId">
                     <option value="">-</option>
                     @for (m of membersService.members(); track m.id) {
-                      <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
+                      @if (m.isActive) {
+                        <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
+                      }
                     }
                   </select>
                   @if (form.controls.slotAmountMode.value === 'variable') {

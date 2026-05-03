@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put } from '@nestjs/common';
 import { GroupsManager } from '../../manager/services';
 import { GroupModel } from '../../manager/contracts/groups';
 import { CreateGroupApiRequest, UpdateGroupApiRequest } from '../contracts/groups';
@@ -28,5 +28,11 @@ export class GroupsController {
     @Body() body: UpdateGroupApiRequest,
   ): Promise<GroupModel> {
     return this.groupsManager.update(id, body);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  async delete(@Param('id') id: string): Promise<void> {
+    return this.groupsManager.delete(id);
   }
 }

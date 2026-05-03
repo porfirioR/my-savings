@@ -38,4 +38,8 @@ export class GroupsManager {
     const result = await this.groupsAccess.update(id, req);
     return this.mapToModel(result);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.groupsAccess.delete(id);
+  }
 }

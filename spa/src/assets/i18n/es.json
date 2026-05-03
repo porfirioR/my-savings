@@ -41,7 +41,11 @@
     "NAME": "Nombre",
     "START_DATE": "Fecha de Inicio",
     "TOTAL_RUEDAS": "Ruedas",
-    "EMPTY": "No hay grupos registrados"
+    "EMPTY": "No hay grupos registrados",
+    "DELETE_TITLE": "Eliminar grupo",
+    "DELETE_WARNING": "Esta acción es irreversible. Se eliminarán todos los datos: miembros, ruedas, pagos, préstamos paralelos y caja.",
+    "DELETE_CONFIRM_LABEL": "Escribí el nombre exacto del grupo para confirmar",
+    "DELETE_MISMATCH": "El nombre no coincide exactamente"
   },
   "MEMBERS": {
     "TITLE": "Miembros",
@@ -65,7 +69,9 @@
     "SETTLEMENT_RECEIVES": "El miembro recibe {{amount}} Gs de la caja.",
     "SETTLEMENT_PAYS": "El miembro debe pagar {{amount}} Gs a la caja.",
     "SETTLEMENT_ZERO": "Sin diferencia. Liquidación en cero.",
-    "EMPTY": "No hay miembros registrados"
+    "EMPTY": "No hay miembros registrados",
+    "EXIT_ACTIVE_LOANS_ERROR": "Este miembro tiene préstamos paralelos activos. Saldá los préstamos antes de procesar la salida.",
+    "EXIT_ERROR": "Ocurrió un error al procesar la salida. Intentá de nuevo."
   },
   "RUEDAS": {
     "TITLE": "Ruedas",
