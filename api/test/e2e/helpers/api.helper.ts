@@ -12,8 +12,12 @@ export function api(app: INestApplication) {
       request(app.getHttpServer()).get(url).set('x-ms-client-principal', principal),
     post: (url: string, body: object) =>
       request(app.getHttpServer()).post(url).set('x-ms-client-principal', principal).send(body),
+    put: (url: string, body: object) =>
+      request(app.getHttpServer()).put(url).set('x-ms-client-principal', principal).send(body),
     patch: (url: string, body: object) =>
       request(app.getHttpServer()).patch(url).set('x-ms-client-principal', principal).send(body),
+    delete: (url: string) =>
+      request(app.getHttpServer()).delete(url).set('x-ms-client-principal', principal),
   };
 }
 
@@ -98,7 +102,7 @@ export async function generateAndPayAll(
       `/api/groups/${groupId}/ruedas/${ruedaId}/payments/${payment.id}/mark-paid`,
       {},
     );
-    expect(markRes.status).toBe(200);
+    expect(markRes.status).toBe(201);
   }
 }
 
