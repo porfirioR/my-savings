@@ -5,6 +5,14 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/ngsw.json",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/ngsw-worker.js",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
     },
