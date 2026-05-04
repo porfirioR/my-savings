@@ -10,13 +10,14 @@ export class GroupsAccess extends BaseAccessService {
     super(dbContextService);
   }
 
-  private mapToModel(entity: GroupEntity): GroupAccessModel {
+  private mapToModel(entity: GroupEntity & { ruedas?: { count: number }[] }): GroupAccessModel {
+    const dynamicCount = Array.isArray(entity.ruedas) ? (entity.ruedas[0]?.count ?? 0) : null;
     return {
       id: entity.id,
       name: entity.name,
       startMonth: entity.start_month,
       startYear: entity.start_year,
-      totalRuedas: entity.total_ruedas,
+      totalRuedas: dynamicCount ?? entity.total_ruedas,
       createdAt: entity.created_at,
       updatedAt: entity.updated_at,
     };
@@ -25,22 +26,22 @@ export class GroupsAccess extends BaseAccessService {
   async findAll(): Promise<GroupAccessModel[]> {
     const { data, error } = await this.dbContext
       .from('groups')
-      .select('*')
+      .select('*, ruedas(count)')
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
-    return (data as GroupEntity[]).map((e) => this.mapToModel(e));
+    return (data as (GroupEntity & { ruedas: { count: number }[] })[]).map((e) => this.mapToModel(e));
   }
 
   async findById(id: string): Promise<GroupAccessModel> {
     const { data, error } = await this.dbContext
       .from('groups')
-      .select('*')
+      .select('*, ruedas(count)')
       .eq('id', id)
       .single();
 
     if (error) throw new Error(error.message);
-    return this.mapToModel(data as GroupEntity);
+    return this.mapToModel(data as GroupEntity & { ruedas: { count: number }[] });
   }
 
   async create(req: CreateGroupAccessRequest): Promise<GroupAccessModel> {
@@ -107,13 +108,4 @@ export class GroupsAccess extends BaseAccessService {
     if (error) throw new Error(error.message);
   }
 
-  async incrementTotalRuedas(id: string): Promise<void> {
-    const current = await this.findById(id);
-    const { error } = await this.dbContext
-      .from('groups')
-      .update({ total_ruedas: current.totalRuedas + 1 })
-      .eq('id', id);
-
-    if (error) throw new Error(error.message);
-  }
 }

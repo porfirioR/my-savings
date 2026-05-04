@@ -106,6 +106,32 @@ describe('CashBoxController (e2e)', () => {
     });
   });
 
+  describe('GET /api/groups/:groupId/cash-box/movements filtered', () => {
+    it('returns only movements matching the given month and year', async () => {
+      const group = await createGroup(app, 'CASHBOX-FILTER');
+
+      await api(app).post(`/api/groups/${group.id}/cash-box/movements`, {
+        type: 'in', category: 'adjustment', amount: 10_000, month: 1, year: 2025,
+      });
+      await api(app).post(`/api/groups/${group.id}/cash-box/movements`, {
+        type: 'in', category: 'adjustment', amount: 20_000, month: 2, year: 2025,
+      });
+      await api(app).post(`/api/groups/${group.id}/cash-box/movements`, {
+        type: 'out', category: 'adjustment', amount: 5_000, month: 1, year: 2025,
+      });
+
+      const res = await api(app).get(
+        `/api/groups/${group.id}/cash-box/movements?month=1&year=2025`,
+      );
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBe(2);
+      expect(res.body.every((m: any) => m.month === 1 && m.year === 2025)).toBe(true);
+
+      await deleteTestGroup(group.id);
+    });
+  });
+
   describe('Balance reflects movements', () => {
     it('balance increases after IN movement', async () => {
       const group2 = await createGroup(app, 'CASHBOX-BALANCE');

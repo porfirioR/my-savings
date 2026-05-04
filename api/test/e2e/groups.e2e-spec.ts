@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from './helpers/app.helper';
-import { api, createGroup } from './helpers/api.helper';
+import { api, createGroup, createMembers, createRueda } from './helpers/api.helper';
 import { deleteTestGroup } from './helpers/cleanup.helper';
 
 describe('GroupsController (e2e)', () => {
@@ -79,6 +79,26 @@ describe('GroupsController (e2e)', () => {
 
       const res = await api(app).delete(`/api/groups/${group.id}`);
       expect(res.status).toBe(204);
+    });
+  });
+
+  describe('totalRuedas reflects real rueda count', () => {
+    it('shows 0 on new group and 1 after creating a rueda', async () => {
+      const group = await createGroup(app, 'TOTAL-RUEDAS');
+      createdIds.push(group.id);
+
+      const beforeRes = await api(app).get(`/api/groups/${group.id}`);
+      expect(beforeRes.body.totalRuedas).toBe(0);
+
+      const members = await createMembers(app, group.id, 2);
+      await createRueda(app, group.id, members, { loanAmount: 100_000, contributionAmount: 10_000 });
+
+      const afterRes = await api(app).get(`/api/groups/${group.id}`);
+      expect(afterRes.body.totalRuedas).toBe(1);
+
+      const listRes = await api(app).get('/api/groups');
+      const found = listRes.body.find((g: any) => g.id === group.id);
+      expect(found.totalRuedas).toBe(1);
     });
   });
 });

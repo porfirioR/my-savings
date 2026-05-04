@@ -54,6 +54,23 @@ describe('MembersController (e2e)', () => {
     });
   });
 
+  describe('GET /api/groups/:groupId/members/:id', () => {
+    it('returns a member by id', async () => {
+      const group = await createGroup(app, 'MEMBERS-GET-ID');
+      const created = await api(app).post(`/api/groups/${group.id}/members`, {
+        firstName: 'Solo', lastName: 'Member', position: 1, joinedMonth: 1, joinedYear: 2024,
+      });
+      expect(created.status).toBe(201);
+
+      const res = await api(app).get(`/api/groups/${group.id}/members/${created.body.id}`);
+      expect(res.status).toBe(200);
+      expect(res.body.id).toBe(created.body.id);
+      expect(res.body.firstName).toBe('Solo');
+
+      await deleteTestGroup(group.id);
+    });
+  });
+
   describe('PUT /api/groups/:groupId/members/:id', () => {
     it('updates member data', async () => {
       const group2 = await createGroup(app, 'MEMBERS-EDIT');

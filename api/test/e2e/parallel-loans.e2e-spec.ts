@@ -69,6 +69,95 @@ describe('ParallelLoansController (e2e)', () => {
     });
   });
 
+  describe('GET /api/groups/:groupId/parallel-loans/:id', () => {
+    it('returns a loan by id with payments', async () => {
+      const group = await createGroup(app, 'LOANS-GET-ID');
+      const m = await api(app).post(`/api/groups/${group.id}/members`, {
+        firstName: 'Consul', lastName: 'Test', position: 1, joinedMonth: 1, joinedYear: 2024,
+      });
+      const loan = await api(app).post(`/api/groups/${group.id}/parallel-loans`, {
+        memberId: m.body.id,
+        amount: 200_000,
+        interestRate: 0,
+        totalInstallments: 3,
+        startMonth: 1,
+        startYear: 2025,
+        roundingUnit: 0,
+      });
+      expect(loan.status).toBe(201);
+
+      const res = await api(app).get(`/api/groups/${group.id}/parallel-loans/${loan.body.id}`);
+      expect(res.status).toBe(200);
+      expect(res.body.id).toBe(loan.body.id);
+      expect(res.body.amount).toBe(200_000);
+
+      await deleteTestGroup(group.id);
+    });
+  });
+
+  describe('PUT /api/groups/:groupId/parallel-loans/:id', () => {
+    it('updates loan amount and recalculates installments', async () => {
+      const group = await createGroup(app, 'LOANS-UPDATE');
+      const m = await api(app).post(`/api/groups/${group.id}/members`, {
+        firstName: 'Update', lastName: 'Test', position: 1, joinedMonth: 1, joinedYear: 2024,
+      });
+      const loan = await api(app).post(`/api/groups/${group.id}/parallel-loans`, {
+        memberId: m.body.id,
+        amount: 300_000,
+        interestRate: 0,
+        totalInstallments: 3,
+        startMonth: 1,
+        startYear: 2025,
+        roundingUnit: 0,
+      });
+      expect(loan.status).toBe(201);
+
+      const res = await api(app).put(`/api/groups/${group.id}/parallel-loans/${loan.body.id}`, {
+        memberId: m.body.id,
+        amount: 600_000,
+        interestRate: 0,
+        totalInstallments: 3,
+        startMonth: 1,
+        startYear: 2025,
+        roundingUnit: 0,
+      });
+      expect(res.status).toBe(200);
+      expect(res.body.amount).toBe(600_000);
+      expect(res.body.installmentAmount).toBe(200_000);
+
+      await deleteTestGroup(group.id);
+    });
+  });
+
+  describe('GET /api/groups/:groupId/parallel-loans/:id/payments', () => {
+    it('returns installment payment schedule', async () => {
+      const group = await createGroup(app, 'LOANS-PAYMENTS-LIST');
+      const m = await api(app).post(`/api/groups/${group.id}/members`, {
+        firstName: 'Cuotas', lastName: 'Test', position: 1, joinedMonth: 1, joinedYear: 2024,
+      });
+      const loan = await api(app).post(`/api/groups/${group.id}/parallel-loans`, {
+        memberId: m.body.id,
+        amount: 300_000,
+        interestRate: 0,
+        totalInstallments: 4,
+        startMonth: 1,
+        startYear: 2025,
+        roundingUnit: 0,
+      });
+      expect(loan.status).toBe(201);
+
+      const res = await api(app).get(
+        `/api/groups/${group.id}/parallel-loans/${loan.body.id}/payments`,
+      );
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body).toHaveLength(4);
+      expect(res.body[0].status).toBe('pending');
+
+      await deleteTestGroup(group.id);
+    });
+  });
+
   describe('Mark payment on parallel loan', () => {
     it('marks a payment as paid', async () => {
       // Create a fresh member + loan for this test
