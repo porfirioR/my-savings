@@ -154,43 +154,57 @@ describe('Ahorro 18 — préstamos variables acumulativos, interés 10 %', () =>
     });
   });
 
-  // ── 2. Mes 1 — desembolso 540.000, diferencia = 0 ─────────────────────────
-  describe('Mes 1 — desembolso igual a BASE (sin diferencia en caja)', () => {
+  // ── 2. Mes 1 — desembolso 540.000, recaudación 540.000, neto 0 ────────────
+  describe('Mes 1 — desembolso = recaudación (neto cero)', () => {
     beforeAll(async () => {
       await generateAndPayAll(app, groupId, ruedaId, 1, 2024);
     });
 
-    it('desembolso = 540.000, sin colección (difference = 0)', async () => {
-      const { movements } = await getCashBox(app, groupId);
+    it('desembolso 540.000 y colección 540.000, caja neta = 0', async () => {
+      const { movements, balance } = await getCashBox(app, groupId);
       const automatic = movements.filter(m => m.sourceType === 'automatic');
-      expect(automatic).toHaveLength(1);
-      expect(automatic[0].type).toBe('out');
-      expect(automatic[0].category).toBe('rueda_disbursement');
-      expect(automatic[0].amount).toBe(SLOT_CALCS[0].loanAmount); // 540.000
+
+      expect(automatic).toHaveLength(2);
+
+      const disbursement = automatic.find(m => m.category === 'rueda_disbursement');
+      const collection   = automatic.find(m => m.category === 'rueda_collection');
+
+      expect(disbursement?.type).toBe('out');
+      expect(disbursement?.amount).toBe(SLOT_CALCS[0].loanAmount); // 540.000
+
+      expect(collection?.type).toBe('in');
+      expect(collection?.amount).toBe(SLOT_CALCS[0].loanAmount); // 540.000 = 18 × 30.000
+
+      expect(balance.balance).toBe(0);
     });
   });
 
-  // ── 3. Mes 2 — desembolso 573.000, diferencia = 0 ────────────────────────
+  // ── 3. Mes 2 — desembolso 573.000, recaudación 573.000, neto 0 ───────────
   describe('Mes 2 — desembolso 573.000 (slot 1 ya paga cuota, financia slot 2)', () => {
     beforeAll(async () => {
       await generateAndPayAll(app, groupId, ruedaId, 2, 2024);
     });
 
-    it('desembolso = 573.000, sin colección (diferencia = 0 porque cuota slot 1 cubre el extra)', async () => {
-      const { movements } = await getCashBox(app, groupId);
+    it('desembolso 573.000 y colección 573.000, caja neta = 0', async () => {
+      const { movements, balance } = await getCashBox(app, groupId);
       const automatic = movements.filter(m => m.sourceType === 'automatic');
 
       // Slot 1 paga cuota (33.000) + aporte (30.000) = 63.000
       // Slots 2-18 pagan aporte (30.000) × 17 = 510.000
-      // Total recaudado = 573.000 = loanAmount slot 2 → diferencia = 0, no queda en caja ✓
+      // Total recaudado = 573.000 = loanAmount slot 2 → neto 0 ✓
       const disbursements = automatic.filter(m => m.category === 'rueda_disbursement');
       const collections   = automatic.filter(m => m.category === 'rueda_collection');
 
       expect(disbursements).toHaveLength(2);
-      expect(collections).toHaveLength(0);
+      expect(collections).toHaveLength(2);
 
-      const amounts = disbursements.map(m => m.amount).sort((a, b) => a - b);
-      expect(amounts).toEqual([540_000, SLOT_CALCS[1].loanAmount]); // [540.000, 573.000]
+      const disbAmt = disbursements.map(m => m.amount).sort((a, b) => a - b);
+      expect(disbAmt).toEqual([540_000, SLOT_CALCS[1].loanAmount]); // [540.000, 573.000]
+
+      const collAmt = collections.map(m => m.amount).sort((a, b) => a - b);
+      expect(collAmt).toEqual([540_000, SLOT_CALCS[1].loanAmount]); // mismos montos en in
+
+      expect(balance.balance).toBe(0);
     });
   });
 

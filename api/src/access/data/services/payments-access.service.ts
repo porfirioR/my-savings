@@ -172,7 +172,7 @@ export class PaymentsAccess extends BaseAccessService {
     ruedaId: string,
     month: number,
     year: number,
-  ): Promise<{ allPaid: boolean; difference: number; ruedaNumber: number; groupId: string } | null> {
+  ): Promise<{ allPaid: boolean; difference: number; totalCollected: number; ruedaNumber: number; groupId: string } | null> {
     const { data, error } = await this.dbContext
       .from('rueda_monthly_payments')
       .select('is_paid, total_amount_due, ruedas(rueda_number, group_id, loan_amount, start_month, start_year, slot_amount_mode, rueda_slots(slot_position, loan_amount))')
@@ -204,7 +204,7 @@ export class PaymentsAccess extends BaseAccessService {
 
     const difference = loanAmount - totalCollected;
 
-    return { allPaid, difference, ruedaNumber, groupId };
+    return { allPaid, difference, totalCollected, ruedaNumber, groupId };
   }
 
   async markPayment(

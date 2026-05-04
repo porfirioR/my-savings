@@ -1,21 +1,20 @@
 /**
- * Scenario G: Two ruedas, both with cash box differences (positive + negative).
+ * Scenario G: Two ruedas — rueda 1 shortfall, rueda 2 surplus.
  *
- * Rueda 1: loanAmount=300000, contribution=10000 → 15×10000=150000, diff=+150000 → IN collection
- * Rueda 2: loanAmount=150000, contribution=20000 → 15×20000=300000, diff=-150000 → OUT disbursement
+ * Rueda 1: loanAmount=300000, contribution=10000 → collected=150000, net=-150000
+ * Rueda 2: loanAmount=150000, contribution=20000 → collected=300000, net=+150000
  *
  * Expected cash box:
- *   - OUT disbursement 300000 (rueda 1 loan)
- *   - IN  collection   150000 (rueda 1 diff)
- *   - OUT disbursement 150000 (rueda 2 loan)
- *   - OUT disbursement 150000 (rueda 2 negative diff, extra collected)
+ *   - OUT disbursement 300000 + IN collection 150000  (rueda 1, net -150000)
+ *   - OUT disbursement 150000 + IN collection 300000  (rueda 2, net +150000)
+ *   Balance = 0
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
 import { createGroup, createMembers, createRueda, generateAndPayAll, getCashBox } from '../helpers/api.helper';
 import { deleteTestGroup } from '../helpers/cleanup.helper';
 
-describe('Scenario G — two ruedas, positive diff + negative diff', () => {
+describe('Scenario G — two ruedas, shortfall + surplus, net zero', () => {
   let app: INestApplication;
   let groupId: string;
 
@@ -30,7 +29,7 @@ describe('Scenario G — two ruedas, positive diff + negative diff', () => {
     await app.close();
   });
 
-  it('creates collection for rueda1 and extra OUT disbursement for rueda2', async () => {
+  it('rueda 1 shortfall and rueda 2 surplus cancel out, balance = 0', async () => {
     const members = await createMembers(app, groupId, 15);
 
     const rueda1 = await createRueda(app, groupId, members, {
@@ -43,7 +42,7 @@ describe('Scenario G — two ruedas, positive diff + negative diff', () => {
     await generateAndPayAll(app, groupId, rueda1.id, 1, 2024);
     await generateAndPayAll(app, groupId, rueda2.id, 2, 2024);
 
-    const { movements } = await getCashBox(app, groupId);
+    const { movements, balance } = await getCashBox(app, groupId);
     const automatic = movements.filter(m => m.sourceType === 'automatic');
 
     expect(automatic).toHaveLength(4);
@@ -51,12 +50,15 @@ describe('Scenario G — two ruedas, positive diff + negative diff', () => {
     const inMovements = automatic.filter(m => m.type === 'in');
     const outMovements = automatic.filter(m => m.type === 'out');
 
-    expect(inMovements).toHaveLength(1);
-    expect(inMovements[0].category).toBe('rueda_collection');
-    expect(inMovements[0].amount).toBe(150_000);
+    expect(inMovements).toHaveLength(2);
+    expect(outMovements).toHaveLength(2);
 
-    expect(outMovements).toHaveLength(3);
+    const inAmounts = inMovements.map(m => m.amount).sort((a, b) => a - b);
+    expect(inAmounts).toEqual([150_000, 300_000]);
+
     const outAmounts = outMovements.map(m => m.amount).sort((a, b) => a - b);
-    expect(outAmounts).toEqual([150_000, 150_000, 300_000]);
+    expect(outAmounts).toEqual([150_000, 300_000]);
+
+    expect(balance.balance).toBe(0);
   });
 });
