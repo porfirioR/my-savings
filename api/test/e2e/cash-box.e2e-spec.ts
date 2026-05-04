@@ -49,7 +49,7 @@ describe('CashBoxController (e2e)', () => {
       expect(res.status).toBe(201);
       expect(res.body.id).toBeDefined();
       expect(res.body.amount).toBe(100_000);
-      expect(res.body.movementType).toBe('in');
+      expect(res.body.type).toBe('in');
       expect(res.body.sourceType).toBe('manual');
     });
 
@@ -62,7 +62,7 @@ describe('CashBoxController (e2e)', () => {
         year: 2025,
       });
       expect(res.status).toBe(201);
-      expect(res.body.movementType).toBe('out');
+      expect(res.body.type).toBe('out');
     });
 
     it('returns 400 when amount is zero', async () => {

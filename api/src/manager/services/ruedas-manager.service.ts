@@ -72,8 +72,7 @@ export class RuedasManager {
   }
 
   async create(req: CreateRuedaRequest): Promise<RuedaModel> {
-    // Rueda has 15 slots (months)
-    const totalMonths = 15;
+    const totalMonths = req.slots && req.slots.length > 0 ? req.slots.length : 15;
     const interestRateDecimal = req.interestRate / 100;
     const { installmentAmount, totalToReturn } = calculateInstallment(
       req.loanAmount,
@@ -192,7 +191,7 @@ export class RuedasManager {
 
     const timeline: RuedaTimelineMonth[] = [];
 
-    for (let position = 1; position <= 15; position++) {
+    for (let position = 1; position <= slots.length; position++) {
       const disbursedSlot = slots.find((s) => s.position === position);
       if (!disbursedSlot) continue;
 
@@ -223,12 +222,6 @@ export class RuedasManager {
 
         } else {
           // slot.position >= position: hasn't received current loan yet (includes receiver on disbursement month)
-          // Formula: cuota = 15 - (slot.position - position)
-          //   - receiver (slot.position == position): 15/15 (n/n)
-          //   - next one (slot.position == position+1): 14/15 (n-1/n)
-          //   - last slot (15) on page 1: 1/15
-          //   - last slot (15) on page 15 (their receipt): 15/15 (n/n)
-
           if (!isContinua) {
             // New rueda: no previous loan → contribution only (receiver included)
             payments.push({
@@ -243,7 +236,7 @@ export class RuedasManager {
             });
             totalCollected += rueda.contributionAmount;
           } else {
-            const cuotaNumber = 15 - (slot.position - position);
+            const cuotaNumber = slots.length - (slot.position - position);
             const prevInstallment = slot.previousLoanAmount ?? rueda.installmentAmount;
             const amount = prevInstallment + rueda.contributionAmount;
             payments.push({
@@ -276,9 +269,9 @@ export class RuedasManager {
       });
     }
 
-    // Position 16: virtual "next junta" — all members pay their remaining cuota of current rueda
-    if (slots.length === 15) {
-      const lastSlot = slots.find((s) => s.position === 15)!;
+    // Virtual last junta — all members pay their final installment of current rueda
+    if (slots.length > 0) {
+      const lastSlot = slots[slots.length - 1];
       const nextMonth = lastSlot.loanMonth === 12 ? 1 : lastSlot.loanMonth + 1;
       const nextYear = lastSlot.loanMonth === 12 ? lastSlot.loanYear + 1 : lastSlot.loanYear;
 
@@ -286,7 +279,7 @@ export class RuedasManager {
       let totalCollected = 0;
 
       for (const slot of slots) {
-        const cuotaNumber = 16 - slot.position;
+        const cuotaNumber = slots.length + 1 - slot.position;
         const amount = slot.installmentAmount + rueda.contributionAmount;
         const paymentKey = `${slot.memberId}:${nextMonth}:${nextYear}`;
         const paymentRecord = paymentIndex.get(paymentKey);
@@ -307,7 +300,7 @@ export class RuedasManager {
       payments.sort((a, b) => a.slotPosition - b.slotPosition);
 
       timeline.push({
-        position: 16,
+        position: slots.length + 1,
         calendarMonth: nextMonth,
         calendarYear: nextYear,
         disbursedToMemberId: null,

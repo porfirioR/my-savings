@@ -325,3 +325,15 @@ SELECT
     pl.end_year
 FROM parallel_loans pl
 JOIN members m ON m.id = pl.member_id;
+
+-- =============================================================
+-- Migrations
+-- =============================================================
+
+-- Allow up to 30 members per group (was 15)
+ALTER TABLE members DROP CONSTRAINT IF EXISTS members_position_check;
+ALTER TABLE members ADD CONSTRAINT members_position_check CHECK (position BETWEEN 1 AND 30);
+
+-- Allow up to 30 slots per rueda (was 15)
+ALTER TABLE rueda_slots DROP CONSTRAINT IF EXISTS rueda_slots_slot_position_check;
+ALTER TABLE rueda_slots ADD CONSTRAINT rueda_slots_slot_position_check CHECK (slot_position BETWEEN 1 AND 30);

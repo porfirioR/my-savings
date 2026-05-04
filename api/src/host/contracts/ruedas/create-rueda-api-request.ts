@@ -18,7 +18,7 @@ export class CreateRuedaSlotApiRequest {
 
   @IsNumber()
   @Min(1)
-  @Max(15)
+  @Max(30)
   position: number;
 
   @IsOptional()

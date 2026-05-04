@@ -1,15 +1,13 @@
 /**
- * Scenario C: Single rueda, 15 members, negative cash box difference.
+ * Scenario C: Single rueda (type='new'), 15 members, negative cash box difference.
  *
- * loanAmount=150000, contribution=20000, rate=0, roundingUnit=0
- * installment = 150000/15 = 10000
- * Month 1: member[0] pays 10000+20000=30000, members[1-14] pay 20000 each
- * totalCollected = 30000 + 14*20000 = 30000 + 280000 = 310000
- * difference = 150000 - 310000 = -160000  →  auto OUT entry (rueda_disbursement)
+ * For type='new', ALL members pay contribution_only each month.
+ * totalCollected = 15 × 20000 = 300000
+ * difference = loanAmount - totalCollected = 150000 - 300000 = -150000  →  auto OUT (rueda_disbursement)
  *
  * Expected cash box after month 1 fully paid:
- *   - 1 automatic OUT (disbursement, 150000)
- *   - 1 automatic OUT (adjustment, 160000)
+ *   - 1 automatic OUT (disbursement, 150000)   ← the loan itself
+ *   - 1 automatic OUT (disbursement, 150000)   ← the negative difference (extra collected)
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
@@ -31,7 +29,7 @@ describe('Scenario C — single rueda, negative cash box difference', () => {
     await app.close();
   });
 
-  it('creates disbursement and adjustment OUT entry when collected > loaned', async () => {
+  it('creates disbursement and extra OUT entry when totalCollected > loanAmount', async () => {
     const members = await createMembers(app, groupId, 15);
     const rueda = await createRueda(app, groupId, members, {
       loanAmount: 150_000,
@@ -41,7 +39,7 @@ describe('Scenario C — single rueda, negative cash box difference', () => {
     await generateAndPayAll(app, groupId, rueda.id, 1, 2024);
 
     const { movements } = await getCashBox(app, groupId);
-    const automatic = movements.filter(m => m.source_type === 'automatic');
+    const automatic = movements.filter(m => m.sourceType === 'automatic');
 
     expect(automatic).toHaveLength(2);
 
@@ -50,6 +48,6 @@ describe('Scenario C — single rueda, negative cash box difference', () => {
     expect(disbursements.every(m => m.type === 'out')).toBe(true);
 
     const amounts = disbursements.map(m => m.amount).sort((a, b) => a - b);
-    expect(amounts).toEqual([150_000, 160_000]);
+    expect(amounts).toEqual([150_000, 150_000]);
   });
 });

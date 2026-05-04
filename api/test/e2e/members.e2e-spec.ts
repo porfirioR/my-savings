@@ -56,9 +56,6 @@ describe('MembersController (e2e)', () => {
 
   describe('PUT /api/groups/:groupId/members/:id', () => {
     it('updates member data', async () => {
-      const members = await createMembers(app, groupId, 1);
-      // createMembers assigns position starting from 1, but group already has members
-      // so let's create with a fresh group
       const group2 = await createGroup(app, 'MEMBERS-EDIT');
       const res1 = await api(app).post(`/api/groups/${group2.id}/members`, {
         firstName: 'Original', lastName: 'Test', position: 1, joinedMonth: 1, joinedYear: 2024,

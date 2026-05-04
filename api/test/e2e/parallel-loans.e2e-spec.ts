@@ -43,7 +43,7 @@ describe('ParallelLoansController (e2e)', () => {
       expect(res.body.id).toBeDefined();
       expect(res.body.amount).toBe(500_000);
       expect(res.body.status).toBe('active');
-      expect(res.body.installments).toHaveLength(5);
+      expect(res.body.payments).toHaveLength(5);
     });
 
     it('returns 400 when member already has an active loan', async () => {
@@ -87,13 +87,13 @@ describe('ParallelLoansController (e2e)', () => {
       });
       expect(loan.status).toBe(201);
 
-      const firstPayment = loan.body.installments[0];
+      const firstPayment = loan.body.payments[0];
       const markRes = await api(app).post(
-        `/api/groups/${group2.id}/parallel-loans/${loan.body.id}/payments/${firstPayment.id}/mark`,
+        `/api/groups/${group2.id}/parallel-loans/${loan.body.id}/payments/${firstPayment.id}/mark-paid`,
         { isPaid: true },
       );
       expect(markRes.status).toBe(201);
-      expect(markRes.body.isPaid).toBe(true);
+      expect(markRes.body.status).toBe('paid');
 
       await deleteTestGroup(group2.id);
     });

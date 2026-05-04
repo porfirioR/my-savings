@@ -89,6 +89,7 @@ export class PaymentsAccess extends BaseAccessService {
     const records = slots.map((slot: any) => {
       const paymentType = resolvePaymentType(
         rueda.type,
+        rueda.slot_amount_mode ?? 'constant',
         slot.slot_position,
         currentMonthIndex,
       );
@@ -174,7 +175,7 @@ export class PaymentsAccess extends BaseAccessService {
   ): Promise<{ allPaid: boolean; difference: number; ruedaNumber: number; groupId: string } | null> {
     const { data, error } = await this.dbContext
       .from('rueda_monthly_payments')
-      .select('is_paid, total_amount_due, ruedas(rueda_number, group_id, loan_amount)')
+      .select('is_paid, total_amount_due, ruedas(rueda_number, group_id, loan_amount, start_month, start_year, slot_amount_mode, rueda_slots(slot_position, loan_amount))')
       .eq('rueda_id', ruedaId)
       .eq('month', month)
       .eq('year', year);
@@ -184,9 +185,23 @@ export class PaymentsAccess extends BaseAccessService {
     const rows = data as any[];
     const allPaid = rows.every((r) => r.is_paid);
     const totalCollected = rows.reduce((s: number, r: any) => s + (r.total_amount_due ?? 0), 0);
-    const loanAmount: number = rows[0].ruedas?.loan_amount ?? 0;
-    const ruedaNumber: number = rows[0].ruedas?.rueda_number ?? 0;
-    const groupId: string = rows[0].ruedas?.group_id ?? '';
+    const rueda = rows[0].ruedas;
+    const ruedaNumber: number = rueda?.rueda_number ?? 0;
+    const groupId: string = rueda?.group_id ?? '';
+
+    let loanAmount: number;
+    if (rueda?.slot_amount_mode === 'variable') {
+      const startMonth: number = rueda.start_month ?? month;
+      const startYear: number = rueda.start_year ?? year;
+      const currentMonthIndex = (year - startYear) * 12 + (month - startMonth) + 1;
+      const activeSlot = (rueda.rueda_slots as any[] ?? []).find(
+        (s: any) => s.slot_position === currentMonthIndex,
+      );
+      loanAmount = activeSlot?.loan_amount ?? rueda?.loan_amount ?? 0;
+    } else {
+      loanAmount = rueda?.loan_amount ?? 0;
+    }
+
     const difference = loanAmount - totalCollected;
 
     return { allPaid, difference, ruedaNumber, groupId };

@@ -1,11 +1,9 @@
 /**
- * Scenario A: Single rueda, 15 members, no cash box difference.
+ * Scenario A: Single rueda (type='new'), 15 members, zero difference.
  *
- * loanAmount=225000, contribution=14000, rate=0, roundingUnit=0
- * installment = 225000/15 = 15000
- * Month 1: member[0] pays 15000+14000=29000, members[1-14] pay 14000 each
- * totalCollected = 29000 + 14*14000 = 29000 + 196000 = 225000
- * difference = 225000 - 225000 = 0  →  NO automatic collection entry
+ * For type='new', ALL members pay contribution_only each month.
+ * totalCollected = 15 × contribution = 15 × 15000 = 225000
+ * difference = loanAmount - totalCollected = 225000 - 225000 = 0  →  no collection entry
  *
  * Expected cash box after month 1 fully paid:
  *   - 1 automatic OUT (disbursement, 225000)
@@ -35,13 +33,13 @@ describe('Scenario A — single rueda, no cash box difference', () => {
     const members = await createMembers(app, groupId, 15);
     const rueda = await createRueda(app, groupId, members, {
       loanAmount: 225_000,
-      contributionAmount: 14_000,
+      contributionAmount: 15_000,
     });
 
     await generateAndPayAll(app, groupId, rueda.id, 1, 2024);
 
     const { movements } = await getCashBox(app, groupId);
-    const automatic = movements.filter(m => m.source_type === 'automatic');
+    const automatic = movements.filter(m => m.sourceType === 'automatic');
 
     expect(automatic).toHaveLength(1);
     expect(automatic[0].type).toBe('out');

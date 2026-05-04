@@ -26,10 +26,10 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
         <div class="flex items-center gap-2 mb-3">
           <button class="btn btn-xs btn-ghost" (click)="prev()" [disabled]="activeIndex() === 0">‹</button>
           <span class="text-sm font-medium flex-1 text-center">
-            @if (c.position === 1 || c.position === 16) {
+            @if (c.position === 1 || !c.disbursedToMemberId) {
               {{ 'RUEDAS.TIMELINE_JUNTA' | translate }}
             } @else {
-              {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position - 1 }}/15
+              {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position - 1 }}/{{ totalMonths() }}
             }
             &mdash; {{ 'MONTHS.' + c.calendarMonth | translate }} {{ c.calendarYear }}
           </span>
@@ -76,7 +76,7 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
                       <span class="text-xs font-semibold"
                         [class.text-warning]="p.paymentType === 'previous_rueda'"
                         [class.text-primary]="p.paymentType === 'current_rueda'">
-                        {{ p.cuotaNumber }}/15
+                        {{ p.cuotaNumber }}/{{ totalMonths() }}
                       </span>
                       @if (p.paymentType === 'previous_rueda') {
                         <span class="badge badge-xs badge-warning ml-1">{{ 'RUEDAS.TIMELINE_PREV' | translate }}</span>
@@ -128,6 +128,11 @@ export class RuedaTimelineComponent implements OnChanges {
 
   current(): RuedaTimelineMonth | null {
     return this.timeline()[this.activeIndex()] ?? null;
+  }
+
+  totalMonths(): number {
+    const len = this.timeline().length;
+    return len > 1 ? len - 1 : 0;
   }
 
   prev(): void {

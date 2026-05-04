@@ -115,7 +115,7 @@ export async function getCashBox(app: INestApplication, groupId: string) {
   expect(balanceRes.status).toBe(200);
   expect(movementsRes.status).toBe(200);
   return {
-    balance: balanceRes.body as { balance: number },
-    movements: movementsRes.body as { type: string; category: string; amount: number; source_type: string }[],
+    balance: balanceRes.body as { balance: number; totalIn: number; totalOut: number },
+    movements: movementsRes.body as { type: string; category: string; amount: number; sourceType: string }[],
   };
 }

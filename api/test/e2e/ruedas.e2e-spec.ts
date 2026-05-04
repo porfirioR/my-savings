@@ -35,7 +35,7 @@ describe('RuedasController (e2e)', () => {
       });
       expect(res.status).toBe(201);
       expect(res.body.id).toBeDefined();
-      expect(res.body.status).toBe('active');
+      expect(res.body.status).toBe('pending');
       expect(res.body.ruedaNumber).toBe(1);
     });
 
