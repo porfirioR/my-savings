@@ -27,7 +27,7 @@ CREATE TABLE members (
     first_name   VARCHAR(100) NOT NULL,
     last_name    VARCHAR(100) NOT NULL,
     phone        VARCHAR(20),
-    position     SMALLINT NOT NULL CHECK (position BETWEEN 1 AND 15),
+    position     SMALLINT NOT NULL CHECK (position BETWEEN 1 AND 30),
     is_active    BOOLEAN NOT NULL DEFAULT TRUE,
     joined_month SMALLINT NOT NULL CHECK (joined_month BETWEEN 1 AND 12),
     joined_year  SMALLINT NOT NULL CHECK (joined_year >= 2000),
@@ -78,7 +78,7 @@ CREATE TABLE rueda_slots (
     id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     rueda_id           UUID NOT NULL REFERENCES ruedas(id) ON DELETE CASCADE,
     member_id          UUID NOT NULL REFERENCES members(id),
-    slot_position      SMALLINT NOT NULL CHECK (slot_position BETWEEN 1 AND 15),
+    slot_position      SMALLINT NOT NULL CHECK (slot_position BETWEEN 1 AND 30),
     -- Per-slot amounts (may differ from rueda defaults in early ruedas)
     loan_amount        NUMERIC(15,0) NOT NULL CHECK (loan_amount > 0),
     installment_amount NUMERIC(15,0) NOT NULL CHECK (installment_amount > 0),
@@ -325,15 +325,3 @@ SELECT
     pl.end_year
 FROM parallel_loans pl
 JOIN members m ON m.id = pl.member_id;
-
--- =============================================================
--- Migrations
--- =============================================================
-
--- Allow up to 30 members per group (was 15)
-ALTER TABLE members DROP CONSTRAINT IF EXISTS members_position_check;
-ALTER TABLE members ADD CONSTRAINT members_position_check CHECK (position BETWEEN 1 AND 30);
-
--- Allow up to 30 slots per rueda (was 15)
-ALTER TABLE rueda_slots DROP CONSTRAINT IF EXISTS rueda_slots_slot_position_check;
-ALTER TABLE rueda_slots ADD CONSTRAINT rueda_slots_slot_position_check CHECK (slot_position BETWEEN 1 AND 30);

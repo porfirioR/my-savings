@@ -1,15 +1,14 @@
 /**
- * Scenario A: Single rueda, 15 members, no cash box difference.
+ * Scenario A: Single rueda (type='new'), 15 members, zero difference.
  *
- * loanAmount=225000, contribution=14000, rate=0, roundingUnit=0
- * installment = 225000/15 = 15000
- * Month 1: member[0] pays 15000+14000=29000, members[1-14] pay 14000 each
- * totalCollected = 29000 + 14*14000 = 29000 + 196000 = 225000
- * difference = 225000 - 225000 = 0  →  NO automatic collection entry
+ * For type='new', ALL members pay contribution_only each month.
+ * totalCollected = 15 × 15000 = 225000
+ * loanAmount = 225000 → net = 0 per month
  *
  * Expected cash box after month 1 fully paid:
  *   - 1 automatic OUT (disbursement, 225000)
- *   - 0 automatic collection/adjustment entries
+ *   - 1 automatic IN  (collection, 225000)
+ *   Net balance = 0
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
@@ -31,21 +30,29 @@ describe('Scenario A — single rueda, no cash box difference', () => {
     await app.close();
   });
 
-  it('generates payments and creates only the disbursement entry', async () => {
+  it('generates disbursement and matching collection, net balance = 0', async () => {
     const members = await createMembers(app, groupId, 15);
     const rueda = await createRueda(app, groupId, members, {
       loanAmount: 225_000,
-      contributionAmount: 14_000,
+      contributionAmount: 15_000,
     });
 
     await generateAndPayAll(app, groupId, rueda.id, 1, 2024);
 
-    const { movements } = await getCashBox(app, groupId);
-    const automatic = movements.filter(m => m.source_type === 'automatic');
+    const { movements, balance } = await getCashBox(app, groupId);
+    const automatic = movements.filter(m => m.sourceType === 'automatic');
 
-    expect(automatic).toHaveLength(1);
-    expect(automatic[0].type).toBe('out');
-    expect(automatic[0].category).toBe('rueda_disbursement');
-    expect(automatic[0].amount).toBe(225_000);
+    expect(automatic).toHaveLength(2);
+
+    const disbursement = automatic.find(m => m.category === 'rueda_disbursement');
+    const collection = automatic.find(m => m.category === 'rueda_collection');
+
+    expect(disbursement?.type).toBe('out');
+    expect(disbursement?.amount).toBe(225_000);
+
+    expect(collection?.type).toBe('in');
+    expect(collection?.amount).toBe(225_000);
+
+    expect(balance.balance).toBe(0);
   });
 });

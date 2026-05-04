@@ -2,13 +2,15 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { GroupsService } from '../../services/groups.service';
+import { Group } from '../../models/group.model';
 import { CreateGroupDialogComponent } from '../create-group-dialog/create-group-dialog.component';
+import { DeleteGroupDialogComponent } from '../delete-group-dialog/delete-group-dialog.component';
 import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-group-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, CreateGroupDialogComponent],
+  imports: [RouterLink, TranslateModule, CreateGroupDialogComponent, DeleteGroupDialogComponent],
   template: `
     <div class="min-h-screen bg-base-100">
       <div class="max-w-2xl mx-auto px-6 py-10">
@@ -56,23 +58,33 @@ import { ThemeService } from '../../../../core/services/theme.service';
           } @else {
             <div class="grid gap-3">
               @for (group of service.groups(); track group.id) {
-                <a [routerLink]="['/groups', group.id]"
-                   class="card bg-base-200 border border-base-300 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer">
+                <div class="card bg-base-200 border border-base-300 hover:border-primary/30 hover:shadow-md transition-all">
                   <div class="card-body p-4">
-                    <div class="flex items-center justify-between">
-                      <div class="min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                      <a [routerLink]="['/groups', group.id]" class="flex-1 min-w-0 cursor-pointer">
                         <h2 class="font-semibold text-base truncate">{{ group.name }}</h2>
                         <p class="text-xs text-base-content/50 mt-0.5">
                           {{ 'GROUPS.START_DATE' | translate }}: {{ 'MONTHS.' + group.startMonth | translate }} {{ group.startYear }}
                           &bull; {{ group.totalRuedas }} {{ 'GROUPS.TOTAL_RUEDAS' | translate }}
                         </p>
+                      </a>
+                      <div class="flex items-center gap-1 shrink-0">
+                        <button class="btn btn-ghost btn-xs btn-circle text-error"
+                          [title]="'APP.DELETE' | translate"
+                          (click)="openDeleteDialog(group)">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                          </svg>
+                        </button>
+                        <a [routerLink]="['/groups', group.id]" class="btn btn-ghost btn-xs btn-circle">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                          </svg>
+                        </a>
                       </div>
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                      </svg>
                     </div>
                   </div>
-                </a>
+                </div>
               }
             </div>
           }
@@ -84,14 +96,25 @@ import { ThemeService } from '../../../../core/services/theme.service';
       [show]="showCreateDialog()"
       (closed)="showCreateDialog.set(false)"
       (saved)="showCreateDialog.set(false)" />
+
+    <app-delete-group-dialog
+      [show]="!!deletingGroup()"
+      [group]="deletingGroup()"
+      (closed)="deletingGroup.set(null)"
+      (deleted)="deletingGroup.set(null)" />
   `,
 })
 export class GroupListComponent implements OnInit {
   readonly service = inject(GroupsService);
   readonly theme = inject(ThemeService);
   showCreateDialog = signal(false);
+  deletingGroup = signal<Group | null>(null);
 
   ngOnInit(): void {
     this.service.loadAll();
+  }
+
+  openDeleteDialog(group: Group): void {
+    this.deletingGroup.set(group);
   }
 }

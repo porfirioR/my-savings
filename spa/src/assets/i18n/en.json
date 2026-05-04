@@ -41,7 +41,11 @@
     "NAME": "Name",
     "START_DATE": "Start Date",
     "TOTAL_RUEDAS": "Ruedas",
-    "EMPTY": "No groups registered"
+    "EMPTY": "No groups registered",
+    "DELETE_TITLE": "Delete group",
+    "DELETE_WARNING": "This action is irreversible. All data will be deleted: members, ruedas, payments, parallel loans and cash box.",
+    "DELETE_CONFIRM_LABEL": "Type the exact group name to confirm",
+    "DELETE_MISMATCH": "The name does not match exactly"
   },
   "MEMBERS": {
     "TITLE": "Members",
@@ -65,7 +69,9 @@
     "SETTLEMENT_RECEIVES": "The member receives {{amount}} Gs from the fund.",
     "SETTLEMENT_PAYS": "The member must pay {{amount}} Gs to the fund.",
     "SETTLEMENT_ZERO": "No difference. Zero settlement.",
-    "EMPTY": "No members registered"
+    "EMPTY": "No members registered",
+    "EXIT_ACTIVE_LOANS_ERROR": "This member has active parallel loans. Settle the loans before processing the exit.",
+    "EXIT_ERROR": "An error occurred while processing the exit. Please try again."
   },
   "RUEDAS": {
     "TITLE": "Ruedas",
@@ -100,8 +106,11 @@
     "NOTES": "Notes",
     "PREVIOUS_RUEDA": "Previous Rueda (optional)",
     "PREVIOUS_RUEDA_NONE": "No previous rueda",
-    "SLOT_MODE_CONSTANT": "Same for all",
-    "SLOT_MODE_VARIABLE": "Per slot",
+    "SLOT_MODE_CONSTANT": "Saves to cash box",
+    "SLOT_MODE_CONSTANT_HINT": "Amounts collected above the loan are added to the cash box.",
+    "SLOT_MODE_VARIABLE": "Sequential",
+    "SLOT_MODE_VARIABLE_HINT": "Previous installments fund the next loan. Nothing stays in the cash box.",
+    "SLOT_RECALCULATE": "Recalculate amounts",
     "TIMELINE": "Timeline",
     "TIMELINE_EMPTY": "No slots assigned. Assign members to slots to see the timeline.",
     "TIMELINE_MONTH": "Month",

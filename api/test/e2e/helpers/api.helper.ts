@@ -12,8 +12,12 @@ export function api(app: INestApplication) {
       request(app.getHttpServer()).get(url).set('x-ms-client-principal', principal),
     post: (url: string, body: object) =>
       request(app.getHttpServer()).post(url).set('x-ms-client-principal', principal).send(body),
+    put: (url: string, body: object) =>
+      request(app.getHttpServer()).put(url).set('x-ms-client-principal', principal).send(body),
     patch: (url: string, body: object) =>
       request(app.getHttpServer()).patch(url).set('x-ms-client-principal', principal).send(body),
+    delete: (url: string) =>
+      request(app.getHttpServer()).delete(url).set('x-ms-client-principal', principal),
   };
 }
 
@@ -98,7 +102,7 @@ export async function generateAndPayAll(
       `/api/groups/${groupId}/ruedas/${ruedaId}/payments/${payment.id}/mark-paid`,
       {},
     );
-    expect(markRes.status).toBe(200);
+    expect(markRes.status).toBe(201);
   }
 }
 
@@ -111,7 +115,7 @@ export async function getCashBox(app: INestApplication, groupId: string) {
   expect(balanceRes.status).toBe(200);
   expect(movementsRes.status).toBe(200);
   return {
-    balance: balanceRes.body as { balance: number },
-    movements: movementsRes.body as { type: string; category: string; amount: number; source_type: string }[],
+    balance: balanceRes.body as { balance: number; totalIn: number; totalOut: number },
+    movements: movementsRes.body as { type: string; category: string; amount: number; sourceType: string }[],
   };
 }

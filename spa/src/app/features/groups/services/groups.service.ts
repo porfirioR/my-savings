@@ -23,4 +23,10 @@ export class GroupsService {
       tap(g => this.groups.update(list => [g, ...list])),
     );
   }
+
+  delete(groupId: string): Observable<void> {
+    return this.api.delete<void>(`groups/${groupId}`).pipe(
+      tap(() => this.groups.update(list => list.filter(g => g.id !== groupId))),
+    );
+  }
 }

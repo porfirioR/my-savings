@@ -4,7 +4,7 @@ export class CreateMemberApiRequest {
   @IsString() @IsNotEmpty() firstName: string;
   @IsString() @IsNotEmpty() lastName: string;
   @IsOptional() @IsString() phone?: string;
-  @IsNumber() @Min(1) @Max(15) position: number;
+  @IsNumber() @Min(1) @Max(30) position: number;
   @IsNumber() @Min(1) joinedMonth: number;
   @IsNumber() @Min(2000) joinedYear: number;
 

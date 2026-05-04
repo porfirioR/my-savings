@@ -1,15 +1,13 @@
 /**
- * Scenario B: Single rueda, 15 members, positive cash box difference.
+ * Scenario B: Single rueda (type='new'), 15 members, positive cash box difference.
  *
- * loanAmount=300000, contribution=10000, rate=0, roundingUnit=0
- * installment = 300000/15 = 20000
- * Month 1: member[0] pays 20000+10000=30000, members[1-14] pay 10000 each
- * totalCollected = 30000 + 14*10000 = 30000 + 140000 = 170000
- * difference = 300000 - 170000 = +130000  →  auto IN entry (rueda_collection)
+ * For type='new', ALL members pay contribution_only each month.
+ * totalCollected = 15 × 10000 = 150000
+ * difference = loanAmount - totalCollected = 300000 - 150000 = +150000  →  auto IN (rueda_collection)
  *
  * Expected cash box after month 1 fully paid:
  *   - 1 automatic OUT (disbursement, 300000)
- *   - 1 automatic IN  (collection, 130000)
+ *   - 1 automatic IN  (collection, 150000)
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
@@ -31,7 +29,7 @@ describe('Scenario B — single rueda, positive cash box difference', () => {
     await app.close();
   });
 
-  it('creates disbursement and collection entry when collected < loaned', async () => {
+  it('creates disbursement and collection entry when loanAmount > totalCollected', async () => {
     const members = await createMembers(app, groupId, 15);
     const rueda = await createRueda(app, groupId, members, {
       loanAmount: 300_000,
@@ -41,7 +39,7 @@ describe('Scenario B — single rueda, positive cash box difference', () => {
     await generateAndPayAll(app, groupId, rueda.id, 1, 2024);
 
     const { movements } = await getCashBox(app, groupId);
-    const automatic = movements.filter(m => m.source_type === 'automatic');
+    const automatic = movements.filter(m => m.sourceType === 'automatic');
 
     expect(automatic).toHaveLength(2);
 
@@ -52,6 +50,6 @@ describe('Scenario B — single rueda, positive cash box difference', () => {
     expect(disbursement?.amount).toBe(300_000);
 
     expect(collection?.type).toBe('in');
-    expect(collection?.amount).toBe(130_000);
+    expect(collection?.amount).toBe(150_000);
   });
 });

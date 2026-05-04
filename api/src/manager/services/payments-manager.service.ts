@@ -82,18 +82,17 @@ export class PaymentsManager {
         result.year,
       );
 
-      if (completion?.allPaid && completion.groupId && completion.difference !== 0) {
-        const isPositive = completion.difference > 0;
+      if (completion?.allPaid && completion.groupId && completion.totalCollected > 0) {
         await this.cashBoxManager.createMovement(
           new CreateCashMovementRequest(
             completion.groupId,
-            isPositive ? 'in' : 'out',
+            'in',
             'automatic',
-            isPositive ? 'rueda_collection' : 'rueda_disbursement',
-            Math.abs(completion.difference),
+            'rueda_collection',
+            completion.totalCollected,
             result.month,
             result.year,
-            `Rueda ${completion.ruedaNumber} - ${result.month}/${result.year}`,
+            `Rueda ${completion.ruedaNumber} - Recaudación ${result.month}/${result.year}`,
             referenceId,
           ),
         );

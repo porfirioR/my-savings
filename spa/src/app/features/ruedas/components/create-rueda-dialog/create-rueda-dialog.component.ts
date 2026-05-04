@@ -1,7 +1,9 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, Output, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subject, merge } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { RuedasService } from '../../services/ruedas.service';
 import { MembersService } from '../../../members/services/members.service';
 import { CreateRuedaFormGroup } from '../../../../core/forms';
@@ -55,7 +57,7 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
             <fieldset class="fieldset">
               <legend class="fieldset-legend">
                 {{ 'RUEDAS.LOAN_AMOUNT' | translate }} (Gs) <span class="text-error">*</span>
-                @if (suggested()) {
+                @if (suggested() && form.controls.slotAmountMode.value === 'constant') {
                   <span class="text-info cursor-pointer ml-2 font-normal" (click)="useSuggestion()">
                     {{ 'RUEDAS.SUGGESTION' | translate }}: {{ suggested() | number:'1.0-0' }}
                   </span>
@@ -105,23 +107,44 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
 
           <!-- Slot assignment -->
           <div class="mt-5">
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3 mb-2 flex-wrap">
               <h4 class="font-semibold text-sm">{{ 'RUEDAS.SLOTS' | translate }}</h4>
-              <div class="join">
+
+              <!-- Member count selector -->
+              <div class="flex items-center gap-1">
+                <input type="number" class="input input-bordered input-xs w-16 text-center"
+                  [(ngModel)]="memberCount"
+                  [min]="1" [max]="maxMemberCount"
+                  (change)="onMemberCountChange()" />
+                <span class="text-xs text-base-content/40">/ {{ maxMemberCount }}</span>
+              </div>
+
+              <!-- Mode buttons -->
+              <div class="join ml-auto">
                 <button type="button" class="btn btn-xs join-item"
                   [class.btn-primary]="form.controls.slotAmountMode.value === 'constant'"
                   [class.btn-outline]="form.controls.slotAmountMode.value !== 'constant'"
-                  (click)="form.controls.slotAmountMode.setValue('constant')">
+                  (click)="setSlotMode('constant')">
                   {{ 'RUEDAS.SLOT_MODE_CONSTANT' | translate }}
                 </button>
                 <button type="button" class="btn btn-xs join-item"
                   [class.btn-primary]="form.controls.slotAmountMode.value === 'variable'"
                   [class.btn-outline]="form.controls.slotAmountMode.value !== 'variable'"
-                  (click)="form.controls.slotAmountMode.setValue('variable')">
+                  (click)="setSlotMode('variable')">
                   {{ 'RUEDAS.SLOT_MODE_VARIABLE' | translate }}
                 </button>
               </div>
             </div>
+
+            <!-- Mode hint -->
+            <p class="text-xs text-base-content/50 mb-2">
+              @if (form.controls.slotAmountMode.value === 'constant') {
+                {{ 'RUEDAS.SLOT_MODE_CONSTANT_HINT' | translate }}
+              } @else {
+                {{ 'RUEDAS.SLOT_MODE_VARIABLE_HINT' | translate }}
+              }
+            </p>
+
             <div class="grid gap-2 max-h-56 overflow-y-auto pr-1"
               [class.grid-cols-3]="form.controls.slotAmountMode.value === 'constant'"
               [class.grid-cols-1]="form.controls.slotAmountMode.value === 'variable'">
@@ -131,11 +154,13 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
                   <select class="select select-bordered select-xs flex-1 min-w-0" [(ngModel)]="slot.memberId">
                     <option value="">-</option>
                     @for (m of membersService.members(); track m.id) {
-                      <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
+                      @if (m.isActive) {
+                        <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
+                      }
                     }
                   </select>
                   @if (form.controls.slotAmountMode.value === 'variable') {
-                    <input type="number" class="input input-bordered input-xs w-32"
+                    <input type="number" class="input input-bordered input-xs w-36"
                       [(ngModel)]="slot.loanAmount"
                       [placeholder]="'RUEDAS.LOAN_AMOUNT' | translate" />
                   }
@@ -200,7 +225,7 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
     }
   `,
 })
-export class CreateRuedaDialogComponent implements OnChanges {
+export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
   @Input() show = false;
   @Input() groupId = '';
   @Output() closed = new EventEmitter<void>();
@@ -213,50 +238,163 @@ export class CreateRuedaDialogComponent implements OnChanges {
   saving = signal(false);
   suggested = signal<number | null>(null);
 
-  slots: { position: number; memberId: string; loanAmount: number; previousLoanAmount: number }[] = Array.from(
-    { length: 15 },
-    (_, i) => ({ position: i + 1, memberId: '', loanAmount: 0, previousLoanAmount: 0 }),
-  );
+  slots: { position: number; memberId: string; loanAmount: number; previousLoanAmount: number }[] = [];
+  memberCount = 0;
 
   prevAmountMode: 'constant' | 'variable' = 'constant';
   constantPrevAmount = 0;
 
   months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
 
+  private readonly destroy$ = new Subject<void>();
+
   form: FormGroup<CreateRuedaFormGroup> = this.fb.nonNullable.group({
     type: ['new' as 'new' | 'continua', Validators.required],
     loanAmount: [0, [Validators.required, Validators.min(1)]],
-    interestRate: [5, [Validators.required, Validators.min(0)]],
+    interestRate: [10, [Validators.required, Validators.min(0)]],
     contributionAmount: [0, [Validators.required, Validators.min(1)]],
-    roundingUnit: [0 as 0 | 500 | 1000, Validators.required],
+    roundingUnit: [500 as 0 | 500 | 1000, Validators.required],
     startMonth: [new Date().getMonth() + 1, Validators.required],
     startYear: [new Date().getFullYear(), [Validators.required, Validators.min(2000)]],
     slotAmountMode: ['constant' as 'constant' | 'variable', Validators.required],
     previousRuedaId: [''],
   });
 
+  get maxMemberCount(): number {
+    return this.membersService.members().filter(m => m.isActive).length;
+  }
+
   ngOnChanges(): void {
     if (this.show) {
       this.suggested.set(null);
       this.prevAmountMode = 'constant';
       this.constantPrevAmount = 0;
-      this.slots = Array.from({ length: 15 }, (_, i) => ({
-        position: i + 1,
-        memberId: '',
-        loanAmount: 0,
-        previousLoanAmount: 0,
-      }));
+      this.memberCount = this.maxMemberCount;
+      this.buildSlots();
       this.form.reset({
         type: 'new',
         loanAmount: 0,
-        interestRate: 5,
+        interestRate: 10,
         contributionAmount: 0,
-        roundingUnit: 0,
+        roundingUnit: 500,
         startMonth: new Date().getMonth() + 1,
         startYear: new Date().getFullYear(),
         slotAmountMode: 'constant',
         previousRuedaId: '',
       });
+      this.setupReactiveRecalculation();
+    } else {
+      this.destroy$.next();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private setupReactiveRecalculation(): void {
+    this.destroy$.next(); // cancel any previous subscriptions
+
+    // Contribution changes → update suggested loan amount + recalculate
+    this.form.controls.contributionAmount.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(contribution => {
+        if (this.form.controls.slotAmountMode.value === 'variable') {
+          const base = this.memberCount * (contribution ?? 0);
+          if (base > 0) {
+            this.form.controls.loanAmount.setValue(base, { emitEvent: false });
+            this.recalculateVariableAmounts();
+          }
+        }
+      });
+
+    // Interest rate or rounding changes → recalculate slot amounts
+    merge(
+      this.form.controls.interestRate.valueChanges,
+      this.form.controls.roundingUnit.valueChanges,
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.form.controls.slotAmountMode.value === 'variable') {
+          this.recalculateVariableAmounts();
+        }
+      });
+  }
+
+  private buildSlots(): void {
+    const active = this.membersService.members()
+      .filter(m => m.isActive)
+      .sort((a, b) => a.position - b.position)
+      .slice(0, this.memberCount);
+
+    this.slots = active.length > 0
+      ? active.map(m => ({ position: m.position, memberId: m.id, loanAmount: 0, previousLoanAmount: 0 }))
+      : Array.from({ length: this.memberCount || 15 }, (_, i) => ({ position: i + 1, memberId: '', loanAmount: 0, previousLoanAmount: 0 }));
+  }
+
+  onMemberCountChange(): void {
+    this.memberCount = Math.max(1, Math.min(this.memberCount, this.maxMemberCount));
+    this.buildSlots();
+
+    if (this.form.controls.slotAmountMode.value === 'variable') {
+      const contribution = this.form.controls.contributionAmount.value ?? 0;
+      if (contribution > 0) {
+        this.form.controls.loanAmount.setValue(this.memberCount * contribution, { emitEvent: false });
+      }
+      this.recalculateVariableAmounts();
+    }
+  }
+
+  setSlotMode(mode: 'constant' | 'variable'): void {
+    this.form.controls.slotAmountMode.setValue(mode);
+    if (mode === 'variable') {
+      const contribution = this.form.controls.contributionAmount.value ?? 0;
+      if (contribution > 0 && this.memberCount > 0) {
+        const base = this.memberCount * contribution;
+        this.form.controls.loanAmount.setValue(base, { emitEvent: false });
+      }
+      this.recalculateVariableAmounts();
+    } else {
+      this.slots.forEach(s => s.loanAmount = 0);
+    }
+  }
+
+  recalculateVariableAmounts(): void {
+    const { loanAmount, interestRate, roundingUnit } = this.form.getRawValue();
+    if (!loanAmount || loanAmount <= 0 || this.slots.length === 0) return;
+
+    const rate = 1 + (interestRate / 100);
+    const months = this.slots.length;
+    const ceil = (n: number, unit: number) =>
+      unit === 0 ? Math.ceil(n) : Math.ceil(n / unit) * unit;
+
+    let accumulated = 0;
+    for (const slot of this.slots) {
+      slot.loanAmount = loanAmount + accumulated;
+      accumulated += ceil(slot.loanAmount * rate / months, roundingUnit);
+    }
+  }
+
+  getSuggestion(): void {
+    if (this.form.controls.slotAmountMode.value === 'variable') {
+      const contribution = this.form.controls.contributionAmount.value ?? 0;
+      if (contribution > 0 && this.memberCount > 0) {
+        const base = this.memberCount * contribution;
+        this.form.controls.loanAmount.setValue(base, { emitEvent: false });
+        this.recalculateVariableAmounts();
+      }
+      return;
+    }
+    this.service.suggestLoanAmount(this.groupId).subscribe({
+      next: res => this.suggested.set(res.suggested),
+    });
+  }
+
+  useSuggestion(): void {
+    if (this.suggested()) {
+      this.form.controls.loanAmount.setValue(this.suggested()!);
+      this.suggested.set(null);
     }
   }
 
@@ -276,18 +414,6 @@ export class CreateRuedaDialogComponent implements OnChanges {
     if (!memberId) return '—';
     const m = this.membersService.members().find(m => m.id === memberId);
     return m ? `${m.firstName} ${m.lastName}` : '—';
-  }
-
-  getSuggestion(): void {
-    this.service.suggestLoanAmount(this.groupId).subscribe({
-      next: res => this.suggested.set(res.suggested),
-    });
-  }
-
-  useSuggestion(): void {
-    if (this.suggested()) {
-      this.form.controls.loanAmount.setValue(this.suggested()!);
-    }
   }
 
   save(): void {

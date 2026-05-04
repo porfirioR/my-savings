@@ -9,8 +9,9 @@ export interface InstallmentCalculation {
 
 /**
  * Calculates rueda installment amounts.
- * Interest is flat on the total (e.g. 5% on 3,000,000 = 3,150,000 / 15 = 210,000).
- * All amounts are rounded to the nearest rounding unit (500 or 1000 PYG).
+ * Interest is flat on the total (e.g. 10% on 540,000 = 594,000 / 18 = 33,000).
+ * The raw installment is always rounded UP to the rounding unit so the group
+ * never collects less than needed to fund the next loan.
  */
 export function calculateInstallment(
   loanAmount: number,
@@ -18,9 +19,8 @@ export function calculateInstallment(
   months: number,
   roundingUnit: RoundingUnit = RoundingUnit.OneThousand,
 ): InstallmentCalculation {
-  const rawTotal = loanAmount * (1 + interestRate);
-  const totalToReturn = roundToUnit(rawTotal, roundingUnit);
-  const installmentAmount = roundToUnit(totalToReturn / months, roundingUnit);
+  const rawInstallment = (loanAmount * (1 + interestRate)) / months;
+  const installmentAmount = ceilToUnit(rawInstallment, roundingUnit);
   const actualTotalToReturn = installmentAmount * months;
   const actualInterestRate = (actualTotalToReturn - loanAmount) / loanAmount;
 
@@ -30,6 +30,11 @@ export function calculateInstallment(
     installmentAmount,
     actualInterestRate,
   };
+}
+
+export function ceilToUnit(amount: number, unit: number): number {
+  if (unit === 0) return Math.ceil(amount);
+  return Math.ceil(amount / unit) * unit;
 }
 
 export function roundToUnit(amount: number, unit: number): number {
@@ -78,22 +83,30 @@ export function calculateMemberExitSettlement(
  * Given a rueda slot position and the current month index (1-based within the rueda),
  * determines the payment type for a given member.
  *
- * Rules:
- * - If ruedaNumber === 1: contribution_only (no previous rueda)
- * - If slotPosition === currentMonthIndex: this is the person who "lleva" (takes loan this month)
- *     -> pays last installment of previous rueda + receives new loan
- *     -> payment_type = 'previous_rueda'
- * - If slotPosition < currentMonthIndex: already took loan this rueda
- *     -> payment_type = 'current_rueda'
- * - If slotPosition > currentMonthIndex: hasn't taken loan yet
- *     -> payment_type = 'previous_rueda'
+ * Rules for type='new' + slotAmountMode='constant':
+ *   Everyone pays contribution_only — installments are settled in the next rueda.
+ *
+ * Rules for type='new' + slotAmountMode='variable' (acumulativo):
+ *   Members who already received their loan (position < currentMonthIndex) pay
+ *   current_rueda installment + contribution so the collected amount funds the next slot.
+ *   Everyone else pays contribution_only.
+ *
+ * Rules for type='continua':
+ *   slotPosition < currentMonthIndex  → current_rueda
+ *   slotPosition >= currentMonthIndex → previous_rueda (last installment of prior rueda)
  */
 export function resolvePaymentType(
   ruedaType: 'new' | 'continua',
+  slotAmountMode: 'constant' | 'variable',
   slotPosition: number,
   currentMonthIndex: number,
 ): 'current_rueda' | 'previous_rueda' | 'contribution_only' {
-  if (ruedaType === 'new') return 'contribution_only';
+  if (ruedaType === 'new') {
+    if (slotAmountMode === 'constant') return 'contribution_only';
+    // variable: previous recipients pay their installment so funds flow to the next loan
+    if (slotPosition < currentMonthIndex) return 'current_rueda';
+    return 'contribution_only';
+  }
   if (slotPosition < currentMonthIndex) return 'current_rueda';
   return 'previous_rueda';
 }

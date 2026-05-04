@@ -50,6 +50,11 @@ import { ExitMemberFormGroup } from '../../../../core/forms';
               }
             </fieldset>
           </form>
+          @if (errorMsg()) {
+            <div class="alert alert-error mb-3">
+              <span>{{ errorMsg()! | translate }}</span>
+            </div>
+          }
           @if (settlement()) {
             @if (settlement()!.memberReceives > 0) {
               <div class="alert alert-success mb-3">
@@ -99,6 +104,7 @@ export class ExitMemberDialogComponent implements OnChanges {
 
   saving = signal(false);
   settlement = signal<{ memberReceives: number; memberPays: number } | null>(null);
+  errorMsg = signal<string | null>(null);
   months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   form: FormGroup<ExitMemberFormGroup> = this.fb.nonNullable.group({
@@ -111,6 +117,7 @@ export class ExitMemberDialogComponent implements OnChanges {
   ngOnChanges(): void {
     if (this.show) {
       this.settlement.set(null);
+      this.errorMsg.set(null);
       this.form.reset({
         leftMonth: new Date().getMonth() + 1,
         leftYear: new Date().getFullYear(),
@@ -122,6 +129,7 @@ export class ExitMemberDialogComponent implements OnChanges {
 
   processExit(): void {
     if (this.form.invalid) return;
+    this.errorMsg.set(null);
     this.saving.set(true);
     this.service.exit(this.groupId, this.memberId, this.form.getRawValue()).subscribe({
       next: (result) => {
@@ -129,7 +137,11 @@ export class ExitMemberDialogComponent implements OnChanges {
         this.settlement.set(result);
         this.saved.emit();
       },
-      error: () => { this.saving.set(false); },
+      error: (err) => {
+        this.saving.set(false);
+        const msg = err?.error?.message;
+        this.errorMsg.set(msg === 'ACTIVE_PARALLEL_LOANS' ? 'MEMBERS.EXIT_ACTIVE_LOANS_ERROR' : 'MEMBERS.EXIT_ERROR');
+      },
     });
   }
 

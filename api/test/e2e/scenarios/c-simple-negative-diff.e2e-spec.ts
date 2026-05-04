@@ -1,22 +1,21 @@
 /**
- * Scenario C: Single rueda, 15 members, negative cash box difference.
+ * Scenario C: Single rueda (type='new'), 15 members, surplus (collected > loan).
  *
- * loanAmount=150000, contribution=20000, rate=0, roundingUnit=0
- * installment = 150000/15 = 10000
- * Month 1: member[0] pays 10000+20000=30000, members[1-14] pay 20000 each
- * totalCollected = 30000 + 14*20000 = 30000 + 280000 = 310000
- * difference = 150000 - 310000 = -160000  →  auto OUT entry (rueda_disbursement)
+ * totalCollected = 15 × 20000 = 300000
+ * loanAmount = 150000
+ * surplus = 300000 - 150000 = +150000 → net balance grows
  *
  * Expected cash box after month 1 fully paid:
  *   - 1 automatic OUT (disbursement, 150000)
- *   - 1 automatic OUT (adjustment, 160000)
+ *   - 1 automatic IN  (collection,   300000)
+ *   Net balance = +150000
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
 import { createGroup, createMembers, createRueda, generateAndPayAll, getCashBox } from '../helpers/api.helper';
 import { deleteTestGroup } from '../helpers/cleanup.helper';
 
-describe('Scenario C — single rueda, negative cash box difference', () => {
+describe('Scenario C — single rueda, surplus goes to cash box', () => {
   let app: INestApplication;
   let groupId: string;
 
@@ -31,7 +30,7 @@ describe('Scenario C — single rueda, negative cash box difference', () => {
     await app.close();
   });
 
-  it('creates disbursement and adjustment OUT entry when collected > loaned', async () => {
+  it('creates disbursement and collection, balance grows by surplus', async () => {
     const members = await createMembers(app, groupId, 15);
     const rueda = await createRueda(app, groupId, members, {
       loanAmount: 150_000,
@@ -40,16 +39,20 @@ describe('Scenario C — single rueda, negative cash box difference', () => {
 
     await generateAndPayAll(app, groupId, rueda.id, 1, 2024);
 
-    const { movements } = await getCashBox(app, groupId);
-    const automatic = movements.filter(m => m.source_type === 'automatic');
+    const { movements, balance } = await getCashBox(app, groupId);
+    const automatic = movements.filter(m => m.sourceType === 'automatic');
 
     expect(automatic).toHaveLength(2);
 
-    const disbursements = automatic.filter(m => m.category === 'rueda_disbursement');
-    expect(disbursements).toHaveLength(2);
-    expect(disbursements.every(m => m.type === 'out')).toBe(true);
+    const disbursement = automatic.find(m => m.category === 'rueda_disbursement');
+    const collection = automatic.find(m => m.category === 'rueda_collection');
 
-    const amounts = disbursements.map(m => m.amount).sort((a, b) => a - b);
-    expect(amounts).toEqual([150_000, 160_000]);
+    expect(disbursement?.type).toBe('out');
+    expect(disbursement?.amount).toBe(150_000);
+
+    expect(collection?.type).toBe('in');
+    expect(collection?.amount).toBe(300_000);
+
+    expect(balance.balance).toBe(150_000);
   });
 });
