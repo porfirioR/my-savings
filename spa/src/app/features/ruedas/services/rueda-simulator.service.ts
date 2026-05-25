@@ -3,17 +3,37 @@ import { RuedaSimulatorMonth, RuedaSimulatorRequest, RuedaSimulatorResult } from
 
 @Injectable({ providedIn: 'root' })
 export class RuedaSimulatorService {
+  // Simple interest: total interest = loanAmount × rate/100, divided evenly across participants months.
+  // Returns the total monthly loan payment (all participants combined).
+  computeFixedLoanPayment(loanAmount: number, interestRate: number, participants: number): number {
+    if (participants <= 0 || loanAmount <= 0) return 0;
+    const totalToRepay = loanAmount + Math.round(loanAmount * interestRate / 100);
+    return Math.round(totalToRepay / participants);
+  }
+
   simulate(request: RuedaSimulatorRequest): RuedaSimulatorResult {
     const participants = Math.max(1, Math.trunc(request.participantsCount));
     const monthsCount = participants;
     const contributionPerPerson = Math.max(0, request.contributionAmount);
     const paymentMode = request.paymentMode;
-    const fixedLoanPayment = Math.max(0, request.fixedLoanPayment);
+    const rate = Math.max(0, request.interestRate);
+    const loanAmount = Math.max(0, request.estimatedLoanAmount);
 
     const previousInstallment = Math.max(0, request.previousInstallmentPerPerson ?? 0);
     const previousActive = Math.max(0, Math.trunc(request.previousActiveCount ?? 0));
 
-    let loanBalance = Math.max(0, request.estimatedLoanAmount);
+    // Auto-compute fixed payment if not manually provided
+    const autoFixedPayment = this.computeFixedLoanPayment(loanAmount, rate, participants);
+    const fixedLoanPayment = paymentMode === 'fixed'
+      ? (request.fixedLoanPayment > 0 ? request.fixedLoanPayment : autoFixedPayment)
+      : 0;
+
+    // Simple interest model for fixed mode: split evenly across months
+    const totalSimpleInterest = Math.round(loanAmount * rate / 100);
+    const monthlyInterest = participants > 0 ? Math.round(totalSimpleInterest / participants) : 0;
+    const monthlyAmortization = participants > 0 ? Math.round(loanAmount / participants) : 0;
+
+    let loanBalance = loanAmount;
     let currentCash = Math.max(0, request.openingCash);
 
     const months: RuedaSimulatorMonth[] = [];
@@ -25,28 +45,31 @@ export class RuedaSimulatorService {
       const monthLabel = `Mes ${index}`;
       const startingCash = currentCash;
 
-      // previous pool diminishes as participants stop contributing to previous rueda
+      // Previous rueda pool: one person "exits" old rueda each month
       const prevPayers = Math.max(0, previousActive - (index - 1));
       const previousPool = prevPayers * previousInstallment;
 
-      const monthlyNewContributions = participants * contributionPerPerson;
-      const monthlyCollection = monthlyNewContributions + previousPool;
+      const newContributions = participants * contributionPerPerson;
+      const monthlyCollection = newContributions + previousPool;
 
-      const interestCost = Math.round(loanBalance * Math.max(0, request.interestRate) / 100);
-
+      let interestCost = 0;
       let loanPayment = 0;
+
       if (loanBalance > 0) {
         if (paymentMode === 'fixed') {
-          // prefer using fixedLoanPayment if provided, otherwise use available monthly collection
-          const desired = fixedLoanPayment > 0 ? fixedLoanPayment : monthlyCollection;
-          loanPayment = Math.min(desired, loanBalance + interestCost);
+          // Simple interest: fixed monthly interest + amortization regardless of remaining balance
+          interestCost = Math.min(monthlyInterest, loanBalance);
+          const principal = Math.min(monthlyAmortization, Math.max(0, loanBalance - interestCost));
+          loanPayment = interestCost + principal;
         } else {
+          // Sequential: pay as much as possible; interest on declining balance
+          interestCost = Math.round(loanBalance * rate / 100);
           loanPayment = Math.min(monthlyCollection, loanBalance + interestCost);
         }
       }
 
       const principalPayment = Math.max(0, loanPayment - interestCost);
-      loanBalance = Math.max(0, loanBalance + interestCost - loanPayment);
+      loanBalance = Math.max(0, loanBalance - principalPayment);
 
       const cashFlow = monthlyCollection - loanPayment;
       currentCash = startingCash + cashFlow;
@@ -59,6 +82,9 @@ export class RuedaSimulatorService {
         position: index,
         monthLabel,
         startingCash,
+        newContributions,
+        previousPool,
+        previousPayersCount: prevPayers,
         monthlyCollection,
         interestCost,
         loanPayment,
@@ -69,6 +95,8 @@ export class RuedaSimulatorService {
       });
     }
 
+    const perPersonLoanPayment = participants > 0 ? Math.round(fixedLoanPayment / participants) : 0;
+
     return {
       months,
       totalCollected,
@@ -77,7 +105,9 @@ export class RuedaSimulatorService {
       endingCash: currentCash,
       remainingLoanBalance: loanBalance,
       monthlyCollection: months.length > 0 ? months[0].monthlyCollection : 0,
-      perPersonPayment: participants > 0 ? (months.length > 0 ? months[0].monthlyCollection / participants : 0) : 0,
+      perPersonPayment: contributionPerPerson + perPersonLoanPayment,
+      computedFixedLoanPayment: autoFixedPayment,
+      perPersonLoanPayment,
     };
   }
 }

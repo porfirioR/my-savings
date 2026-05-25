@@ -7,9 +7,7 @@ export interface RuedaSimulatorRequest {
   estimatedLoanAmount: number;
   paymentMode: 'sequential' | 'fixed';
   fixedLoanPayment: number;
-  // installment amount per person coming from the previous rueda (per-person payment)
   previousInstallmentPerPerson?: number;
-  // number of active participants in the previous rueda (used to compute diminishing previous pool)
   previousActiveCount?: number;
 }
 
@@ -17,6 +15,9 @@ export interface RuedaSimulatorMonth {
   position: number;
   monthLabel: string;
   startingCash: number;
+  newContributions: number;
+  previousPool: number;
+  previousPayersCount: number;
   monthlyCollection: number;
   interestCost: number;
   loanPayment: number;
@@ -35,4 +36,6 @@ export interface RuedaSimulatorResult {
   remainingLoanBalance: number;
   monthlyCollection: number;
   perPersonPayment: number;
+  computedFixedLoanPayment: number;
+  perPersonLoanPayment: number;
 }

@@ -53,8 +53,8 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
                   <div class="font-semibold">{{ selectedPreviousRueda()!.contributionAmount | number:'1.0-0' }} Gs</div>
                 </div>
                 <div>
-                  <div class="text-base-content/50">Estado</div>
-                  <div class="font-semibold">{{ selectedPreviousRueda()!.status }}</div>
+                  <div class="text-base-content/50">Cuota por persona</div>
+                  <div class="font-semibold">{{ selectedPreviousRueda()!.installmentAmount | number:'1.0-0' }} Gs</div>
                 </div>
               </div>
             </div>
@@ -66,7 +66,7 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
               <input type="number" class="input input-bordered w-full" formControlName="openingCash" min="0" />
             </div>
             <div class="grid gap-1">
-              <label class="text-sm font-medium">Tasa de interés mensual (%)</label>
+              <label class="text-sm font-medium">Tasa de interés (%)</label>
               <input type="number" class="input input-bordered w-full" formControlName="interestRate" min="0" />
             </div>
           </div>
@@ -75,7 +75,7 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
             <div class="grid gap-1">
               <label class="text-sm font-medium">Participantes</label>
               <input type="number" class="input input-bordered w-full" formControlName="participantsCount" min="1" [max]="maxParticipants()" />
-              <span class="text-xs text-base-content/50">Max participantes activos: {{ maxParticipants() }}</span>
+              <span class="text-xs text-base-content/50">Máximo (miembros activos de la rueda): {{ maxParticipants() }}</span>
             </div>
             <div class="grid gap-1">
               <label class="text-sm font-medium">Aporte por persona (Gs)</label>
@@ -92,23 +92,43 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
             <label class="text-sm font-medium">Modo de pago</label>
             <div class="join">
               <button type="button" class="btn btn-sm join-item"
-                [class.btn-primary]="form.controls.paymentMode.value === 'sequential'"
-                [class.btn-outline]="form.controls.paymentMode.value !== 'sequential'"
-                (click)="form.controls.paymentMode.setValue('sequential')">
-                Secuencial
-              </button>
-              <button type="button" class="btn btn-sm join-item"
                 [class.btn-primary]="form.controls.paymentMode.value === 'fixed'"
                 [class.btn-outline]="form.controls.paymentMode.value !== 'fixed'"
                 (click)="form.controls.paymentMode.setValue('fixed')">
                 Fijo
               </button>
+              <button type="button" class="btn btn-sm join-item"
+                [class.btn-primary]="form.controls.paymentMode.value === 'sequential'"
+                [class.btn-outline]="form.controls.paymentMode.value !== 'sequential'"
+                (click)="form.controls.paymentMode.setValue('sequential')">
+                Secuencial
+              </button>
             </div>
           </div>
 
+          @if (computedFixedPayment() > 0) {
+            <div class="bg-base-200 rounded-lg p-4">
+              <p class="text-sm font-semibold mb-2">Pago fijo calculado (modo fijo)</p>
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div class="text-base-content/50">Cuota préstamo mensual total</div>
+                  <div class="font-semibold text-primary">{{ computedFixedPayment() | number:'1.0-0' }} Gs</div>
+                </div>
+                <div>
+                  <div class="text-base-content/50">Cuota préstamo por persona</div>
+                  <div class="font-semibold text-primary">{{ computedFixedPaymentPerPerson() | number:'1.0-0' }} Gs</div>
+                </div>
+                <div>
+                  <div class="text-base-content/50">Total por persona/mes (cuota + aporte)</div>
+                  <div class="font-semibold">{{ computedTotalPerPerson() | number:'1.0-0' }} Gs</div>
+                </div>
+              </div>
+            </div>
+          }
+
           @if (form.controls.paymentMode.value === 'fixed') {
             <div class="grid gap-1">
-              <label class="text-sm font-medium">Pago fijo al préstamo por mes (Gs)</label>
+              <label class="text-sm font-medium">Pago fijo al préstamo por mes (Gs) <span class="text-xs text-base-content/50">(dejar en 0 para usar el calculado)</span></label>
               <input type="number" class="input input-bordered w-full" formControlName="fixedLoanPayment" min="0" />
             </div>
           }
@@ -124,9 +144,11 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
         <div class="bg-base-200 rounded-lg p-4">
           <p class="font-semibold mb-3">Resumen rápido</p>
           <div class="grid gap-3 text-sm">
-            <div class="flex justify-between"><span>Recaudo mensual</span><span>{{ result()?.monthlyCollection | number:'1.0-0' }} Gs</span></div>
-            <div class="flex justify-between"><span>Pago por persona</span><span>{{ result()?.perPersonPayment | number:'1.0-0' }} Gs</span></div>
-            <div class="flex justify-between"><span>Plazo meses</span><span>{{ form.controls.participantsCount.value }}</span></div>
+            <div class="flex justify-between"><span>Recaudo mes 1</span><span>{{ result()?.monthlyCollection | number:'1.0-0' }} Gs</span></div>
+            <div class="flex justify-between"><span>Pago total por persona</span><span>{{ result()?.perPersonPayment | number:'1.0-0' }} Gs</span></div>
+            <div class="flex justify-between"><span>— Aporte</span><span>{{ form.controls.contributionAmount.value | number:'1.0-0' }} Gs</span></div>
+            <div class="flex justify-between"><span>— Cuota préstamo</span><span>{{ result()?.perPersonLoanPayment | number:'1.0-0' }} Gs</span></div>
+            <div class="flex justify-between"><span>Plazo (meses)</span><span>{{ form.controls.participantsCount.value }}</span></div>
             <div class="flex justify-between"><span>Modalidad</span><span>{{ form.controls.paymentMode.value === 'fixed' ? 'Fijo' : 'Secuencial' }}</span></div>
             <div class="flex justify-between"><span>Saldo caja inicial</span><span>{{ form.controls.openingCash.value | number:'1.0-0' }} Gs</span></div>
             <div class="flex justify-between"><span>Monto estimado préstamo</span><span>{{ form.controls.estimatedLoanAmount.value | number:'1.0-0' }} Gs</span></div>
@@ -162,13 +184,16 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
           </div>
 
           <div class="overflow-x-auto mt-4">
-            <table class="table w-full">
+            <table class="table w-full text-sm">
               <thead>
                 <tr>
                   <th>Mes</th>
-                  <th>Recaudo</th>
+                  <th>Aportes nuevos</th>
+                  <th>Pool rueda ant.</th>
+                  <th>Pagadores ant.</th>
+                  <th>Total recaudo</th>
                   <th>Interés</th>
-                  <th>Pago al préstamo</th>
+                  <th>Pago préstamo</th>
                   <th>Principal</th>
                   <th>Flujo caja</th>
                   <th>Saldo caja</th>
@@ -179,11 +204,14 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
                 @for (month of result()!.months; track month.position) {
                   <tr>
                     <td>{{ month.monthLabel }}</td>
-                    <td>{{ month.monthlyCollection | number:'1.0-0' }}</td>
+                    <td>{{ month.newContributions | number:'1.0-0' }}</td>
+                    <td>{{ month.previousPool | number:'1.0-0' }}</td>
+                    <td>{{ month.previousPayersCount }}</td>
+                    <td class="font-semibold">{{ month.monthlyCollection | number:'1.0-0' }}</td>
                     <td>{{ month.interestCost | number:'1.0-0' }}</td>
                     <td>{{ month.loanPayment | number:'1.0-0' }}</td>
                     <td>{{ month.principalPayment | number:'1.0-0' }}</td>
-                    <td>{{ month.cashFlow | number:'1.0-0' }}</td>
+                    <td [class.text-error]="month.cashFlow < 0">{{ month.cashFlow | number:'1.0-0' }}</td>
                     <td>{{ month.endingCash | number:'1.0-0' }}</td>
                     <td>{{ month.remainingLoanBalance | number:'1.0-0' }}</td>
                   </tr>
@@ -205,7 +233,17 @@ export class RuedaSimulatorComponent implements OnInit {
 
   groupId = '';
   result = signal<RuedaSimulatorResult | null>(null);
-  selectedPreviousRueda = signal<null | { id: string; ruedaNumber: number; loanAmount: number; interestRate: number; contributionAmount: number; installmentAmount?: number; status: string; startMonth: number; startYear: number }>(null);
+  selectedPreviousRueda = signal<null | {
+    id: string;
+    ruedaNumber: number;
+    loanAmount: number;
+    interestRate: number;
+    contributionAmount: number;
+    installmentAmount: number;
+    status: string;
+    startMonth: number;
+    startYear: number;
+  }>(null);
 
   form: FormGroup<RuedaSimulatorFormGroup> = this.fb.nonNullable.group({
     previousRuedaId: [''],
@@ -214,19 +252,33 @@ export class RuedaSimulatorComponent implements OnInit {
     participantsCount: [1, [Validators.required, Validators.min(1)]],
     contributionAmount: [0, [Validators.required, Validators.min(0)]],
     estimatedLoanAmount: [0, [Validators.required, Validators.min(0)]],
-    paymentMode: ['sequential' as 'sequential' | 'fixed', Validators.required],
+    paymentMode: ['fixed' as 'sequential' | 'fixed', Validators.required],
     fixedLoanPayment: [0, [Validators.min(0)]],
   });
 
   maxParticipants = computed(() => {
     if (this.selectedPreviousRueda()) {
-      // use active slots loaded for the selected previous rueda when available
-      const slots = this.service.slots();
-      const activeSlots = slots.filter(s => !!s.memberId).length;
-      return Math.max(1, activeSlots || this.membersService.members().filter(m => m.isActive).length);
+      const activeSlots = this.service.slots().filter(s => !!s.memberId).length;
+      if (activeSlots > 0) return activeSlots;
     }
-    const activeMembers = this.membersService.members().filter(m => m.isActive).length;
-    return Math.max(1, activeMembers);
+    return Math.max(1, this.membersService.members().filter(m => m.isActive).length);
+  });
+
+  // Auto-computed fixed payment based on current form values
+  computedFixedPayment = computed(() => {
+    const loan = Number(this.form.controls.estimatedLoanAmount.value) || 0;
+    const rate = Number(this.form.controls.interestRate.value) || 0;
+    const participants = Number(this.form.controls.participantsCount.value) || 0;
+    return this.simulator.computeFixedLoanPayment(loan, rate, participants);
+  });
+
+  computedFixedPaymentPerPerson = computed(() => {
+    const participants = Number(this.form.controls.participantsCount.value) || 1;
+    return Math.round(this.computedFixedPayment() / participants);
+  });
+
+  computedTotalPerPerson = computed(() => {
+    return this.computedFixedPaymentPerPerson() + (Number(this.form.controls.contributionAmount.value) || 0);
   });
 
   showResult = computed(() => this.result() !== null);
@@ -249,6 +301,7 @@ export class RuedaSimulatorComponent implements OnInit {
       this.selectedPreviousRueda.set(null);
       return;
     }
+
     this.selectedPreviousRueda.set({
       id: rueda.id,
       ruedaNumber: rueda.ruedaNumber,
@@ -261,7 +314,7 @@ export class RuedaSimulatorComponent implements OnInit {
       startYear: rueda.startYear,
     });
 
-    // load slots for the selected previous rueda to know active participants
+    // Load slots to determine active participant count (max for new rueda)
     this.service.loadSlots(this.groupId, rueda.id);
 
     if (rueda.interestRate >= 0) {
@@ -273,6 +326,15 @@ export class RuedaSimulatorComponent implements OnInit {
     if (rueda.loanAmount >= 0) {
       this.form.controls.estimatedLoanAmount.setValue(rueda.loanAmount);
     }
+
+    // Set participants to active slot count once slots load; slots() may not be populated yet
+    // so we observe the count after load via a small delay effect — handled in slots signal reaction
+    const activeSlots = this.service.slots().filter(s => !!s.memberId).length;
+    if (activeSlots > 0) {
+      this.form.controls.participantsCount.setValue(activeSlots);
+    }
+
+    this.result.set(null);
   }
 
   runSimulation(): void {
@@ -281,11 +343,16 @@ export class RuedaSimulatorComponent implements OnInit {
       return;
     }
 
+    const participantsCount = Math.min(
+      Number(this.form.controls.participantsCount.value),
+      this.maxParticipants(),
+    );
+
     const request: RuedaSimulatorRequest = {
       previousRuedaId: this.form.controls.previousRuedaId.value || undefined,
       openingCash: Number(this.form.controls.openingCash.value),
       interestRate: Number(this.form.controls.interestRate.value),
-      participantsCount: Number(this.form.controls.participantsCount.value),
+      participantsCount,
       contributionAmount: Number(this.form.controls.contributionAmount.value),
       estimatedLoanAmount: Number(this.form.controls.estimatedLoanAmount.value),
       paymentMode: this.form.controls.paymentMode.value,
@@ -305,7 +372,7 @@ export class RuedaSimulatorComponent implements OnInit {
       participantsCount: 1,
       contributionAmount: 0,
       estimatedLoanAmount: 0,
-      paymentMode: 'sequential',
+      paymentMode: 'fixed',
       fixedLoanPayment: 0,
     });
     this.selectedPreviousRueda.set(null);
