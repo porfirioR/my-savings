@@ -1,3 +1,42 @@
+export interface NextRuedaSimulatorRequest {
+  openingCash: number;
+  oldInstallmentPerPerson: number;
+  participantsCount: number;
+  loanPerPerson: number;
+  interestRate: number;
+  contributionAmount: number;
+  memberNames?: string[];
+}
+
+export interface NextRuedaMonth {
+  monthIndex: number;
+  oldInstallmentPayers: number;
+  newInstallmentPayers: number;
+  oldInstallmentsTotal: number;
+  newInstallmentsTotal: number;
+  contributionsTotal: number;
+  totalIncoming: number;
+  loanDisbursed: number;
+  netCashFlow: number;
+  cajaBalance: number;
+}
+
+export interface NextRuedaPersonMonth {
+  personIndex: number;
+  month: number;
+  paymentType: 'old_installment' | 'new_installment' | 'loan_received';
+  installmentAmount: number;
+  totalAmount: number;
+}
+
+export interface NextRuedaResult {
+  months: NextRuedaMonth[];
+  matrix: NextRuedaPersonMonth[][];
+  newInstallmentPerPerson: number;
+  finalCajaBalance: number;
+  totalDisbursed: number;
+}
+
 export interface RuedaSimulatorRequest {
   previousRuedaId?: string;
   openingCash: number;

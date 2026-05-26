@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MembersService } from '../../../members/services/members.service';
 import { RuedasService } from '../../services/ruedas.service';
-import { RuedaSimulatorResult, RuedaSimulatorRequest } from '../../models/rueda-simulator.model';
+import { RuedaSimulatorResult, RuedaSimulatorRequest, NextRuedaResult, NextRuedaSimulatorRequest } from '../../models/rueda-simulator.model';
 import { RuedaSimulatorService } from '../../services/rueda-simulator.service';
 import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model';
 
@@ -221,6 +221,133 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
           </div>
         </section>
       }
+
+      <!-- Next Rueda Transition Simulator -->
+      <div class="divider mt-8">Simulación de siguiente rueda</div>
+      <section class="mt-2">
+        <div class="grid gap-4 sm:grid-cols-2 mb-4">
+          <div class="grid gap-1">
+            <label class="text-sm font-medium">Préstamo por persona en la nueva rueda (Gs)</label>
+            <input type="number" class="input input-bordered w-full" [formControl]="form.controls.loanPerPerson" min="0" />
+            <span class="text-xs text-base-content/50">
+              Cuota nueva: {{ nextNewInstallment() | number:'1.0-0' }} Gs/mes · Total: {{ nextTotalPerPerson() | number:'1.0-0' }} Gs/mes
+            </span>
+          </div>
+          <div class="flex items-end pb-1">
+            <button type="button" class="btn btn-secondary" (click)="runNextRuedaSimulation()"
+              [disabled]="!selectedPreviousRueda() || form.controls.participantsCount.value < 1">
+              Simular transición
+            </button>
+          </div>
+        </div>
+
+        @if (!selectedPreviousRueda()) {
+          <p class="text-sm text-base-content/50">Seleccioná una rueda anterior para habilitar la simulación de transición.</p>
+        }
+
+        @if (nextResult()) {
+          <!-- Summary row -->
+          <div class="bg-base-200 rounded-lg p-4 mb-4">
+            <div class="grid gap-3 sm:grid-cols-4 text-sm">
+              <div>
+                <div class="text-base-content/50">Cuota nueva por persona</div>
+                <div class="font-semibold text-primary">{{ nextResult()!.newInstallmentPerPerson | number:'1.0-0' }} Gs</div>
+              </div>
+              <div>
+                <div class="text-base-content/50">Total préstamos entregados</div>
+                <div class="font-semibold">{{ nextResult()!.totalDisbursed | number:'1.0-0' }} Gs</div>
+              </div>
+              <div>
+                <div class="text-base-content/50">Caja final</div>
+                <div class="font-semibold" [class.text-success]="nextResult()!.finalCajaBalance >= 0" [class.text-error]="nextResult()!.finalCajaBalance < 0">
+                  {{ nextResult()!.finalCajaBalance | number:'1.0-0' }} Gs
+                </div>
+              </div>
+              <div>
+                <div class="text-base-content/50">Caja inicial</div>
+                <div class="font-semibold">{{ form.controls.openingCash.value | number:'1.0-0' }} Gs</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly cash flow table -->
+          <h4 class="font-semibold text-sm mb-2">Flujo mensual de caja</h4>
+          <div class="overflow-x-auto mb-6">
+            <table class="table table-xs w-full text-xs">
+              <thead>
+                <tr>
+                  <th>Mes</th>
+                  <th>Pagadores rueda ant.</th>
+                  <th>Total cuotas ant.</th>
+                  <th>Pagadores rueda nueva</th>
+                  <th>Total cuotas nuevas</th>
+                  <th>Aportes</th>
+                  <th>Total ingreso</th>
+                  <th>Préstamo entregado</th>
+                  <th>Flujo neto</th>
+                  <th>Saldo caja</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of nextResult()!.months; track m.monthIndex) {
+                  <tr>
+                    <td>{{ m.monthIndex }}</td>
+                    <td>{{ m.oldInstallmentPayers }}</td>
+                    <td>{{ m.oldInstallmentsTotal | number:'1.0-0' }}</td>
+                    <td>{{ m.newInstallmentPayers }}</td>
+                    <td>{{ m.newInstallmentsTotal | number:'1.0-0' }}</td>
+                    <td>{{ m.contributionsTotal | number:'1.0-0' }}</td>
+                    <td class="font-semibold">{{ m.totalIncoming | number:'1.0-0' }}</td>
+                    <td class="text-warning">{{ m.loanDisbursed | number:'1.0-0' }}</td>
+                    <td [class.text-success]="m.netCashFlow >= 0" [class.text-error]="m.netCashFlow < 0">
+                      {{ m.netCashFlow >= 0 ? '+' : '' }}{{ m.netCashFlow | number:'1.0-0' }}
+                    </td>
+                    <td [class.text-success]="m.cajaBalance >= 0" [class.text-error]="m.cajaBalance < 0">
+                      {{ m.cajaBalance | number:'1.0-0' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Per-person matrix -->
+          <h4 class="font-semibold text-sm mb-2">Pagos por persona por mes</h4>
+          <p class="text-xs text-base-content/50 mb-2">
+            <span class="inline-block w-3 h-3 rounded bg-warning/30 mr-1"></span>Recibe préstamo (aún paga cuota ant.)
+            <span class="inline-block w-3 h-3 rounded bg-success/30 mx-1 ml-3"></span>Paga cuota nueva
+            <span class="inline-block w-3 h-3 rounded bg-base-300 mx-1 ml-3"></span>Paga cuota anterior
+          </p>
+          <div class="overflow-x-auto">
+            <table class="table table-xs w-full text-xs">
+              <thead>
+                <tr>
+                  <th>Persona</th>
+                  @for (m of nextResult()!.months; track m.monthIndex) {
+                    <th class="text-center">M{{ m.monthIndex }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (personRow of nextResult()!.matrix; track $index) {
+                  <tr>
+                    <td class="whitespace-nowrap">{{ personName($index) }}</td>
+                    @for (cell of personRow; track cell.month) {
+                      <td class="text-center"
+                        [class.bg-warning]="cell.paymentType === 'loan_received'"
+                        [class.bg-success]="cell.paymentType === 'new_installment'"
+                        [class.bg-opacity-20]="true"
+                        [title]="cell.paymentType === 'loan_received' ? 'Recibe préstamo · paga ' + cell.totalAmount + ' Gs' : cell.totalAmount + ' Gs'">
+                        {{ cell.totalAmount | number:'1.0-0' }}
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
     </div>
   `,
 })
@@ -233,6 +360,7 @@ export class RuedaSimulatorComponent implements OnInit {
 
   groupId = '';
   result = signal<RuedaSimulatorResult | null>(null);
+  nextResult = signal<NextRuedaResult | null>(null);
   selectedPreviousRueda = signal<null | {
     id: string;
     ruedaNumber: number;
@@ -254,6 +382,7 @@ export class RuedaSimulatorComponent implements OnInit {
     estimatedLoanAmount: [0, [Validators.required, Validators.min(0)]],
     paymentMode: ['fixed' as 'sequential' | 'fixed', Validators.required],
     fixedLoanPayment: [0, [Validators.min(0)]],
+    loanPerPerson: [0, [Validators.min(0)]],
   });
 
   maxParticipants = computed(() => {
@@ -282,6 +411,45 @@ export class RuedaSimulatorComponent implements OnInit {
   });
 
   showResult = computed(() => this.result() !== null);
+
+  nextNewInstallment = computed(() => {
+    const loan = Number(this.form.controls.loanPerPerson.value) || 0;
+    const rate = Number(this.form.controls.interestRate.value) || 0;
+    const N = Number(this.form.controls.participantsCount.value) || 1;
+    if (N <= 0 || loan <= 0) return 0;
+    return Math.round((loan + Math.round(loan * rate / 100)) / N);
+  });
+
+  nextTotalPerPerson = computed(() => {
+    return this.nextNewInstallment() + (Number(this.form.controls.contributionAmount.value) || 0);
+  });
+
+  personName(zeroBasedIndex: number): string {
+    const slots = this.service.slots();
+    if (slots.length > zeroBasedIndex && slots[zeroBasedIndex].memberName) {
+      return slots[zeroBasedIndex].memberName;
+    }
+    return `Persona ${zeroBasedIndex + 1}`;
+  }
+
+  runNextRuedaSimulation(): void {
+    const prev = this.selectedPreviousRueda();
+    if (!prev) return;
+
+    const req: NextRuedaSimulatorRequest = {
+      openingCash: Number(this.form.controls.openingCash.value),
+      oldInstallmentPerPerson: prev.installmentAmount,
+      participantsCount: Math.min(
+        Number(this.form.controls.participantsCount.value),
+        this.maxParticipants(),
+      ),
+      loanPerPerson: Number(this.form.controls.loanPerPerson.value),
+      interestRate: Number(this.form.controls.interestRate.value),
+      contributionAmount: Number(this.form.controls.contributionAmount.value),
+    };
+
+    this.nextResult.set(this.simulator.simulateNextRueda(req));
+  }
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
@@ -377,5 +545,6 @@ export class RuedaSimulatorComponent implements OnInit {
     });
     this.selectedPreviousRueda.set(null);
     this.result.set(null);
+    this.nextResult.set(null);
   }
 }

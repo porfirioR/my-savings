@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
-import { RuedaSimulatorMonth, RuedaSimulatorRequest, RuedaSimulatorResult } from '../models/rueda-simulator.model';
+import {
+  NextRuedaMonth,
+  NextRuedaPersonMonth,
+  NextRuedaResult,
+  NextRuedaSimulatorRequest,
+  RuedaSimulatorMonth,
+  RuedaSimulatorRequest,
+  RuedaSimulatorResult,
+} from '../models/rueda-simulator.model';
 
 @Injectable({ providedIn: 'root' })
 export class RuedaSimulatorService {
@@ -108,6 +116,82 @@ export class RuedaSimulatorService {
       perPersonPayment: contributionPerPerson + perPersonLoanPayment,
       computedFixedLoanPayment: autoFixedPayment,
       perPersonLoanPayment,
+    };
+  }
+
+  simulateNextRueda(req: NextRuedaSimulatorRequest): NextRuedaResult {
+    const N = Math.max(1, Math.trunc(req.participantsCount));
+    const oldInstallment = Math.max(0, req.oldInstallmentPerPerson);
+    const loanPerPerson = Math.max(0, req.loanPerPerson);
+    const rate = Math.max(0, req.interestRate);
+    const contribution = Math.max(0, req.contributionAmount);
+
+    const totalToRepayPerPerson = loanPerPerson + Math.round(loanPerPerson * rate / 100);
+    const newInstallmentPerPerson = N > 0 ? Math.round(totalToRepayPerPerson / N) : 0;
+
+    let cajaBalance = Math.max(0, req.openingCash);
+    const months: NextRuedaMonth[] = [];
+    // matrix[personIndex 0-based][monthIndex 0-based]
+    const matrix: NextRuedaPersonMonth[][] = Array.from({ length: N }, () => []);
+
+    for (let k = 1; k <= N; k++) {
+      // Person k gets the loan this month; they still pay old installment in this month.
+      // From month k+1 onward they pay new installment.
+      const oldPayers = N - (k - 1); // includes person k
+      const newPayers = k - 1;
+
+      const oldInstallmentsTotal = oldPayers * oldInstallment;
+      const newInstallmentsTotal = newPayers * newInstallmentPerPerson;
+      const contributionsTotal = N * contribution;
+      const totalIncoming = oldInstallmentsTotal + newInstallmentsTotal + contributionsTotal;
+      const loanDisbursed = loanPerPerson;
+      const netCashFlow = totalIncoming - loanDisbursed;
+      cajaBalance += netCashFlow;
+
+      months.push({
+        monthIndex: k,
+        oldInstallmentPayers: oldPayers,
+        newInstallmentPayers: newPayers,
+        oldInstallmentsTotal,
+        newInstallmentsTotal,
+        contributionsTotal,
+        totalIncoming,
+        loanDisbursed,
+        netCashFlow,
+        cajaBalance,
+      });
+
+      for (let p = 1; p <= N; p++) {
+        let paymentType: NextRuedaPersonMonth['paymentType'];
+        let installmentAmount: number;
+
+        if (p < k) {
+          paymentType = 'new_installment';
+          installmentAmount = newInstallmentPerPerson;
+        } else if (p === k) {
+          paymentType = 'loan_received';
+          installmentAmount = oldInstallment;
+        } else {
+          paymentType = 'old_installment';
+          installmentAmount = oldInstallment;
+        }
+
+        matrix[p - 1].push({
+          personIndex: p,
+          month: k,
+          paymentType,
+          installmentAmount,
+          totalAmount: installmentAmount + contribution,
+        });
+      }
+    }
+
+    return {
+      months,
+      matrix,
+      newInstallmentPerPerson,
+      finalCajaBalance: cajaBalance,
+      totalDisbursed: N * loanPerPerson,
     };
   }
 }

@@ -9,4 +9,5 @@ export interface RuedaSimulatorFormGroup {
   estimatedLoanAmount: FormControl<number>;
   paymentMode: FormControl<'sequential' | 'fixed'>;
   fixedLoanPayment: FormControl<number>;
+  loanPerPerson: FormControl<number>;
 }
