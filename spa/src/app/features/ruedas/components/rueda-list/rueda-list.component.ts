@@ -17,7 +17,7 @@ import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.compone
     <div>
       <div class="flex items-center justify-between mb-2">
         <h2 class="text-2xl font-bold tracking-tight">{{ 'RUEDAS.TITLE' | translate }}</h2>
-        <button class="btn btn-primary btn-sm" (click)="showCreateModal.set(true)">
+        <button class="btn btn-primary btn-sm" (click)="openCreate()">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -144,6 +144,20 @@ import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.compone
       (closed)="closeEdit()"
       (saved)="closeEdit()" />
 
+    <!-- No active members warning -->
+    @if (showNoMembersWarning()) {
+      <div class="modal modal-open">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg mb-2">{{ 'RUEDAS.NO_MEMBERS_TITLE' | translate }}</h3>
+          <p class="text-sm text-base-content/70">{{ 'RUEDAS.NO_MEMBERS_WARNING' | translate }}</p>
+          <div class="modal-action mt-4">
+            <button class="btn btn-primary" (click)="showNoMembersWarning.set(false)">{{ 'APP.CLOSE' | translate }}</button>
+          </div>
+        </div>
+        <div class="modal-backdrop" (click)="showNoMembersWarning.set(false)"></div>
+      </div>
+    }
+
     <!-- Delete confirm dialog -->
     @if (showDeleteConfirm()) {
       <div class="modal modal-open">
@@ -172,6 +186,7 @@ export class RuedaListComponent implements OnInit {
   updating = signal('');
   deleting = signal('');
   showCreateModal = signal(false);
+  showNoMembersWarning = signal(false);
   showEditModal = signal(false);
   showDeleteConfirm = signal(false);
   selectedRueda = signal<Rueda | null>(null);
@@ -181,6 +196,14 @@ export class RuedaListComponent implements OnInit {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
     this.service.loadByGroup(this.groupId);
     this.membersService.loadByGroup(this.groupId);
+  }
+
+  openCreate(): void {
+    if (this.membersService.members().filter(m => m.isActive).length === 0) {
+      this.showNoMembersWarning.set(true);
+      return;
+    }
+    this.showCreateModal.set(true);
   }
 
   toggleTimeline(ruedaId: string): void {

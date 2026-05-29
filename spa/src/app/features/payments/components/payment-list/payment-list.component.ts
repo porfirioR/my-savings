@@ -70,7 +70,7 @@ interface ValidMonth {
       </div>
 
       <!-- Summary stats -->
-      @if (service.payments().length > 0) {
+      @if (service.payments().length > 0 && selectedRuedaId()) {
         <div class="stats shadow w-full mb-5">
           <div class="stat">
             <div class="stat-title text-xs">{{ 'PAYMENTS.TOTAL_COLLECTED' | translate }}</div>
@@ -210,6 +210,7 @@ export class PaymentListComponent implements OnInit {
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
     this.ruedasService.loadByGroup(this.groupId);
+    this.service.clearPayments();
   }
 
   onRuedaChange(ruedaId: string): void {

@@ -153,10 +153,8 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
                   <span class="badge badge-xs badge-outline shrink-0">{{ slot.position }}</span>
                   <select class="select select-bordered select-xs flex-1 min-w-0" [(ngModel)]="slot.memberId">
                     <option value="">-</option>
-                    @for (m of membersService.members(); track m.id) {
-                      @if (m.isActive) {
-                        <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
-                      }
+                    @for (m of sortedActiveMembers; track m.id) {
+                      <option [value]="m.id">{{ m.position }}. {{ m.firstName }} {{ m.lastName }}</option>
                     }
                   </select>
                   @if (form.controls.slotAmountMode.value === 'variable') {
@@ -322,15 +320,20 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
       });
   }
 
-  private buildSlots(): void {
-    const active = this.membersService.members()
+  get sortedActiveMembers() {
+    return this.membersService.members()
       .filter(m => m.isActive)
-      .sort((a, b) => a.position - b.position)
-      .slice(0, this.memberCount);
+      .sort((a, b) => a.position - b.position);
+  }
 
-    this.slots = active.length > 0
-      ? active.map(m => ({ position: m.position, memberId: m.id, loanAmount: 0, previousLoanAmount: 0 }))
-      : Array.from({ length: this.memberCount || 15 }, (_, i) => ({ position: i + 1, memberId: '', loanAmount: 0, previousLoanAmount: 0 }));
+  private buildSlots(): void {
+    const active = this.sortedActiveMembers.slice(0, this.memberCount);
+    this.slots = Array.from({ length: this.memberCount }, (_, i) => ({
+      position: i + 1,
+      memberId: active[i]?.id ?? '',
+      loanAmount: 0,
+      previousLoanAmount: 0,
+    }));
   }
 
   onMemberCountChange(): void {

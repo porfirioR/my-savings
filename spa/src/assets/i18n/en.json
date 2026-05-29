@@ -127,7 +127,9 @@
     "PREV_AMOUNTS_TITLE": "Previous rueda installments",
     "PREV_AMOUNTS_HINT": "Enter the monthly installment amount each member was paying in the previous rueda.",
     "PREV_LOAN_AMOUNT": "Prev. installment (Gs)",
-    "EMPTY": "No ruedas registered"
+    "EMPTY": "No ruedas registered",
+    "NO_MEMBERS_TITLE": "No active members",
+    "NO_MEMBERS_WARNING": "This group has no active members. Add members before creating a rueda."
   },
   "PAYMENTS": {
     "TITLE": "Monthly Payments",
