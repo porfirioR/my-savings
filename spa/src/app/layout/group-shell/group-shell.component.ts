@@ -56,8 +56,8 @@ interface Group {
                 Rueda {{ group()!.totalRuedas }}
               </p>
               <button (click)="createRueda()"
-                class="btn btn-primary btn-xs w-full mt-2 gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors bg-primary/10 text-primary hover:bg-primary/20 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 Nueva Rueda

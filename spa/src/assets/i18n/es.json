@@ -29,8 +29,8 @@
   },
   "NAV": {
     "GROUPS": "Grupos",
-    "RUEDA": "Rueda Actual",
-    "RUEDAS": "Historial Ruedas",
+    "RUEDA": "Pagos",
+    "RUEDAS": "Ruedas",
     "MEMBERS": "Miembros",
     "PARALLEL_LOANS": "Préstamos",
     "CASH_BOX": "Caja"

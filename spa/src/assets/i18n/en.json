@@ -29,8 +29,8 @@
   },
   "NAV": {
     "GROUPS": "Groups",
-    "RUEDA": "Current Rueda",
-    "RUEDAS": "Rueda History",
+    "RUEDA": "Payments",
+    "RUEDAS": "Ruedas",
     "MEMBERS": "Members",
     "PARALLEL_LOANS": "Loans",
     "CASH_BOX": "Cash Box"
