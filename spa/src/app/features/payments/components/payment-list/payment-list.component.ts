@@ -45,7 +45,7 @@ interface ValidMonth {
                   @if (cm.index === 1 || cm.index === 16) {
                     {{ 'RUEDAS.TIMELINE_JUNTA' | translate }}
                   } @else {
-                    {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index - 1 }}/15
+                    {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index - 1 }}/{{ selectedRueda()?.slotCount ?? 15 }}
                   }
                   &mdash; {{ 'MONTHS.' + cm.month | translate }} {{ cm.year }}
                 }
@@ -54,11 +54,20 @@ interface ValidMonth {
             </div>
           }
 
-          <button class="btn btn-outline btn-sm ml-auto" (click)="generate()" [disabled]="!selectedRuedaId() || !currentValidMonth() || generating() || allPaid()">
+          <button class="btn btn-outline btn-sm ml-auto" (click)="generate()"
+            [disabled]="!selectedRuedaId() || !currentValidMonth() || generating() || allPaid() || selectedRueda()?.status !== 'active'">
             @if (generating()) { <span class="loading loading-spinner loading-xs"></span> }
             {{ 'PAYMENTS.GENERATE' | translate }}
           </button>
         </div>
+        @if (selectedRueda() && selectedRueda()?.status !== 'active') {
+          <div class="mt-3 alert alert-warning py-2 px-3 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            {{ 'RUEDAS.ERROR_NOT_ACTIVE' | translate }}
+          </div>
+        }
         @if (allPaid()) {
           <div class="mt-3 alert alert-success py-2 px-3 text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -180,12 +189,13 @@ export class PaymentListComponent implements OnInit {
     this.ruedasService.ruedas().find(r => r.id === this.selectedRuedaId()) ?? null
   );
 
-  /** 16 valid months for the selected rueda (position 1..16) */
+  /** slotCount + 1 valid months: 1 junta + N payment months */
   validMonths = computed<ValidMonth[]>(() => {
     const rueda = this.selectedRueda();
     if (!rueda) return [];
+    const slotCount = rueda.slotCount ?? 15;
     const months: ValidMonth[] = [];
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i <= slotCount; i++) {
       const totalOffset = rueda.startMonth - 1 + i;
       const month = (totalOffset % 12) + 1;
       const year = rueda.startYear + Math.floor(totalOffset / 12);

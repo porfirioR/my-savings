@@ -55,6 +55,13 @@ interface Group {
               <p class="text-xs text-base-content/50 mt-0.5">
                 Rueda {{ group()!.totalRuedas }}
               </p>
+              <button (click)="createRueda()"
+                class="btn btn-primary btn-xs w-full mt-2 gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nueva Rueda
+              </button>
             }
           </div>
 
@@ -148,6 +155,7 @@ interface Group {
 })
 export class GroupShellComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly api = inject(ApiService);
   readonly theme = inject(ThemeService);
 
@@ -156,5 +164,10 @@ export class GroupShellComponent implements OnInit {
   ngOnInit(): void {
     const groupId = this.route.snapshot.paramMap.get('groupId')!;
     this.api.get<Group>(`groups/${groupId}`).subscribe(g => this.group.set(g));
+  }
+
+  createRueda(): void {
+    const groupId = this.route.snapshot.paramMap.get('groupId')!;
+    this.router.navigate(['/groups', groupId, 'ruedas'], { queryParams: { create: '1' } });
   }
 }

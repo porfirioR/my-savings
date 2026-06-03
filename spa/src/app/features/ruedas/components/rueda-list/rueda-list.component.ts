@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -144,6 +144,19 @@ import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.compone
       (closed)="closeEdit()"
       (saved)="closeEdit()" />
 
+    <!-- Complete error alert -->
+    @if (completeError()) {
+      <div class="toast toast-top toast-end z-50">
+        <div class="alert alert-error text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          <span>{{ completeError() | translate }}</span>
+          <button class="btn btn-ghost btn-xs" (click)="completeError.set('')">✕</button>
+        </div>
+      </div>
+    }
+
     <!-- No active members warning -->
     @if (showNoMembersWarning()) {
       <div class="modal modal-open">
@@ -183,11 +196,22 @@ export class RuedaListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   groupId = '';
+  private autoCreate = false;
   updating = signal('');
   deleting = signal('');
+
+  constructor() {
+    effect(() => {
+      if (!this.membersService.loading() && this.autoCreate) {
+        this.autoCreate = false;
+        this.openCreate();
+      }
+    });
+  }
   showCreateModal = signal(false);
   showNoMembersWarning = signal(false);
   showEditModal = signal(false);
+  completeError = signal('');
   showDeleteConfirm = signal(false);
   selectedRueda = signal<Rueda | null>(null);
   timelineRuedaId = signal<string | null>(null);
@@ -196,6 +220,7 @@ export class RuedaListComponent implements OnInit {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
     this.service.loadByGroup(this.groupId);
     this.membersService.loadByGroup(this.groupId);
+    this.autoCreate = this.route.snapshot.queryParamMap.get('create') === '1';
   }
 
   openCreate(): void {
@@ -240,10 +265,16 @@ export class RuedaListComponent implements OnInit {
   }
 
   changeStatus(ruedaId: string, status: 'active' | 'completed'): void {
+    this.completeError.set('');
     this.updating.set(ruedaId);
     this.service.update(this.groupId, ruedaId, { status }).subscribe({
       next: () => this.updating.set(''),
-      error: () => this.updating.set(''),
+      error: (err) => {
+        this.updating.set('');
+        if (status === 'completed' && err?.error?.message === 'COMPLETE_HAS_PENDING') {
+          this.completeError.set('RUEDAS.ERROR_COMPLETE_HAS_PENDING');
+        }
+      },
     });
   }
 }

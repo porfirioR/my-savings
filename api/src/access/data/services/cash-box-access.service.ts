@@ -81,6 +81,18 @@ export class CashBoxAccess extends BaseAccessService {
     if (error) throw new Error(error.message);
   }
 
+  async deleteByReferenceIds(groupId: string, referenceIds: string[]): Promise<void> {
+    if (referenceIds.length === 0) return;
+    const { error } = await this.dbContext
+      .from('cash_movements')
+      .delete()
+      .eq('group_id', groupId)
+      .in('reference_id', referenceIds)
+      .eq('source_type', 'automatic');
+
+    if (error) throw new Error(error.message);
+  }
+
   async updateMovement(
     id: string,
     req: Pick<CreateCashMovementAccessRequest, 'movementType' | 'category' | 'amount' | 'month' | 'year' | 'description'>,

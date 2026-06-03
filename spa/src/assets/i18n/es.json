@@ -129,7 +129,9 @@
     "PREV_LOAN_AMOUNT": "Cuota ant. (Gs)",
     "EMPTY": "No hay ruedas registradas",
     "NO_MEMBERS_TITLE": "Sin miembros activos",
-    "NO_MEMBERS_WARNING": "Este grupo no tiene miembros activos. Agregá miembros antes de crear una rueda."
+    "NO_MEMBERS_WARNING": "Este grupo no tiene miembros activos. Agregá miembros antes de crear una rueda.",
+    "ERROR_NOT_ACTIVE": "Solo se pueden generar pagos para ruedas activas.",
+    "ERROR_COMPLETE_HAS_PENDING": "Hay pagos pendientes. Marcá todos los pagos como pagados antes de completar la rueda."
   },
   "PAYMENTS": {
     "TITLE": "Pagos del Mes",

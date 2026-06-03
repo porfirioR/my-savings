@@ -21,6 +21,8 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
 
           <form [formGroup]="form">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <!-- 1. Tipo -->
             <fieldset class="fieldset">
               <legend class="fieldset-legend">{{ 'RUEDAS.TYPE' | translate }} <span class="text-error">*</span></legend>
               <select class="select select-bordered w-full" formControlName="type">
@@ -28,15 +30,22 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
                 <option value="continua">{{ 'RUEDAS.TYPE_CONTINUA' | translate }}</option>
               </select>
             </fieldset>
+
+            <!-- 2. Mes / Año inicio -->
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }}</legend>
-              <select class="select select-bordered w-full" formControlName="roundingUnit">
-                <option [ngValue]="0">{{ 'RUEDAS.ROUNDING_NONE' | translate }}</option>
-                <option [ngValue]="500">500 Gs</option>
-                <option [ngValue]="1000">1.000 Gs</option>
-              </select>
+              <legend class="fieldset-legend">{{ 'RUEDAS.START_MONTH_YEAR' | translate }} <span class="text-error">*</span></legend>
+              <div class="join w-full">
+                <select class="select select-bordered join-item flex-1" formControlName="startMonth">
+                  @for (m of months; track m.value) {
+                    <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
+                  }
+                </select>
+                <input type="number" class="input input-bordered join-item w-24" formControlName="startYear"
+                  [class.input-error]="form.controls.startYear.invalid && form.controls.startYear.touched" />
+              </div>
             </fieldset>
 
+            <!-- Rueda anterior (solo si continua) -->
             @if (form.controls.type.value === 'continua') {
               <fieldset class="fieldset sm:col-span-2">
                 <legend class="fieldset-legend">{{ 'RUEDAS.PREVIOUS_RUEDA' | translate }}</legend>
@@ -54,34 +63,7 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
               </fieldset>
             }
 
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">
-                {{ 'RUEDAS.LOAN_AMOUNT' | translate }} (Gs) <span class="text-error">*</span>
-                @if (suggested() && form.controls.slotAmountMode.value === 'constant') {
-                  <span class="text-info cursor-pointer ml-2 font-normal" (click)="useSuggestion()">
-                    {{ 'RUEDAS.SUGGESTION' | translate }}: {{ suggested() | number:'1.0-0' }}
-                  </span>
-                }
-              </legend>
-              <div class="join w-full">
-                <input type="number" class="input input-bordered join-item flex-1" formControlName="loanAmount"
-                  [class.input-error]="form.controls.loanAmount.invalid && form.controls.loanAmount.touched" />
-                <button type="button" class="btn join-item btn-outline" (click)="getSuggestion()">
-                  {{ 'RUEDAS.CALCULATE' | translate }}
-                </button>
-              </div>
-              @if (form.controls.loanAmount.invalid && form.controls.loanAmount.touched) {
-                <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
-              }
-            </fieldset>
-            <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.INTEREST_RATE' | translate }} (%) <span class="text-error">*</span></legend>
-              <input type="number" class="input input-bordered w-full" formControlName="interestRate"
-                [class.input-error]="form.controls.interestRate.invalid && form.controls.interestRate.touched" />
-              @if (form.controls.interestRate.invalid && form.controls.interestRate.touched) {
-                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
-              }
-            </fieldset>
+            <!-- 3. Aporte mensual -->
             <fieldset class="fieldset">
               <legend class="fieldset-legend">{{ 'RUEDAS.CONTRIBUTION' | translate }} (Gs) <span class="text-error">*</span></legend>
               <input type="number" class="input input-bordered w-full" formControlName="contributionAmount"
@@ -90,18 +72,54 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
                 <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
               }
             </fieldset>
+
+            <!-- 4. Tasa de interés -->
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'RUEDAS.START_MONTH_YEAR' | translate }} <span class="text-error">*</span></legend>
-              <div class="join w-full">
-                <select class="select select-bordered join-item flex-1" formControlName="startMonth">
-                  @for (m of months; track m.value) {
-                    <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>
-                  }
-                </select>
-                <input type="number" class="input input-bordered join-item w-24" formControlName="startYear"
-                  [class.input-error]="form.controls.startYear.invalid && form.controls.startYear.touched" />
-              </div>
+              <legend class="fieldset-legend">{{ 'RUEDAS.INTEREST_RATE' | translate }} (%) <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" formControlName="interestRate"
+                [class.input-error]="form.controls.interestRate.invalid && form.controls.interestRate.touched" />
+              @if (form.controls.interestRate.invalid && form.controls.interestRate.touched) {
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
+              }
             </fieldset>
+
+            <!-- 5. Redondeo -->
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">{{ 'RUEDAS.ROUNDING' | translate }}</legend>
+              <select class="select select-bordered w-full" formControlName="roundingUnit">
+                <option [ngValue]="0">{{ 'RUEDAS.ROUNDING_NONE' | translate }}</option>
+                <option [ngValue]="500">500 Gs</option>
+                <option [ngValue]="1000">1.000 Gs</option>
+              </select>
+            </fieldset>
+
+            <!-- 6. Monto préstamo — al final, con botón calcular -->
+            <fieldset class="fieldset sm:col-span-2">
+              <legend class="fieldset-legend">
+                {{ 'RUEDAS.LOAN_AMOUNT' | translate }} (Gs) <span class="text-error">*</span>
+                @if (suggested()) {
+                  <span class="text-info cursor-pointer ml-2 font-normal" (click)="useSuggestion()">
+                    {{ 'RUEDAS.SUGGESTION' | translate }}: {{ suggested() | number:'1.0-0' }} Gs
+                  </span>
+                }
+              </legend>
+              <div class="join w-full">
+                <input type="number" class="input input-bordered join-item flex-1" formControlName="loanAmount"
+                  [class.input-error]="form.controls.loanAmount.invalid && form.controls.loanAmount.touched" />
+                <button type="button" class="btn join-item btn-outline"
+                  [disabled]="!form.controls.contributionAmount.value || memberCount === 0"
+                  (click)="getSuggestion()">
+                  {{ 'RUEDAS.CALCULATE' | translate }}
+                </button>
+              </div>
+              @if (form.controls.loanAmount.invalid && form.controls.loanAmount.touched) {
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
+              }
+              <p class="text-xs text-base-content/40 mt-1">
+                {{ memberCount }} miembros × {{ (form.controls.contributionAmount.value ?? 0) | number:'1.0-0' }} Gs aporte
+              </p>
+            </fieldset>
+
           </div>
           </form>
 
@@ -380,24 +398,18 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
   }
 
   getSuggestion(): void {
-    if (this.form.controls.slotAmountMode.value === 'variable') {
-      const contribution = this.form.controls.contributionAmount.value ?? 0;
-      if (contribution > 0 && this.memberCount > 0) {
-        const base = this.memberCount * contribution;
-        this.form.controls.loanAmount.setValue(base, { emitEvent: false });
-        this.recalculateVariableAmounts();
-      }
-      return;
-    }
-    this.service.suggestLoanAmount(this.groupId).subscribe({
-      next: res => this.suggested.set(res.suggested),
-    });
+    const contribution = this.form.controls.contributionAmount.value ?? 0;
+    if (contribution <= 0 || this.memberCount <= 0) return;
+    this.suggested.set(this.memberCount * contribution);
   }
 
   useSuggestion(): void {
-    if (this.suggested()) {
-      this.form.controls.loanAmount.setValue(this.suggested()!);
-      this.suggested.set(null);
+    const val = this.suggested();
+    if (!val) return;
+    this.form.controls.loanAmount.setValue(val);
+    this.suggested.set(null);
+    if (this.form.controls.slotAmountMode.value === 'variable') {
+      this.recalculateVariableAmounts();
     }
   }
 

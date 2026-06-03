@@ -36,7 +36,7 @@ export class RuedasAccess extends BaseAccessService {
     };
   }
 
-  private mapToModel(entity: RuedaEntity, slots?: RuedaSlotAccessModel[]): RuedaAccessModel {
+  private mapToModel(entity: RuedaEntity, slots?: RuedaSlotAccessModel[], slotCount?: number): RuedaAccessModel {
     return {
       id: entity.id,
       groupId: entity.group_id,
@@ -60,18 +60,21 @@ export class RuedasAccess extends BaseAccessService {
       createdAt: entity.created_at,
       updatedAt: entity.updated_at,
       slots,
+      slotCount: slotCount ?? slots?.length,
     };
   }
 
   async findByGroup(groupId: string): Promise<RuedaAccessModel[]> {
     const { data, error } = await this.dbContext
       .from('ruedas')
-      .select('*')
+      .select('*, rueda_slots(count)')
       .eq('group_id', groupId)
       .order('rueda_number', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return (data as RuedaEntity[]).map((e) => this.mapToModel(e));
+    return (data as any[]).map((e) =>
+      this.mapToModel(e as RuedaEntity, undefined, Number(e.rueda_slots?.[0]?.count ?? 0)),
+    );
   }
 
   async findById(id: string): Promise<RuedaAccessModel> {
@@ -281,6 +284,17 @@ export class RuedasAccess extends BaseAccessService {
 
       if (updateError) throw new Error(updateError.message);
     }
+  }
+
+  async hasUnpaidPayments(ruedaId: string): Promise<boolean> {
+    const { count, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('id', { count: 'exact', head: true })
+      .eq('rueda_id', ruedaId)
+      .eq('is_paid', false);
+
+    if (error) throw new Error(error.message);
+    return (count ?? 0) > 0;
   }
 
   async delete(id: string): Promise<void> {

@@ -21,6 +21,7 @@ export interface Rueda {
   createdAt: string;
   updatedAt: string;
   slots?: RuedaSlot[];
+  slotCount?: number;
 }
 
 export interface RuedaSlot {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { BaseAccessService, DbContextService } from '.';
 import { RuedaMonthlyPaymentEntity } from '../entities';
 import { GeneratePaymentsAccessRequest, MarkPaymentAccessRequest, PaymentAccessModel } from '../../../access/contracts/payments';
@@ -78,6 +78,10 @@ export class PaymentsAccess extends BaseAccessService {
     if (ruedaError) throw new Error(ruedaError.message);
 
     const rueda = ruedaData as any;
+    if (rueda.status !== 'active') {
+      throw new BadRequestException('RUEDA_NOT_ACTIVE');
+    }
+
     const slots: any[] = rueda.rueda_slots ?? [];
 
     // Calculate current month index within the rueda (1-based)

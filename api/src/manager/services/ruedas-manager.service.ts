@@ -1,14 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { RuedasAccess } from '../../access/data/services';
 import { RuedaAccessModel, RuedaSlotAccessModel } from '../../access/contracts/ruedas';
-import { calculateInstallment } from '../../utility/helpers';
+import { calculateInstallment, toReferenceUuid } from '../../utility/helpers';
 import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest } from '../contracts/ruedas';
 import { RuedaMonthlyPaymentEntity } from '../../access/data/entities';
+import { CashBoxManager } from './cash-box-manager.service';
 
 
 @Injectable()
 export class RuedasManager {
-  constructor(private readonly ruedasAccess: RuedasAccess) {}
+  constructor(
+    private readonly ruedasAccess: RuedasAccess,
+    private readonly cashBoxManager: CashBoxManager,
+  ) {}
 
   private mapSlotToModel(accessModel: RuedaSlotAccessModel): RuedaSlotModel {
     return {
@@ -53,6 +57,7 @@ export class RuedasManager {
       createdAt: accessModel.createdAt,
       updatedAt: accessModel.updatedAt,
       slots: accessModel.slots?.map((s) => this.mapSlotToModel(s)),
+      slotCount: accessModel.slotCount,
     };
   }
 
@@ -140,6 +145,11 @@ export class RuedasManager {
   }
 
   async update(id: string, req: UpdateRuedaRequest): Promise<RuedaModel> {
+    if (req.status === 'completed') {
+      const hasPending = await this.ruedasAccess.hasUnpaidPayments(id);
+      if (hasPending) throw new BadRequestException('COMPLETE_HAS_PENDING');
+    }
+
     let installmentAmount: number | undefined;
     let totalToReturn: number | undefined;
 
@@ -173,6 +183,19 @@ export class RuedasManager {
   }
 
   async delete(id: string): Promise<void> {
+    const rueda = await this.ruedasAccess.findById(id);
+    const payments = await this.ruedasAccess.findMonthlyPaymentsByRueda(id);
+
+    const uniqueMonths = [...new Map(
+      payments.map(p => [`${p.month}/${p.year}`, { month: p.month, year: p.year }])
+    ).values()];
+
+    const referenceIds = uniqueMonths.flatMap(({ month, year }) => [
+      toReferenceUuid(`disburse:${id}:${month}/${year}`),
+      toReferenceUuid(`rueda:${id}:${month}/${year}`),
+    ]);
+
+    await this.cashBoxManager.deleteByReferenceIds(rueda.groupId, referenceIds);
     await this.ruedasAccess.delete(id);
   }
 
