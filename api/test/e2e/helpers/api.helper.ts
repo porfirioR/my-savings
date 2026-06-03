@@ -83,6 +83,12 @@ export async function createRueda(
   return rueda;
 }
 
+// ─── Rueda helpers ────────────────────────────────────────────────────────────
+export async function activateRueda(app: INestApplication, groupId: string, ruedaId: string) {
+  const res = await api(app).put(`/api/groups/${groupId}/ruedas/${ruedaId}`, { status: 'active' });
+  expect(res.status).toBe(200);
+}
+
 // ─── Payments ─────────────────────────────────────────────────────────────────
 export async function generateAndPayAll(
   app: INestApplication,

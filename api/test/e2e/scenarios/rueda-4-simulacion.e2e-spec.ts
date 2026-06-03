@@ -23,7 +23,7 @@
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
-import { api, generateAndPayAll } from '../helpers/api.helper';
+import { activateRueda, api, generateAndPayAll } from '../helpers/api.helper';
 
 jest.setTimeout(180_000); // 3 minutos: 15 meses × ~17 requests c/u
 
@@ -122,6 +122,7 @@ describe('Rueda 4 — 15 personas, 3.000.000 Gs, interés 5 %, inicio diciembre 
     });
     expect(ruedaRes.status).toBe(201);
     ruedaId = ruedaRes.body.id;
+    await activateRueda(app, groupId, ruedaId);
 
     // Procesar los 15 meses
     for (const { month, year } of PAYMENT_MONTHS) {
