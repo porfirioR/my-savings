@@ -211,6 +211,53 @@ export class PaymentsAccess extends BaseAccessService {
     return { allPaid, difference, totalCollected, ruedaNumber, groupId };
   }
 
+  async checkRuedaFullyPaid(ruedaId: string): Promise<{ groupId: string; endMonth: number | null; endYear: number | null } | null> {
+    // Count slots (N = member count)
+    const { count: slotCount, error: slotError } = await this.dbContext
+      .from('rueda_slots')
+      .select('id', { count: 'exact', head: true })
+      .eq('rueda_id', ruedaId);
+
+    if (slotError) throw new Error(slotError.message);
+    const requiredLists = slotCount ?? 0;
+    if (requiredLists === 0) return null;
+
+    // Get all generated payments + rueda status
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('month, year, is_paid, ruedas!inner(group_id, status)')
+      .eq('rueda_id', ruedaId);
+
+    if (error) throw new Error(error.message);
+    if (!data || (data as any[]).length === 0) return null;
+
+    const rueda = (data[0] as any).ruedas;
+    if (rueda?.status !== 'active') return null;
+
+    // All N lists must be generated (distinct month/year combos = member count)
+    const distinctMonths = new Set((data as any[]).map((p: any) => `${p.month}/${p.year}`)).size;
+    if (distinctMonths !== requiredLists) return null;
+
+    // Every payment in every generated list must be paid
+    const allPaid = (data as any[]).every((p: any) => p.is_paid);
+    if (!allPaid) return null;
+
+    // Get last slot's loan_month/year to calculate the end date (final junta = last slot + 1 month)
+    const { data: lastSlotData, error: lsErr } = await this.dbContext
+      .from('rueda_slots')
+      .select('loan_month, loan_year')
+      .eq('rueda_id', ruedaId)
+      .order('slot_position', { ascending: false })
+      .limit(1);
+
+    if (lsErr) throw new Error(lsErr.message);
+    const ls = (lastSlotData as any[])?.[0];
+    const endMonth = ls ? (ls.loan_month === 12 ? 1 : ls.loan_month + 1) : null;
+    const endYear  = ls ? (ls.loan_month === 12 ? ls.loan_year + 1 : ls.loan_year) : null;
+
+    return { groupId: rueda.group_id, endMonth, endYear };
+  }
+
   async markPayment(
     id: string,
     req: MarkPaymentAccessRequest,

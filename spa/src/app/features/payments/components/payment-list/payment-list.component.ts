@@ -278,7 +278,10 @@ export class PaymentListComponent implements OnInit {
       ? this.service.markPaid(this.groupId, this.selectedRuedaId(), paymentId)
       : this.service.markUnpaid(this.groupId, this.selectedRuedaId(), paymentId);
     obs.subscribe({
-      next: () => this.toggling.set(''),
+      next: () => {
+        this.toggling.set('');
+        this.ruedasService.loadByGroup(this.groupId);
+      },
       error: () => this.toggling.set(''),
     });
   }

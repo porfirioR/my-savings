@@ -100,25 +100,13 @@ import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.compone
                     </svg>
                     {{ 'RUEDAS.TIMELINE' | translate }}
                   </button>
-                  @if (r.status !== 'completed') {
-                    <div class="flex gap-2">
-                      @if (r.status === 'pending') {
-                        <button class="btn btn-success btn-sm"
-                          [disabled]="updating() === r.id"
-                          (click)="changeStatus(r.id, 'active')">
-                          @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
-                          @else { {{ 'RUEDAS.ACTIVATE' | translate }} }
-                        </button>
-                      }
-                      @if (r.status === 'active') {
-                        <button class="btn btn-neutral btn-sm"
-                          [disabled]="updating() === r.id"
-                          (click)="changeStatus(r.id, 'completed')">
-                          @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
-                          @else { {{ 'RUEDAS.COMPLETE' | translate }} }
-                        </button>
-                      }
-                    </div>
+                  @if (r.status === 'pending') {
+                    <button class="btn btn-success btn-sm"
+                      [disabled]="updating() === r.id"
+                      (click)="changeStatus(r.id, 'active')">
+                      @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
+                      @else { {{ 'RUEDAS.ACTIVATE' | translate }} }
+                    </button>
                   }
                 </div>
                 @if (timelineRuedaId() === r.id) {
@@ -143,19 +131,6 @@ import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.compone
       [groupId]="groupId"
       (closed)="closeEdit()"
       (saved)="closeEdit()" />
-
-    <!-- Complete error alert -->
-    @if (completeError()) {
-      <div class="toast toast-top toast-end z-50">
-        <div class="alert alert-error text-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-          <span>{{ completeError() | translate }}</span>
-          <button class="btn btn-ghost btn-xs" (click)="completeError.set('')">✕</button>
-        </div>
-      </div>
-    }
 
     <!-- No active members warning -->
     @if (showNoMembersWarning()) {
@@ -211,7 +186,6 @@ export class RuedaListComponent implements OnInit {
   showCreateModal = signal(false);
   showNoMembersWarning = signal(false);
   showEditModal = signal(false);
-  completeError = signal('');
   showDeleteConfirm = signal(false);
   selectedRueda = signal<Rueda | null>(null);
   timelineRuedaId = signal<string | null>(null);
@@ -265,16 +239,10 @@ export class RuedaListComponent implements OnInit {
   }
 
   changeStatus(ruedaId: string, status: 'active' | 'completed'): void {
-    this.completeError.set('');
     this.updating.set(ruedaId);
     this.service.update(this.groupId, ruedaId, { status }).subscribe({
       next: () => this.updating.set(''),
-      error: (err) => {
-        this.updating.set('');
-        if (status === 'completed' && err?.error?.message === 'COMPLETE_HAS_PENDING') {
-          this.completeError.set('RUEDAS.ERROR_COMPLETE_HAS_PENDING');
-        }
-      },
+      error: () => this.updating.set(''),
     });
   }
 }

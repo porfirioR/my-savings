@@ -101,6 +101,7 @@
     "SUGGESTION": "Suggestion",
     "EDIT": "Edit Rueda",
     "EDIT_SUBTITLE": "Modify the rueda parameters.",
+    "EDIT_COMPLETED_HINT": "This rueda is completed. You can only edit the notes.",
     "DELETE": "Delete Rueda",
     "DELETE_CONFIRM": "Are you sure you want to delete this rueda? This action cannot be undone.",
     "NOTES": "Notes",

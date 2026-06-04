@@ -101,6 +101,7 @@
     "SUGGESTION": "Sugerencia",
     "EDIT": "Editar Rueda",
     "EDIT_SUBTITLE": "Modificá los parámetros de la rueda.",
+    "EDIT_COMPLETED_HINT": "Esta rueda está completada. Solo podés editar las notas.",
     "DELETE": "Eliminar Rueda",
     "DELETE_CONFIRM": "¿Estás seguro de que querés eliminar esta rueda? Esta acción no se puede deshacer.",
     "NOTES": "Notas",
