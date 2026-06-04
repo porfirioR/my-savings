@@ -8,6 +8,7 @@ import {
   Max,
   Min,
   ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { RoundingUnit } from '../../../utility/enums';
@@ -45,7 +46,7 @@ export class CreateRuedaApiRequest {
   interestRate: number;
 
   @IsNumber()
-  @Min(1)
+  @Min(0)
   contributionAmount: number;
 
   @IsEnum(RoundingUnit)
@@ -64,7 +65,7 @@ export class CreateRuedaApiRequest {
   @Min(0)
   historicalContributionTotal?: number;
 
-  @IsOptional()
+  @ValidateIf((o) => o.type === 'continua')
   @IsUUID()
   previousRuedaId?: string;
 
