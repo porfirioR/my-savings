@@ -64,6 +64,15 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
             <div class="grid gap-1">
               <label class="text-sm font-medium">Saldo inicial de caja (Gs)</label>
               <input type="number" class="input input-bordered w-full" formControlName="openingCash" min="0" />
+              @if (suggestedOpeningCash() > 0) {
+                <span class="text-xs text-base-content/50">
+                  Calculado de rueda anterior: <strong>{{ suggestedOpeningCash() | number:'1.0-0' }} Gs</strong>
+                  &nbsp;= cuota × N×(N−1)/2
+                  @if (form.controls.openingCash.value !== suggestedOpeningCash()) {
+                    <button type="button" class="btn btn-xs btn-ghost ml-1" (click)="form.controls.openingCash.setValue(suggestedOpeningCash())">Usar</button>
+                  }
+                </span>
+              }
             </div>
             <div class="grid gap-1">
               <label class="text-sm font-medium">Tasa de interés (%)</label>
@@ -232,8 +241,14 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
             <span class="text-xs text-base-content/50">
               Cuota nueva: {{ nextNewInstallment() | number:'1.0-0' }} Gs/mes · Total: {{ nextTotalPerPerson() | number:'1.0-0' }} Gs/mes
             </span>
+            @if (suggestedMaxLoan() > 0) {
+              <span class="text-xs text-success font-medium">
+                Máximo sin caja negativa: {{ suggestedMaxLoan() | number:'1.0-0' }} Gs
+                <button type="button" class="btn btn-xs btn-success btn-outline ml-1" (click)="form.controls.loanPerPerson.setValue(suggestedMaxLoan())">Usar máximo</button>
+              </span>
+            }
           </div>
-          <div class="flex items-end pb-1">
+          <div class="flex items-end gap-2 pb-1">
             <button type="button" class="btn btn-secondary" (click)="runNextRuedaSimulation()"
               [disabled]="!selectedPreviousRueda() || form.controls.participantsCount.value < 1">
               Simular transición
@@ -267,6 +282,22 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
                 <div class="text-base-content/50">Caja inicial</div>
                 <div class="font-semibold">{{ form.controls.openingCash.value | number:'1.0-0' }} Gs</div>
               </div>
+              @if (suggestedMaxLoan() > 0) {
+                <div class="col-span-2 sm:col-span-4 border-t border-base-300 pt-3 mt-1">
+                  <div class="text-base-content/50 text-xs mb-1">Préstamo máximo sin caja negativa</div>
+                  <div class="flex items-center gap-3">
+                    <span class="font-bold text-success text-lg">{{ suggestedMaxLoan() | number:'1.0-0' }} Gs</span>
+                    <span class="text-xs text-base-content/50">
+                      → cuota {{ (suggestedMaxLoan() * 1.1 / (form.controls.participantsCount.value || 10)) | number:'1.0-0' }} Gs/mes
+                      + aporte {{ form.controls.contributionAmount.value | number:'1.0-0' }} Gs
+                      = {{ ((suggestedMaxLoan() * 1.1 / (form.controls.participantsCount.value || 10)) + (form.controls.contributionAmount.value || 0)) | number:'1.0-0' }} Gs/persona/mes
+                    </span>
+                    <button type="button" class="btn btn-xs btn-success btn-outline" (click)="form.controls.loanPerPerson.setValue(suggestedMaxLoan())">
+                      Usar y re-simular
+                    </button>
+                  </div>
+                </div>
+              }
             </div>
           </div>
 
@@ -393,6 +424,23 @@ export class RuedaSimulatorComponent implements OnInit {
     return Math.max(1, this.membersService.members().filter(m => m.isActive).length);
   });
 
+  // Caja al final de la rueda anterior (fórmula general):
+  // Flujo neto mes k = (k−1)×cuota + N×aporte_viejo − préstamo
+  // Suma k=1..N → cuota×N(N−1)/2 + N(N×aporte − préstamo)
+  suggestedOpeningCash = computed(() => {
+    const prev = this.selectedPreviousRueda();
+    if (!prev || prev.installmentAmount <= 0) return 0;
+    const n = this.maxParticipants();
+    return this.simulator.computeNewRuedaEndingCash(
+      prev.installmentAmount,
+      prev.loanAmount,
+      prev.contributionAmount,
+      n,
+    );
+  });
+
+  suggestedMaxLoan = signal<number>(0);
+
   // Auto-computed fixed payment based on current form values
   computedFixedPayment = computed(() => {
     const loan = Number(this.form.controls.estimatedLoanAmount.value) || 0;
@@ -449,6 +497,15 @@ export class RuedaSimulatorComponent implements OnInit {
     };
 
     this.nextResult.set(this.simulator.simulateNextRueda(req));
+
+    const maxLoan = this.simulator.suggestMaxLoanAmount(
+      req.openingCash,
+      req.oldInstallmentPerPerson,
+      req.participantsCount,
+      req.interestRate,
+      req.contributionAmount,
+    );
+    this.suggestedMaxLoan.set(maxLoan);
   }
 
   ngOnInit(): void {
@@ -495,11 +552,14 @@ export class RuedaSimulatorComponent implements OnInit {
       this.form.controls.estimatedLoanAmount.setValue(rueda.loanAmount);
     }
 
-    // Set participants to active slot count once slots load; slots() may not be populated yet
-    // so we observe the count after load via a small delay effect — handled in slots signal reaction
     const activeSlots = this.service.slots().filter(s => !!s.memberId).length;
     if (activeSlots > 0) {
       this.form.controls.participantsCount.setValue(activeSlots);
+      const autoOpeningCash = Math.round(rueda.installmentAmount * activeSlots * (activeSlots - 1) / 2);
+      this.form.controls.openingCash.setValue(autoOpeningCash);
+    } else {
+      // Slots not loaded yet; suggestedOpeningCash signal will recalculate once they arrive
+      this.form.controls.openingCash.setValue(0);
     }
 
     this.result.set(null);

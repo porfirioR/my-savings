@@ -119,6 +119,65 @@ export class RuedaSimulatorService {
     };
   }
 
+  /**
+   * Caja al término de los N desembolsos de una rueda "new" (tipo estándar).
+   * Flujo neto mes k = (k−1)×installment + N×contribution − loanAmount
+   * Suma para k=1..N → installment×N(N−1)/2 + N(N×contribution − loanAmount)
+   */
+  computeNewRuedaEndingCash(
+    installmentPerPerson: number,
+    loanAmountPerPerson: number,
+    contributionPerPerson: number,
+    participants: number,
+  ): number {
+    const N = Math.max(1, participants);
+    const surplus = Math.round(
+      installmentPerPerson * N * (N - 1) / 2 +
+      N * (N * contributionPerPerson - loanAmountPerPerson),
+    );
+    return Math.max(0, surplus);
+  }
+
+  /**
+   * Busca el mayor préstamo por persona que mantiene la caja ≥ safetyMargin
+   * en todos los meses de la transición (simulateNextRueda).
+   * Usa búsqueda binaria; devuelve el valor redondeado hacia abajo a la unidad indicada.
+   */
+  suggestMaxLoanAmount(
+    openingCash: number,
+    oldInstallmentPerPerson: number,
+    participantsCount: number,
+    interestRate: number,
+    contributionAmount: number,
+    safetyMargin = 0,
+    roundingUnit = 1000,
+  ): number {
+    const N = Math.max(1, participantsCount);
+    const month1Income = N * oldInstallmentPerPerson + N * contributionAmount;
+    let lo = 0;
+    let hi = Math.round((openingCash + month1Income) * N * 2);
+
+    for (let i = 0; i < 60; i++) {
+      const mid = Math.floor((lo + hi) / 2);
+      const result = this.simulateNextRueda({
+        openingCash,
+        oldInstallmentPerPerson,
+        participantsCount: N,
+        loanPerPerson: mid,
+        interestRate,
+        contributionAmount,
+      });
+      const minCaja = Math.min(...result.months.map(m => m.cajaBalance));
+      if (minCaja >= safetyMargin) {
+        lo = mid;
+      } else {
+        hi = mid - 1;
+      }
+    }
+
+    return roundingUnit > 0 ? Math.floor(lo / roundingUnit) * roundingUnit : lo;
+  }
+
   simulateNextRueda(req: NextRuedaSimulatorRequest): NextRuedaResult {
     const N = Math.max(1, Math.trunc(req.participantsCount));
     const oldInstallment = Math.max(0, req.oldInstallmentPerPerson);
