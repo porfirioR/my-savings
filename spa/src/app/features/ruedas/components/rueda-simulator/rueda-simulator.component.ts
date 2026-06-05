@@ -73,6 +73,11 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
                   }
                 </span>
               }
+              @if (selectedPreviousRueda() && selectedPreviousRueda()!.type !== 'new') {
+                <span class="text-xs text-warning">
+                  Rueda continua: la fórmula no aplica. Simulá la transición anterior y usá "Usar como apertura →" para trasladar el saldo.
+                </span>
+              }
             </div>
             <div class="grid gap-1">
               <label class="text-sm font-medium">Tasa de interés (%)</label>
@@ -274,8 +279,14 @@ import { RuedaSimulatorFormGroup } from '../../models/rueda-simulator-form.model
               </div>
               <div>
                 <div class="text-base-content/50">Caja final</div>
-                <div class="font-semibold" [class.text-success]="nextResult()!.finalCajaBalance >= 0" [class.text-error]="nextResult()!.finalCajaBalance < 0">
-                  {{ nextResult()!.finalCajaBalance | number:'1.0-0' }} Gs
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-semibold" [class.text-success]="nextResult()!.finalCajaBalance >= 0" [class.text-error]="nextResult()!.finalCajaBalance < 0">
+                    {{ nextResult()!.finalCajaBalance | number:'1.0-0' }} Gs
+                  </span>
+                  <button type="button" class="btn btn-xs btn-primary btn-outline" (click)="copyFinalCajaToOpening()"
+                    title="Copia este saldo como apertura para simular la siguiente rueda">
+                    Usar como apertura →
+                  </button>
                 </div>
               </div>
               <div>
@@ -395,6 +406,7 @@ export class RuedaSimulatorComponent implements OnInit {
   selectedPreviousRueda = signal<null | {
     id: string;
     ruedaNumber: number;
+    type: string;
     loanAmount: number;
     interestRate: number;
     contributionAmount: number;
@@ -424,12 +436,13 @@ export class RuedaSimulatorComponent implements OnInit {
     return Math.max(1, this.membersService.members().filter(m => m.isActive).length);
   });
 
-  // Caja al final de la rueda anterior (fórmula general):
-  // Flujo neto mes k = (k−1)×cuota + N×aporte_viejo − préstamo
-  // Suma k=1..N → cuota×N(N−1)/2 + N(N×aporte − préstamo)
+  // Valid only for the first ('new') rueda: I×N(N−1)/2 + N(N×C − L)
+  // For continua ruedas contributions no longer cancel disbursements so the
+  // formula returns a wrong (often negative→0) value. In that case the user
+  // must copy the finalCajaBalance from the previous transition simulation.
   suggestedOpeningCash = computed(() => {
     const prev = this.selectedPreviousRueda();
-    if (!prev || prev.installmentAmount <= 0) return 0;
+    if (!prev || prev.installmentAmount <= 0 || prev.type !== 'new') return 0;
     const n = this.maxParticipants();
     return this.simulator.computeNewRuedaEndingCash(
       prev.installmentAmount,
@@ -478,6 +491,21 @@ export class RuedaSimulatorComponent implements OnInit {
       return slots[zeroBasedIndex].memberName;
     }
     return `Persona ${zeroBasedIndex + 1}`;
+  }
+
+  copyFinalCajaToOpening(): void {
+    const nr = this.nextResult();
+    if (!nr) return;
+    this.form.controls.openingCash.setValue(nr.finalCajaBalance);
+    // Recalculate max loan using newInstallment as the old installment for the next transition
+    const maxLoan = this.simulator.suggestMaxLoanAmount(
+      nr.finalCajaBalance,
+      nr.newInstallmentPerPerson,
+      Number(this.form.controls.participantsCount.value),
+      Number(this.form.controls.interestRate.value),
+      Number(this.form.controls.contributionAmount.value),
+    );
+    this.suggestedMaxLoan.set(maxLoan);
   }
 
   runNextRuedaSimulation(): void {
@@ -530,6 +558,7 @@ export class RuedaSimulatorComponent implements OnInit {
     this.selectedPreviousRueda.set({
       id: rueda.id,
       ruedaNumber: rueda.ruedaNumber,
+      type: rueda.type,
       loanAmount: rueda.loanAmount,
       interestRate: rueda.interestRate,
       contributionAmount: rueda.contributionAmount,
@@ -555,10 +584,13 @@ export class RuedaSimulatorComponent implements OnInit {
     const activeSlots = this.service.slots().filter(s => !!s.memberId).length;
     if (activeSlots > 0) {
       this.form.controls.participantsCount.setValue(activeSlots);
+    }
+    // Auto-fill opening cash only for 'new' type (first rueda); formula is I×N(N-1)/2.
+    // For continua ruedas the formula is wrong — user must copy from the previous simulation.
+    if (rueda.type === 'new' && activeSlots > 0) {
       const autoOpeningCash = Math.round(rueda.installmentAmount * activeSlots * (activeSlots - 1) / 2);
       this.form.controls.openingCash.setValue(autoOpeningCash);
     } else {
-      // Slots not loaded yet; suggestedOpeningCash signal will recalculate once they arrive
       this.form.controls.openingCash.setValue(0);
     }
 
