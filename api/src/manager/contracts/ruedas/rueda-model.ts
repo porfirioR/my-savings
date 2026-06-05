@@ -24,5 +24,6 @@ export class RuedaModel {
     public createdAt: string,
     public updatedAt: string,
     public slots?: RuedaSlotModel[],
+    public slotCount?: number,
   ) {}
 }

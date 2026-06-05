@@ -27,7 +27,7 @@
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
-import { api, createGroup, generateAndPayAll, getCashBox } from '../helpers/api.helper';
+import { activateRueda, api, createGroup, generateAndPayAll, getCashBox } from '../helpers/api.helper';
 import { deleteTestGroup } from '../helpers/cleanup.helper';
 
 // ─── Parámetros Rueda 1 (Ahorro 18) ─────────────────────────────────────────
@@ -143,6 +143,7 @@ describe('Escenario H — Rueda 1 (Ahorro 18 variable) + Rueda 2 (continua const
     });
     expect(r1Res.status).toBe(201);
     rueda1Id = r1Res.body.id;
+    await activateRueda(app, groupId, rueda1Id);
 
     // Rueda 2 — continua constante (monto fijo, sobrante a caja)
     const r2Res = await api(app).post(`/api/groups/${groupId}/ruedas`, {
@@ -162,6 +163,7 @@ describe('Escenario H — Rueda 1 (Ahorro 18 variable) + Rueda 2 (continua const
     });
     expect(r2Res.status).toBe(201);
     rueda2Id = r2Res.body.id;
+    await activateRueda(app, groupId, rueda2Id);
   });
 
   afterAll(async () => {

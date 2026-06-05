@@ -33,6 +33,14 @@ interface SlotRow {
               <span class="loading loading-spinner loading-md text-primary"></span>
             </div>
           } @else {
+            @if (isCompleted) {
+              <div class="alert alert-info py-2 px-3 mb-4 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+                </svg>
+                {{ 'RUEDAS.EDIT_COMPLETED_HINT' | translate }}
+              </div>
+            }
             <form [formGroup]="form">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
@@ -140,6 +148,7 @@ interface SlotRow {
                           <td>
                             <input type="number" class="input input-bordered input-xs w-full text-right"
                               [value]="row.previousLoanAmount ?? ''"
+                              [disabled]="isCompleted"
                               (change)="onPrevLoanChange(row.position, $event)" />
                           </td>
                         </tr>
@@ -181,6 +190,10 @@ export class EditRuedaDialogComponent implements OnChanges {
   loading = signal(false);
   slots = signal<SlotRow[]>([]);
 
+  get isCompleted(): boolean {
+    return this.rueda?.status === 'completed';
+  }
+
   months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   form: FormGroup<UpdateRuedaFormGroup> = this.fb.nonNullable.group({
@@ -217,6 +230,13 @@ export class EditRuedaDialogComponent implements OnChanges {
           notes: full.notes ?? '',
         });
 
+        if (full.status === 'completed') {
+          const lockedFields = ['type', 'loanAmount', 'interestRate', 'contributionAmount', 'roundingUnit', 'startMonth', 'startYear', 'slotAmountMode'] as const;
+          lockedFields.forEach(f => this.form.controls[f].disable());
+        } else {
+          this.form.enable();
+        }
+
         const members = this.membersService.members();
         this.slots.set(
           (full.slots ?? []).map(s => ({
@@ -249,22 +269,18 @@ export class EditRuedaDialogComponent implements OnChanges {
   }
 
   save(): void {
-    if (this.form.invalid || !this.rueda) return;
-    const raw = this.form.getRawValue();
-    const slotsPayload = this.slots().map(s => ({
-      position: s.position,
-      previousLoanAmount: s.previousLoanAmount,
-    }));
+    if (!this.rueda) return;
+
+    const payload = this.isCompleted
+      ? { notes: this.form.controls.notes.value ?? '' }
+      : {
+          ...this.form.getRawValue(),
+          slots: this.slots().map(s => ({ position: s.position, previousLoanAmount: s.previousLoanAmount })),
+        };
 
     this.saving.set(true);
-    this.service.update(this.groupId, this.rueda.id, {
-      ...raw,
-      slots: slotsPayload,
-    }).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.saved.emit();
-      },
+    this.service.update(this.groupId, this.rueda.id, payload).subscribe({
+      next: () => { this.saving.set(false); this.saved.emit(); },
       error: () => { this.saving.set(false); },
     });
   }

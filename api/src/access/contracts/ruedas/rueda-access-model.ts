@@ -24,5 +24,6 @@ export class RuedaAccessModel {
     public createdAt: string,
     public updatedAt: string,
     public slots?: RuedaSlotAccessModel[],
+    public slotCount?: number,
   ) {}
 }

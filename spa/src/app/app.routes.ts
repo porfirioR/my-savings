@@ -46,6 +46,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'rueda-simulator',
+        loadComponent: () =>
+          import('./features/ruedas/components/rueda-simulator/rueda-simulator.component').then(
+            m => m.RuedaSimulatorComponent,
+          ),
+      },
+      {
         path: 'members',
         loadComponent: () =>
           import('./features/members/components/member-list/member-list.component').then(

@@ -25,7 +25,8 @@
       "Bash(npx ng:*)",
       "Bash(sort -u grep -rhoPh \"'[A-Z_]+\\\\.[A-Z_]+'\" \"/c/Users/GreenLight-05/Documents/Cursos/my-savings/spa/src/app/features/payments\" --include=\"*.ts\")",
       "Bash(sort -u grep -rhoPh \"'[A-Z_]+\\\\.[A-Z_]+'\" \"/c/Users/GreenLight-05/Documents/Cursos/my-savings/spa/src/app/layout\" --include=\"*.ts\")",
-      "Bash(sort -u grep -rhoPh \"'[A-Z_]+\\\\.[A-Z_]+'\" \"/c/Users/GreenLight-05/Documents/Cursos/my-savings/spa/src/app/features/groups\" --include=\"*.ts\")"
+      "Bash(sort -u grep -rhoPh \"'[A-Z_]+\\\\.[A-Z_]+'\" \"/c/Users/GreenLight-05/Documents/Cursos/my-savings/spa/src/app/features/groups\" --include=\"*.ts\")",
+      "Bash(npx tsc *)"
     ]
   }
 }

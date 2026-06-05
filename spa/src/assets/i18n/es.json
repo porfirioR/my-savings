@@ -29,8 +29,8 @@
   },
   "NAV": {
     "GROUPS": "Grupos",
-    "RUEDA": "Rueda Actual",
-    "RUEDAS": "Historial Ruedas",
+    "RUEDA": "Pagos",
+    "RUEDAS": "Ruedas",
     "MEMBERS": "Miembros",
     "PARALLEL_LOANS": "Préstamos",
     "CASH_BOX": "Caja"
@@ -101,6 +101,7 @@
     "SUGGESTION": "Sugerencia",
     "EDIT": "Editar Rueda",
     "EDIT_SUBTITLE": "Modificá los parámetros de la rueda.",
+    "EDIT_COMPLETED_HINT": "Esta rueda está completada. Solo podés editar las notas.",
     "DELETE": "Eliminar Rueda",
     "DELETE_CONFIRM": "¿Estás seguro de que querés eliminar esta rueda? Esta acción no se puede deshacer.",
     "NOTES": "Notas",
@@ -127,7 +128,11 @@
     "PREV_AMOUNTS_TITLE": "Cuotas mensuales rueda anterior",
     "PREV_AMOUNTS_HINT": "Ingresá la cuota mensual que cada miembro pagaba en la rueda anterior.",
     "PREV_LOAN_AMOUNT": "Cuota ant. (Gs)",
-    "EMPTY": "No hay ruedas registradas"
+    "EMPTY": "No hay ruedas registradas",
+    "NO_MEMBERS_TITLE": "Sin miembros activos",
+    "NO_MEMBERS_WARNING": "Este grupo no tiene miembros activos. Agregá miembros antes de crear una rueda.",
+    "ERROR_NOT_ACTIVE": "Solo se pueden generar pagos para ruedas activas.",
+    "ERROR_COMPLETE_HAS_PENDING": "Hay pagos pendientes. Marcá todos los pagos como pagados antes de completar la rueda."
   },
   "PAYMENTS": {
     "TITLE": "Pagos del Mes",

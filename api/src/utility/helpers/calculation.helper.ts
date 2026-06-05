@@ -83,13 +83,14 @@ export function calculateMemberExitSettlement(
  * Given a rueda slot position and the current month index (1-based within the rueda),
  * determines the payment type for a given member.
  *
- * Rules for type='new' + slotAmountMode='constant':
- *   Everyone pays contribution_only — installments are settled in the next rueda.
+ * Rules for type='new' (both constant and variable):
+ *   Month 1 (Junta): all slots have slotPosition >= currentMonthIndex → contribution_only.
+ *   Month 2+: members who already received their loan (slotPosition < currentMonthIndex)
+ *             pay current_rueda (installment + contribution).
+ *             Everyone else pays contribution_only.
  *
- * Rules for type='new' + slotAmountMode='variable' (acumulativo):
- *   Members who already received their loan (position < currentMonthIndex) pay
- *   current_rueda installment + contribution so the collected amount funds the next slot.
- *   Everyone else pays contribution_only.
+ *   slotAmountMode affects the installment AMOUNT stored per slot (same vs. growing),
+ *   not whether installments are tracked.
  *
  * Rules for type='continua':
  *   slotPosition < currentMonthIndex  → current_rueda
@@ -102,8 +103,6 @@ export function resolvePaymentType(
   currentMonthIndex: number,
 ): 'current_rueda' | 'previous_rueda' | 'contribution_only' {
   if (ruedaType === 'new') {
-    if (slotAmountMode === 'constant') return 'contribution_only';
-    // variable: previous recipients pay their installment so funds flow to the next loan
     if (slotPosition < currentMonthIndex) return 'current_rueda';
     return 'contribution_only';
   }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentAccessModel } from '../../access/contracts/payments';
-import { PaymentsAccess } from '../../access/data/services';
+import { PaymentsAccess, RuedasAccess } from '../../access/data/services';
 import { GeneratePaymentsRequest, MarkPaymentRequest, PaymentModel } from '../contracts/payments';
 import { CashBoxManager } from './cash-box-manager.service';
 import { CreateCashMovementRequest } from '../contracts/cash-box';
@@ -10,6 +10,7 @@ import { toReferenceUuid } from '../../utility/helpers';
 export class PaymentsManager {
   constructor(
     private readonly paymentsAccess: PaymentsAccess,
+    private readonly ruedasAccess: RuedasAccess,
     private readonly cashBoxManager: CashBoxManager,
   ) {}
 
@@ -96,6 +97,15 @@ export class PaymentsManager {
             referenceId,
           ),
         );
+      }
+
+      // Auto-complete the rueda if every month across all slots is fully paid
+      const ruedaDone = await this.paymentsAccess.checkRuedaFullyPaid(result.ruedaId);
+      if (ruedaDone) {
+        await this.ruedasAccess.update(result.ruedaId, {
+          status: 'completed',
+          ...(ruedaDone.endMonth ? { endMonth: ruedaDone.endMonth, endYear: ruedaDone.endYear ?? undefined } : {}),
+        });
       }
     } else {
       const completion = await this.paymentsAccess.checkMonthCompletion(

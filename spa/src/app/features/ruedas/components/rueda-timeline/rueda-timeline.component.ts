@@ -26,7 +26,7 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
         <div class="flex items-center gap-2 mb-3">
           <button class="btn btn-xs btn-ghost" (click)="prev()" [disabled]="activeIndex() === 0">‹</button>
           <span class="text-sm font-medium flex-1 text-center">
-            @if (c.position === 1 || !c.disbursedToMemberId) {
+            @if (c.position === 1) {
               {{ 'RUEDAS.TIMELINE_JUNTA' | translate }}
             } @else {
               {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position - 1 }}/{{ totalMonths() }}

@@ -49,4 +49,8 @@ export class CashBoxManager {
   async deleteByReference(groupId: string, referenceId: string): Promise<void> {
     return this.cashBoxAccess.deleteByReference(groupId, referenceId);
   }
+
+  async deleteByReferenceIds(groupId: string, referenceIds: string[]): Promise<void> {
+    return this.cashBoxAccess.deleteByReferenceIds(groupId, referenceIds);
+  }
 }

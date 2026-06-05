@@ -29,8 +29,8 @@
   },
   "NAV": {
     "GROUPS": "Groups",
-    "RUEDA": "Current Rueda",
-    "RUEDAS": "Rueda History",
+    "RUEDA": "Payments",
+    "RUEDAS": "Ruedas",
     "MEMBERS": "Members",
     "PARALLEL_LOANS": "Loans",
     "CASH_BOX": "Cash Box"
@@ -101,6 +101,7 @@
     "SUGGESTION": "Suggestion",
     "EDIT": "Edit Rueda",
     "EDIT_SUBTITLE": "Modify the rueda parameters.",
+    "EDIT_COMPLETED_HINT": "This rueda is completed. You can only edit the notes.",
     "DELETE": "Delete Rueda",
     "DELETE_CONFIRM": "Are you sure you want to delete this rueda? This action cannot be undone.",
     "NOTES": "Notes",
@@ -127,7 +128,11 @@
     "PREV_AMOUNTS_TITLE": "Previous rueda installments",
     "PREV_AMOUNTS_HINT": "Enter the monthly installment amount each member was paying in the previous rueda.",
     "PREV_LOAN_AMOUNT": "Prev. installment (Gs)",
-    "EMPTY": "No ruedas registered"
+    "EMPTY": "No ruedas registered",
+    "NO_MEMBERS_TITLE": "No active members",
+    "NO_MEMBERS_WARNING": "This group has no active members. Add members before creating a rueda.",
+    "ERROR_NOT_ACTIVE": "Payments can only be generated for active ruedas.",
+    "ERROR_COMPLETE_HAS_PENDING": "There are pending payments. Mark all payments as paid before completing the rueda."
   },
   "PAYMENTS": {
     "TITLE": "Monthly Payments",

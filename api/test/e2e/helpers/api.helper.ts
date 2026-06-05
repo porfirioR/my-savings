@@ -75,7 +75,18 @@ export async function createRueda(
     slots,
   });
   expect(res.status).toBe(201);
-  return res.body as { id: string };
+  const rueda = res.body as { id: string };
+
+  const activateRes = await api(app).put(`/api/groups/${groupId}/ruedas/${rueda.id}`, { status: 'active' });
+  expect(activateRes.status).toBe(200);
+
+  return rueda;
+}
+
+// ─── Rueda helpers ────────────────────────────────────────────────────────────
+export async function activateRueda(app: INestApplication, groupId: string, ruedaId: string) {
+  const res = await api(app).put(`/api/groups/${groupId}/ruedas/${ruedaId}`, { status: 'active' });
+  expect(res.status).toBe(200);
 }
 
 // ─── Payments ─────────────────────────────────────────────────────────────────

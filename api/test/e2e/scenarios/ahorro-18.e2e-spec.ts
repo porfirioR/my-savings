@@ -28,7 +28,7 @@
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
-import { api, createGroup, generateAndPayAll, getCashBox } from '../helpers/api.helper';
+import { activateRueda, api, createGroup, generateAndPayAll, getCashBox } from '../helpers/api.helper';
 import { deleteTestGroup } from '../helpers/cleanup.helper';
 
 // ─── Parámetros ──────────────────────────────────────────────────────────────
@@ -108,6 +108,7 @@ describe('Ahorro 18 — préstamos variables acumulativos, interés 10 %', () =>
     });
     expect(ruedaRes.status).toBe(201);
     ruedaId = ruedaRes.body.id;
+    await activateRueda(app, groupId, ruedaId);
   });
 
   afterAll(async () => {
