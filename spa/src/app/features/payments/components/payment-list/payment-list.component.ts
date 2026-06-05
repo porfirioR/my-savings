@@ -11,7 +11,7 @@ interface ValidMonth {
   month: number;
   year: number;
   label: string;
-  index: number; // 1-based position within rueda (1 = junta, 2..15 = cuota 1..14, 16 = next junta)
+  index: number; // 1-based position within rueda (1 = junta + mes 1, 2..N = mes 2..N)
 }
 
 @Component({
@@ -42,10 +42,10 @@ interface ValidMonth {
               <button class="btn btn-xs btn-ghost" (click)="prevMonth()" [disabled]="activeMonthIndex() === 0">‹</button>
               <span class="text-sm font-medium px-2 min-w-40 text-center">
                 @if (currentValidMonth(); as cm) {
-                  @if (cm.index === 1 || cm.index === 16) {
-                    {{ 'RUEDAS.TIMELINE_JUNTA' | translate }}
+                  @if (cm.index === 1) {
+                    {{ 'RUEDAS.TIMELINE_JUNTA' | translate }} - {{ 'RUEDAS.TIMELINE_MONTH' | translate }} 1
                   } @else {
-                    {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index - 1 }}/{{ selectedRueda()?.slotCount ?? 15 }}
+                    {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index }}/{{ selectedRueda()?.slotCount ?? 10 }}
                   }
                   &mdash; {{ 'MONTHS.' + cm.month | translate }} {{ cm.year }}
                 }
@@ -107,6 +107,21 @@ interface ValidMonth {
           {{ 'PAYMENTS.EMPTY' | translate }}
         </div>
       } @else {
+        @if (currentValidMonth(); as cm) {
+          <div class="alert alert-info py-2 px-3 mb-3 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span>
+              @if (cm.index === 1) {
+                {{ 'RUEDAS.TIMELINE_MONTH' | translate }} 1:
+              } @else {
+                {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index }}:
+              }
+              <strong>{{ getMemberByPosition(cm.index) }}</strong> lleva
+            </span>
+          </div>
+        }
         <div class="overflow-x-auto rounded-box border border-base-300">
           <table class="table table-pin-rows w-full text-sm">
             <thead>
@@ -270,6 +285,17 @@ export class PaymentListComponent implements OnInit {
       next: () => { this.generating.set(false); this.load(); },
       error: () => this.generating.set(false),
     });
+  }
+
+  getMemberByPosition(position: number): string | null {
+    const payments = this.service.payments();
+
+    for (const p of payments) {
+      if (p.installmentNumber === position && p.paymentType === 'current_rueda') {
+        return p.memberName || null;
+      }
+    }
+    return null;
   }
 
   togglePaid(paymentId: string, action: 'paid' | 'unpaid'): void {

@@ -27,9 +27,9 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
           <button class="btn btn-xs btn-ghost" (click)="prev()" [disabled]="activeIndex() === 0">‹</button>
           <span class="text-sm font-medium flex-1 text-center">
             @if (c.position === 1) {
-              {{ 'RUEDAS.TIMELINE_JUNTA' | translate }}
+              {{ 'RUEDAS.TIMELINE_JUNTA' | translate }} - {{ 'RUEDAS.TIMELINE_MONTH' | translate }} 1
             } @else {
-              {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position - 1 }}/{{ totalMonths() }}
+              {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position }}/{{ totalMonths() }}
             }
             &mdash; {{ 'MONTHS.' + c.calendarMonth | translate }} {{ c.calendarYear }}
           </span>
@@ -57,6 +57,7 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
             <thead>
               <tr class="text-base-content/60">
                 <th class="w-6">#</th>
+                <th class="w-8">Lleva</th>
                 <th>{{ 'MEMBERS.TITLE' | translate }}</th>
                 <th class="text-right">{{ 'RUEDAS.INSTALLMENT' | translate }} (Gs)</th>
                 <th class="text-center">{{ 'RUEDAS.TIMELINE_CUOTA' | translate }}</th>
@@ -67,6 +68,13 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
               @for (p of c.payments; track p.slotPosition) {
                 <tr [class.opacity-50]="p.isPaid">
                   <td class="text-base-content/40 text-xs">{{ p.slotPosition }}</td>
+                  <td class="text-center">
+                    @if (p.memberId === c.disbursedToMemberId) {
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-info inline" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
+                    }
+                  </td>
                   <td class="font-medium">{{ p.memberName }}</td>
                   <td class="text-right font-mono text-sm">{{ p.amount | number:'1.0-0' }}</td>
                   <td class="text-center">
@@ -131,8 +139,7 @@ export class RuedaTimelineComponent implements OnChanges {
   }
 
   totalMonths(): number {
-    const len = this.timeline().length;
-    return len > 1 ? len - 1 : 0;
+    return this.timeline().length;
   }
 
   prev(): void {

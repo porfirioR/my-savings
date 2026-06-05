@@ -103,7 +103,7 @@ export function resolvePaymentType(
   currentMonthIndex: number,
 ): 'current_rueda' | 'previous_rueda' | 'contribution_only' {
   if (ruedaType === 'new') {
-    if (slotPosition < currentMonthIndex) return 'current_rueda';
+    if (slotPosition <= currentMonthIndex) return 'current_rueda';
     return 'contribution_only';
   }
   if (slotPosition < currentMonthIndex) return 'current_rueda';
