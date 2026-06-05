@@ -1,13 +1,14 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
 import { GroupsService } from '../../services/groups.service';
 import { CreateGroupFormGroup } from '../../../../core/forms';
 
 @Component({
   selector: 'app-create-group-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule, CommonModule],
   template: `
     @if (show) {
       <div class="modal modal-open">
@@ -26,10 +27,14 @@ import { CreateGroupFormGroup } from '../../../../core/forms';
             <div class="grid grid-cols-2 gap-3 mb-3">
               <fieldset class="fieldset">
                 <legend class="fieldset-legend">Mes inicio <span class="text-error">*</span></legend>
-                <input type="number" class="input input-bordered w-full" formControlName="startMonth"
-                  [class.input-error]="form.controls.startMonth.invalid && form.controls.startMonth.touched" />
+                <select class="select select-bordered w-full" formControlName="startMonth"
+                  [class.select-error]="form.controls.startMonth.invalid && form.controls.startMonth.touched">
+                  @for (m of months; track m) {
+                    <option [value]="m">{{ 'MONTHS.' + m | translate }}</option>
+                  }
+                </select>
                 @if (form.controls.startMonth.invalid && form.controls.startMonth.touched) {
-                  <span class="text-error text-xs mt-1">Valor entre 1 y 12</span>
+                  <span class="text-error text-xs mt-1">Selecciona un mes</span>
                 }
               </fieldset>
               <fieldset class="fieldset">
@@ -65,6 +70,7 @@ export class CreateGroupDialogComponent {
   private readonly fb = inject(FormBuilder);
 
   saving = false;
+  months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   form: FormGroup<CreateGroupFormGroup> = this.fb.nonNullable.group({
     name: ['', Validators.required],
