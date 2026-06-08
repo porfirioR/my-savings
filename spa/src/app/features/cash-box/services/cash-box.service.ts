@@ -42,4 +42,13 @@ export class CashBoxService {
       }),
     );
   }
+
+  deleteMovement(groupId: string, id: string): Observable<void> {
+    return this.api.delete<void>(`groups/${groupId}/cash-box/movements/${id}`).pipe(
+      tap(() => {
+        this.movements.update(list => list.filter(m => m.id !== id));
+        this.loadBalance(groupId);
+      }),
+    );
+  }
 }

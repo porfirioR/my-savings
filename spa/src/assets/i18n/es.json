@@ -132,7 +132,10 @@
     "NO_MEMBERS_TITLE": "Sin miembros activos",
     "NO_MEMBERS_WARNING": "Este grupo no tiene miembros activos. Agregá miembros antes de crear una rueda.",
     "ERROR_NOT_ACTIVE": "Solo se pueden generar pagos para ruedas activas.",
-    "ERROR_COMPLETE_HAS_PENDING": "Hay pagos pendientes. Marcá todos los pagos como pagados antes de completar la rueda."
+    "ERROR_COMPLETE_HAS_PENDING": "Hay pagos pendientes. Marcá todos los pagos como pagados antes de completar la rueda.",
+    "SIMULATOR_TITLE": "Ver flujo detallado",
+    "SIMULATOR_EMPTY": "Configurá la rueda para ver la simulación.",
+    "SIMULATOR_WARNING": "Cuidado: la caja llegará a números rojos en algunos meses. Considerá aumentar el aporte o reducir el monto del préstamo."
   },
   "PAYMENTS": {
     "TITLE": "Pagos del Mes",

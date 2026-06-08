@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
 import { CashBoxManager } from '../../manager/services';
 import { CashBalanceModel, CashMovementModel } from '../../manager/contracts/cash-box';
 import { CreateCashMovementApiRequest, UpdateCashMovementApiRequest } from '../contracts/cash-box';
@@ -40,6 +40,12 @@ export class CashBoxController {
       year: body.year,
       description: body.description,
     });
+  }
+
+  @Delete('movements/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteMovement(@Param('id') id: string): Promise<void> {
+    return this.cashBoxManager.deleteMovement(id);
   }
 
   @Put('movements/:id')

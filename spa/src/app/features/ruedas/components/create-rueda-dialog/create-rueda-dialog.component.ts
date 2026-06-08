@@ -7,12 +7,13 @@ import { takeUntil } from 'rxjs/operators';
 import { RuedasService } from '../../services/ruedas.service';
 import { MembersService } from '../../../members/services/members.service';
 import { CashBoxService } from '../../../cash-box/services/cash-box.service';
+import { RuedaSimulatorComponent } from '../rueda-simulator/rueda-simulator.component';
 import { CreateRuedaFormGroup } from '../../../../core/forms';
 
 @Component({
   selector: 'app-create-rueda-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, TranslateModule, DecimalPipe],
+  imports: [ReactiveFormsModule, FormsModule, TranslateModule, DecimalPipe, RuedaSimulatorComponent],
   template: `
     @if (show) {
       <div class="modal modal-open">
@@ -138,7 +139,20 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
                     <span>Cuotas ant.: <span class="font-semibold text-warning">{{ sumPrevLoanAmounts | number:'1.0-0' }} Gs</span></span>
                     <span>{{ memberCount }} × {{ (form.controls.contributionAmount.value ?? 0) | number:'1.0-0' }} Gs aporte</span>
                   </div>
-                  <p class="text-xs text-base-content/40 italic">Para verificar que este monto sea sostenible mes a mes sin dejar caja en rojo, simula el flujo en la sección de Cronograma.</p>
+                  <p class="text-xs text-base-content/40 italic">Expandí "Ver flujo detallado" para simular el saldo mes a mes.</p>
+
+                  <app-rueda-simulator
+                    [previousRuedaInstallment]="sumPrevLoanAmounts / (previousRuedaMemberCount || 1)"
+                    [previousRuedaMembers]="previousRuedaMembers"
+                    [newLoanAmount]="form.controls.loanAmount.value ?? 0"
+                    [newInterestRate]="form.controls.interestRate.value ?? 0"
+                    [newContributionAmount]="form.controls.contributionAmount.value ?? 0"
+                    [newRoundingUnit]="form.controls.roundingUnit.value ?? 0"
+                    [newMemberCount]="memberCount"
+                    [startMonth]="form.controls.startMonth.value ?? 1"
+                    [startYear]="form.controls.startYear.value ?? 2026"
+                    [initialCashBalance]="cashBoxService.balance().balance">
+                  </app-rueda-simulator>
                 </div>
               } @else {
                 <p class="text-xs text-base-content/40 mt-1">
@@ -350,6 +364,17 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
 
   get sumPrevLoanAmounts(): number {
     return this.slots.reduce((s, slot) => s + (slot.previousLoanAmount ?? 0), 0);
+  }
+
+  get previousRuedaMemberCount(): number {
+    return this.slots.length;
+  }
+
+  get previousRuedaMembers(): Array<{ memberId: string; installmentAmount: number }> {
+    return this.slots.map(s => ({
+      memberId: s.memberId,
+      installmentAmount: s.previousLoanAmount ?? 0,
+    }));
   }
 
   ngOnChanges(): void {

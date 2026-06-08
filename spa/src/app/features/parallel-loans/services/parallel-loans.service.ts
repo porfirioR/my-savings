@@ -52,4 +52,20 @@ export class ParallelLoansService {
       }),
     );
   }
+
+  unmarkPayment(groupId: string, loanId: string, paymentId: string): Observable<void> {
+    return this.api.post<void>(`groups/${groupId}/parallel-loans/${loanId}/payments/${paymentId}/mark-unpaid`, {}).pipe(
+      tap(() => {
+        this.payments.update(list =>
+          list.map(p => p.id === paymentId ? { ...p, status: 'pending' as const, paidAt: null } : p)
+        );
+        this.loans.update(list =>
+          list.map(l => l.id === loanId
+            ? { ...l, installmentsPaid: Math.max(0, l.installmentsPaid - 1), status: 'active' as const }
+            : l
+          )
+        );
+      }),
+    );
+  }
 }

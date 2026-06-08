@@ -220,7 +220,10 @@ export class PaymentsAccess extends BaseAccessService {
 
     if (slotError) throw new Error(slotError.message);
     const requiredLists = slotCount ?? 0;
-    if (requiredLists === 0) return null;
+    if (requiredLists === 0) {
+      console.log(`[checkRuedaFullyPaid] No slots found for rueda ${ruedaId}`);
+      return null;
+    }
 
     // Get all generated payments + rueda status
     const { data, error } = await this.dbContext
@@ -229,18 +232,33 @@ export class PaymentsAccess extends BaseAccessService {
       .eq('rueda_id', ruedaId);
 
     if (error) throw new Error(error.message);
-    if (!data || (data as any[]).length === 0) return null;
+    if (!data || (data as any[]).length === 0) {
+      console.log(`[checkRuedaFullyPaid] No payments found for rueda ${ruedaId}`);
+      return null;
+    }
 
     const rueda = (data[0] as any).ruedas;
-    if (rueda?.status !== 'active') return null;
+    if (rueda?.status !== 'active') {
+      console.log(`[checkRuedaFullyPaid] Rueda status is not active: ${rueda?.status}`);
+      return null;
+    }
 
     // All N lists must be generated (distinct month/year combos = member count)
     const distinctMonths = new Set((data as any[]).map((p: any) => `${p.month}/${p.year}`)).size;
-    if (distinctMonths !== requiredLists) return null;
+    console.log(`[checkRuedaFullyPaid] requiredLists=${requiredLists}, distinctMonths=${distinctMonths}, needed=${requiredLists}`);
+    if (distinctMonths !== requiredLists) {
+      console.log(`[checkRuedaFullyPaid] Not enough months: ${distinctMonths} !== ${requiredLists}`);
+      return null;
+    }
 
     // Every payment in every generated list must be paid
     const allPaid = (data as any[]).every((p: any) => p.is_paid);
-    if (!allPaid) return null;
+    if (!allPaid) {
+      const unpaidCount = (data as any[]).filter((p: any) => !p.is_paid).length;
+      console.log(`[checkRuedaFullyPaid] Not all paid: ${unpaidCount} payments still unpaid`);
+      return null;
+    }
+    console.log(`[checkRuedaFullyPaid] ✓ Rueda ${ruedaId} is fully paid - auto-completing`);
 
     // Get last slot's loan_month/year to calculate the end date (final junta = last slot + 1 month)
     const { data: lastSlotData, error: lsErr } = await this.dbContext

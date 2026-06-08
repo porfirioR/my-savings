@@ -5,6 +5,7 @@ export interface MonthlyPayment {
   memberName: string;
   month: number;
   year: number;
+  installmentNumber: number;
   paymentType: 'current_rueda' | 'previous_rueda' | 'contribution_only';
   installmentAmount: number;
   contributionAmount: number;

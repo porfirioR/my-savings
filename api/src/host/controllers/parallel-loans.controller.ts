@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { ParallelLoansManager } from '../../manager/services';
 import { CreateParallelLoanRequest, MarkLoanPaymentRequest, ParallelLoanModel, ParallelLoanPaymentModel, UpdateParallelLoanRequest } from '../../manager/contracts/parallel-loans';
 import { CreateParallelLoanApiRequest, UpdateParallelLoanApiRequest } from '../contracts/parallel-loans';
@@ -42,8 +42,18 @@ export class ParallelLoansController {
 
   @Post(':id/payments/:paymentId/mark-paid')
   markPayment(
+    @Param('groupId') groupId: string,
     @Param('paymentId') paymentId: string,
   ): Promise<ParallelLoanPaymentModel> {
-    return this.parallelLoansManager.markPayment(paymentId, new MarkLoanPaymentRequest(true));
+    return this.parallelLoansManager.markPayment(groupId, paymentId, new MarkLoanPaymentRequest(true));
+  }
+
+  @Post(':id/payments/:paymentId/mark-unpaid')
+  @HttpCode(HttpStatus.OK)
+  unmarkPayment(
+    @Param('groupId') groupId: string,
+    @Param('paymentId') paymentId: string,
+  ): Promise<ParallelLoanPaymentModel> {
+    return this.parallelLoansManager.markPayment(groupId, paymentId, new MarkLoanPaymentRequest(false));
   }
 }
