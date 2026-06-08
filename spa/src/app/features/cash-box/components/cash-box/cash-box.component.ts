@@ -101,11 +101,23 @@ import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-
                             [class.text-error]="m.type === 'out'">
                             {{ m.type === 'out' ? '-' : '+' }}{{ m.amount | number:'1.0-0' }} Gs
                           </td>
-                          <td class="text-right">
+                          <td class="text-right whitespace-nowrap">
                             @if (m.sourceType === 'manual') {
-                              <button class="btn btn-ghost btn-xs" (click)="openEditModal(m)">
-                                {{ 'APP.EDIT' | translate }}
-                              </button>
+                              @if (deletingId() === m.id) {
+                                <span class="text-xs text-error mr-1">¿Eliminar?</span>
+                                <button class="btn btn-error btn-xs mr-1" [disabled]="deleting()" (click)="confirmDelete(m.id)">
+                                  @if (deleting()) { <span class="loading loading-spinner loading-xs"></span> }
+                                  Sí
+                                </button>
+                                <button class="btn btn-ghost btn-xs" (click)="cancelDelete()">No</button>
+                              } @else {
+                                <button class="btn btn-ghost btn-xs" (click)="openEditModal(m)">
+                                  {{ 'APP.EDIT' | translate }}
+                                </button>
+                                <button class="btn btn-ghost btn-xs text-error" (click)="askDelete(m.id)">
+                                  {{ 'APP.DELETE' | translate }}
+                                </button>
+                              }
                             }
                           </td>
                         </tr>
@@ -135,6 +147,8 @@ export class CashBoxComponent implements OnInit {
   groupId = '';
   showModal = signal(false);
   editingMovement = signal<CashMovement | null>(null);
+  deletingId = signal<string | null>(null);
+  deleting = signal(false);
 
   sortedMovements = computed(() =>
     [...this.service.movements()].sort((a, b) => {
@@ -186,5 +200,21 @@ export class CashBoxComponent implements OnInit {
   closeModal(): void {
     this.showModal.set(false);
     this.editingMovement.set(null);
+  }
+
+  askDelete(id: string): void {
+    this.deletingId.set(id);
+  }
+
+  cancelDelete(): void {
+    this.deletingId.set(null);
+  }
+
+  confirmDelete(id: string): void {
+    this.deleting.set(true);
+    this.service.deleteMovement(this.groupId, id).subscribe({
+      next: () => { this.deletingId.set(null); this.deleting.set(false); },
+      error: () => { this.deleting.set(false); },
+    });
   }
 }

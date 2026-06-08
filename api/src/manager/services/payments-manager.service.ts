@@ -97,6 +97,34 @@ export class PaymentsManager {
             referenceId,
           ),
         );
+
+        // Safety net: ensure the disbursement exists for this month.
+        // generateMonthlyPayments creates it, but if it was missed (silent error,
+        // regeneration skipped, etc.) we guarantee it here when the month closes.
+        const disbursement = await this.paymentsAccess.getDisbursementInfo(
+          result.ruedaId,
+          result.month,
+          result.year,
+        );
+        if (disbursement) {
+          const disbRefId = toReferenceUuid(`disburse:${result.ruedaId}:${result.month}/${result.year}`);
+          const disbExists = await this.cashBoxManager.existsByReference(disbursement.groupId, disbRefId);
+          if (!disbExists) {
+            await this.cashBoxManager.createMovement(
+              new CreateCashMovementRequest(
+                disbursement.groupId,
+                'out',
+                'automatic',
+                'rueda_disbursement',
+                disbursement.loanAmount,
+                result.month,
+                result.year,
+                `Rueda ${disbursement.ruedaNumber} - Desembolso ${result.month}/${result.year}`,
+                disbRefId,
+              ),
+            );
+          }
+        }
       }
 
       // Auto-complete the rueda if every month across all slots is fully paid

@@ -169,7 +169,7 @@ export class ParallelLoansAccess extends BaseAccessService {
   async markPayment(
     paymentId: string,
     req: MarkLoanPaymentAccessRequest,
-  ): Promise<ParallelLoanPaymentAccessModel> {
+  ): Promise<{ payment: ParallelLoanPaymentAccessModel; memberName: string; installmentNumber: number; totalInstallments: number }> {
     const { data, error } = await this.dbContext
       .from('parallel_loan_payments')
       .update({
@@ -194,11 +194,12 @@ export class ParallelLoansAccess extends BaseAccessService {
 
     const { data: loanData } = await this.dbContext
       .from('parallel_loans')
-      .select('total_installments')
+      .select('total_installments, start_month, start_year, members(first_name, last_name)')
       .eq('id', payment.parallel_loan_id)
       .single();
 
-    const total = (loanData as any)?.total_installments ?? 0;
+    const loan = loanData as any;
+    const total = loan?.total_installments ?? 0;
     const newStatus = paidCount >= total ? 'completed' : 'active';
 
     await this.dbContext
@@ -206,6 +207,12 @@ export class ParallelLoansAccess extends BaseAccessService {
       .update({ installments_paid: paidCount, status: newStatus })
       .eq('id', payment.parallel_loan_id);
 
-    return this.mapPayment(payment);
+    const memberName = loan?.members
+      ? `${loan.members.first_name} ${loan.members.last_name}`
+      : '';
+    const installmentNumber =
+      (payment.year - loan.start_year) * 12 + (payment.month - loan.start_month) + 1;
+
+    return { payment: this.mapPayment(payment), memberName, installmentNumber, totalInstallments: total };
   }
 }

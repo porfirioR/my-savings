@@ -42,6 +42,10 @@ export class CashBoxManager {
     return this.mapMovement(await this.cashBoxAccess.updateMovement(id, req));
   }
 
+  async deleteMovement(id: string): Promise<void> {
+    return this.cashBoxAccess.deleteMovement(id);
+  }
+
   async existsByReference(groupId: string, referenceId: string): Promise<boolean> {
     return this.cashBoxAccess.existsByReference(groupId, referenceId);
   }

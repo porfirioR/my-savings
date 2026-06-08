@@ -116,6 +116,16 @@ export class CashBoxAccess extends BaseAccessService {
     return this.mapToModel(data as CashMovementEntity);
   }
 
+  async deleteMovement(id: string): Promise<void> {
+    const { error } = await this.dbContext
+      .from('cash_movements')
+      .delete()
+      .eq('id', id)
+      .eq('source_type', 'manual');
+
+    if (error) throw new Error(error.message);
+  }
+
   async createMovement(req: CreateCashMovementAccessRequest): Promise<CashMovementAccessModel> {
     const { data, error } = await this.dbContext
       .from('cash_movements')

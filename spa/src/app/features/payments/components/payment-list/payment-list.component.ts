@@ -140,7 +140,7 @@ interface ValidMonth {
                 <tr class="hover:bg-base-200/50" [class.opacity-60]="p.status === 'paid'">
                   <td class="font-medium">{{ p.memberName }}</td>
                   <td>
-                    <span class="badge badge-xs badge-outline"
+                    <span class="badge badge-xs badge-outline whitespace-nowrap"
                       [class.badge-primary]="p.paymentType === 'current_rueda'"
                       [class.badge-warning]="p.paymentType === 'previous_rueda'"
                       [class.badge-ghost]="p.paymentType === 'contribution_only'">
@@ -291,7 +291,7 @@ export class PaymentListComponent implements OnInit {
     const payments = this.service.payments();
 
     for (const p of payments) {
-      if (p.installmentNumber === position && p.paymentType === 'current_rueda') {
+      if (p.installmentNumber === position) {
         return p.memberName || null;
       }
     }

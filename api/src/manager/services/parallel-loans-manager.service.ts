@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ParallelLoansAccess } from '../../access/data/services';
+import { CashBoxAccess, ParallelLoansAccess } from '../../access/data/services';
 import {
   ParallelLoanAccessModel,
   ParallelLoanPaymentAccessModel,
 } from '../../access/contracts/parallel-loans';
+import { CreateCashMovementAccessRequest } from '../../access/contracts/cash-box';
 import { calculateInstallment } from '../../utility/helpers';
 import {
   CreateParallelLoanRequest,
@@ -15,7 +16,10 @@ import {
 
 @Injectable()
 export class ParallelLoansManager {
-  constructor(private readonly parallelLoansAccess: ParallelLoansAccess) {}
+  constructor(
+    private readonly parallelLoansAccess: ParallelLoansAccess,
+    private readonly cashBoxAccess: CashBoxAccess,
+  ) {}
 
   private mapPayment(a: ParallelLoanPaymentAccessModel): ParallelLoanPaymentModel {
     return new ParallelLoanPaymentModel(
@@ -87,7 +91,27 @@ export class ParallelLoansManager {
     return (await this.parallelLoansAccess.getPayments(loanId)).map(p => this.mapPayment(p));
   }
 
-  async markPayment(paymentId: string, req: MarkLoanPaymentRequest): Promise<ParallelLoanPaymentModel> {
-    return this.mapPayment(await this.parallelLoansAccess.markPayment(paymentId, req));
+  async markPayment(groupId: string, paymentId: string, req: MarkLoanPaymentRequest): Promise<ParallelLoanPaymentModel> {
+    const { payment, memberName, installmentNumber, totalInstallments } =
+      await this.parallelLoansAccess.markPayment(paymentId, req);
+
+    if (req.isPaid) {
+      await this.cashBoxAccess.createMovement(new CreateCashMovementAccessRequest(
+        groupId,
+        'in',
+        'automatic',
+        'parallel_loan_payment',
+        payment.amount,
+        payment.month,
+        payment.year,
+        `Cuota ${installmentNumber}/${totalInstallments} - ${memberName}`,
+        paymentId,
+      ));
+    } else {
+      // deleteByReference is a no-op if the cash movement was never created (old payments)
+      await this.cashBoxAccess.deleteByReference(groupId, paymentId);
+    }
+
+    return this.mapPayment(payment);
   }
 }
