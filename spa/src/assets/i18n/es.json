@@ -125,6 +125,8 @@
     "TIMELINE_PREV": "Ant.",
     "TIMELINE_PREV_FULL": "Anterior",
     "TIMELINE_JUNTA": "Junta",
+    "TIMELINE_JUNTA_NEW": "Junta Nueva Rueda",
+    "TIMELINE_JUNTA_NEW_BANNER": "Este mes corresponde a la junta de la nueva rueda. Los pagos aquí son parte del próximo ciclo.",
     "TIMELINE_LAST_INSTALLMENT": "Última (ant.)",
     "PREV_AMOUNTS_TITLE": "Cuotas mensuales rueda anterior",
     "PREV_AMOUNTS_HINT": "Ingresá la cuota mensual que cada miembro pagaba en la rueda anterior.",

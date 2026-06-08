@@ -116,6 +116,8 @@
     "TIMELINE_EMPTY": "No slots assigned. Assign members to slots to see the timeline.",
     "TIMELINE_MONTH": "Month",
     "TIMELINE_JUNTA": "Junta",
+    "TIMELINE_JUNTA_NEW": "New Rueda Junta",
+    "TIMELINE_JUNTA_NEW_BANNER": "This month corresponds to the new rueda's opening meeting. Payments here are part of the next cycle.",
     "TIMELINE_LAST_INSTALLMENT": "Last (prev.)",
     "TIMELINE_DISBURSED": "Disbursement to",
     "TIMELINE_PAYMENT_TYPE": "Type",
