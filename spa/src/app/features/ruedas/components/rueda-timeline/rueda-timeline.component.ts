@@ -29,11 +29,11 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
             @if (c.position === 1) {
               {{ 'RUEDAS.TIMELINE_JUNTA' | translate }} - {{ 'RUEDAS.TIMELINE_MONTH' | translate }} 1
             } @else {
-              {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position }}/{{ totalMonths() }}
+              {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position }}/{{ totalMonths() - 1 }}
             }
             &mdash; {{ 'MONTHS.' + c.calendarMonth | translate }} {{ c.calendarYear }}
           </span>
-          <button class="btn btn-xs btn-ghost" (click)="next()" [disabled]="activeIndex() === timeline().length - 1">›</button>
+          <button class="btn btn-xs btn-ghost" (click)="next()" [disabled]="activeIndex() >= timeline().length - 2">›</button>
         </div>
 
         <!-- Disbursement info (hidden on final junta page) -->
@@ -66,7 +66,7 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
             </thead>
             <tbody>
               @for (p of c.payments; track p.slotPosition) {
-                <tr [class.opacity-50]="p.isPaid">
+                <tr>
                   <td class="text-base-content/40 text-xs">{{ p.slotPosition }}</td>
                   <td class="text-center">
                     @if (p.memberId === c.disbursedToMemberId) {
@@ -87,7 +87,10 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
                         {{ p.cuotaNumber }}/{{ totalMonths() }}
                       </span>
                       @if (p.paymentType === 'previous_rueda') {
-                        <span class="badge badge-xs badge-warning ml-1">{{ 'RUEDAS.TIMELINE_PREV' | translate }}</span>
+                        <span class="badge badge-xs badge-warning ml-1">
+                          <span class="sm:hidden">{{ 'RUEDAS.TIMELINE_PREV' | translate }}</span>
+                          <span class="hidden sm:inline">{{ 'RUEDAS.TIMELINE_PREV_FULL' | translate }}</span>
+                        </span>
                       }
                     }
                   </td>
@@ -147,6 +150,6 @@ export class RuedaTimelineComponent implements OnChanges {
   }
 
   next(): void {
-    if (this.activeIndex() < this.timeline().length - 1) this.activeIndex.update(i => i + 1);
+    if (this.activeIndex() < this.timeline().length - 2) this.activeIndex.update(i => i + 1);
   }
 }

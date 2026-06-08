@@ -69,17 +69,6 @@ interface Group {
           <nav class="flex-1 p-3 flex flex-col">
             <ul class="flex flex-col gap-0.5 flex-1">
               <li>
-                <a [routerLink]="['rueda']"
-                   routerLinkActive="bg-primary/10 text-primary font-semibold"
-                   (click)="closeSidebar()"
-                   class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                  </svg>
-                  {{ 'NAV.RUEDA' | translate }}
-                </a>
-              </li>
-              <li>
                 <a [routerLink]="['ruedas']"
                    routerLinkActive="bg-primary/10 text-primary font-semibold"
                    (click)="closeSidebar()"
@@ -88,6 +77,17 @@ interface Group {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                   </svg>
                   {{ 'NAV.RUEDAS' | translate }}
+                </a>
+              </li>
+              <li>
+                <a [routerLink]="['rueda']"
+                   routerLinkActive="bg-primary/10 text-primary font-semibold"
+                   (click)="closeSidebar()"
+                   class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                  </svg>
+                  {{ 'NAV.RUEDA' | translate }}
                 </a>
               </li>
               <li>
@@ -139,7 +139,7 @@ interface Group {
             <!-- Theme toggle -->
             <div class="pt-3 border-t border-base-300 mt-3">
               <button (click)="theme.toggle()"
-                class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content cursor-pointer">
                 @if (theme.isDark()) {
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71m12.02 0-.71-.71M5.64 5.64l-.71-.71M12 5a7 7 0 100 14A7 7 0 0012 5z"/>

@@ -48,8 +48,8 @@ export const routes: Routes = [
       {
         path: 'rueda-simulator',
         loadComponent: () =>
-          import('./features/ruedas/components/rueda-simulator/rueda-simulator.component').then(
-            m => m.RuedaSimulatorComponent,
+          import('./features/ruedas/components/rueda-simulator/rueda-simulator-page.component').then(
+            m => m.RuedaSimulatorPageComponent,
           ),
       },
       {
