@@ -82,15 +82,15 @@ import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.compone
                 <div class="grid grid-cols-3 gap-3">
                   <div class="bg-base-100 rounded-lg p-3">
                     <p class="text-xs text-base-content/50 mb-0.5">{{ 'RUEDAS.LOAN_AMOUNT' | translate }}</p>
-                    <p class="font-semibold text-sm">{{ r.loanAmount | number:'1.0-0' }} Gs</p>
+                    <p class="font-semibold text-sm text-success">{{ r.loanAmount | number:'1.0-0' }} Gs</p>
                   </div>
                   <div class="bg-base-100 rounded-lg p-3">
                     <p class="text-xs text-base-content/50 mb-0.5">{{ 'RUEDAS.INSTALLMENT' | translate }}</p>
-                    <p class="font-semibold text-sm">{{ r.installmentAmount | number:'1.0-0' }} Gs</p>
+                    <p class="font-semibold text-sm text-warning">{{ r.installmentAmount | number:'1.0-0' }} Gs</p>
                   </div>
                   <div class="bg-base-100 rounded-lg p-3">
                     <p class="text-xs text-base-content/50 mb-0.5">{{ 'RUEDAS.CONTRIBUTION' | translate }}</p>
-                    <p class="font-semibold text-sm">{{ r.contributionAmount | number:'1.0-0' }} Gs</p>
+                    <p class="font-semibold text-sm text-info">{{ r.contributionAmount | number:'1.0-0' }} Gs</p>
                   </div>
                 </div>
                 <div class="flex items-center justify-between mt-4">

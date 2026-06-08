@@ -50,7 +50,7 @@ interface ValidMonth {
                   &mdash; {{ 'MONTHS.' + cm.month | translate }} {{ cm.year }}
                 }
               </span>
-              <button class="btn btn-xs btn-ghost" (click)="nextMonth()" [disabled]="activeMonthIndex() === validMonths().length - 1">›</button>
+              <button class="btn btn-xs btn-ghost" (click)="nextMonth()" [disabled]="activeMonthIndex() >= validMonths().length - 2">›</button>
             </div>
           }
 
@@ -74,6 +74,14 @@ interface ValidMonth {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
             {{ 'PAYMENTS.ALL_PAID_WARNING' | translate }}
+          </div>
+        }
+        @if (revertError()) {
+          <div class="mt-3 alert alert-error py-2 px-3 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            {{ 'PAYMENTS.REVERT_COMPLETED_ERROR' | translate }}
           </div>
         }
       </div>
@@ -166,9 +174,13 @@ interface ValidMonth {
                         @else { ✓ }
                       </button>
                     } @else {
-                      <button class="btn btn-circle btn-xs btn-ghost" [disabled]="toggling() === p.id" (click)="togglePaid(p.id, 'unpaid')">
+                      <button class="btn btn-circle btn-xs btn-ghost text-error hover:bg-error hover:text-white" [disabled]="toggling() === p.id" (click)="togglePaid(p.id, 'unpaid')">
                         @if (toggling() === p.id) { <span class="loading loading-spinner loading-xs"></span> }
-                        @else { ✗ }
+                        @else {
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                          </svg>
+                        }
                       </button>
                     }
                   </td>
@@ -197,6 +209,7 @@ export class PaymentListComponent implements OnInit {
   selectedRuedaId = signal('');
   generating = signal(false);
   toggling = signal('');
+  revertError = signal(false);
   activeMonthIndex = signal(0);
 
   /** The selected rueda object */
@@ -240,6 +253,7 @@ export class PaymentListComponent implements OnInit {
 
   onRuedaChange(ruedaId: string): void {
     this.selectedRuedaId.set(ruedaId);
+    this.revertError.set(false);
     if (!ruedaId) {
       this.activeMonthIndex.set(0);
       this.service.clearPayments();
@@ -253,20 +267,23 @@ export class PaymentListComponent implements OnInit {
     const nowYear = now.getFullYear();
     const months = this.validMonths();
     const idx = months.findIndex(m => m.year === nowYear && m.month === nowMonth);
-    this.activeMonthIndex.set(idx >= 0 ? idx : 0);
+    const maxIdx = Math.max(0, months.length - 2);
+    this.activeMonthIndex.set(Math.min(idx >= 0 ? idx : 0, maxIdx));
     this.load();
   }
 
   prevMonth(): void {
     if (this.activeMonthIndex() > 0) {
       this.activeMonthIndex.update(i => i - 1);
+      this.revertError.set(false);
       this.load();
     }
   }
 
   nextMonth(): void {
-    if (this.activeMonthIndex() < this.validMonths().length - 1) {
+    if (this.activeMonthIndex() < this.validMonths().length - 2) {
       this.activeMonthIndex.update(i => i + 1);
+      this.revertError.set(false);
       this.load();
     }
   }
@@ -299,6 +316,11 @@ export class PaymentListComponent implements OnInit {
   }
 
   togglePaid(paymentId: string, action: 'paid' | 'unpaid'): void {
+    if (action === 'unpaid' && this.selectedRueda()?.status === 'completed') {
+      this.revertError.set(true);
+      return;
+    }
+    this.revertError.set(false);
     this.toggling.set(paymentId);
     const obs = action === 'paid'
       ? this.service.markPaid(this.groupId, this.selectedRuedaId(), paymentId)
