@@ -1,11 +1,12 @@
 import { Component, computed, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
 import { ParallelLoansService } from '../../services/parallel-loans.service';
 import { MembersService } from '../../../members/services/members.service';
+import { CashBoxService } from '../../../cash-box/services/cash-box.service';
 import { ParallelLoan } from '../../models/parallel-loan.model';
 import { CreateParallelLoanFormGroup } from '../../../../core/forms';
 
@@ -23,6 +24,43 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
           <p class="text-sm text-base-content/50 mb-4">
             {{ (editLoan ? 'PARALLEL_LOANS.EDIT_SUBTITLE' : 'PARALLEL_LOANS.NEW_SUBTITLE') | translate }}
           </p>
+
+          @if (!editLoan) {
+            <!-- Cash box balance info -->
+            <div class="flex items-center gap-2 text-xs mb-3">
+              <span class="text-base-content/50">{{ 'PARALLEL_LOANS.CASH_BALANCE_LABEL' | translate }}:</span>
+              <span class="font-semibold"
+                [class.text-success]="cashBoxService.balance().balance > 0"
+                [class.text-error]="cashBoxService.balance().balance <= 0">
+                {{ cashBoxService.balance().balance | number:'1.0-0' }} Gs
+              </span>
+            </div>
+
+            @if (noCashFunds()) {
+              <div class="alert alert-error py-2 px-3 mb-3 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <span>{{ 'PARALLEL_LOANS.NO_FUNDS' | translate }}</span>
+              </div>
+            } @else if (amountExceedsBalance()) {
+              <div class="alert alert-warning py-2 px-3 mb-3 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+                <span>{{ 'PARALLEL_LOANS.AMOUNT_EXCEEDS_BALANCE' | translate }} ({{ cashBoxService.balance().balance | number:'1.0-0' }} Gs).</span>
+              </div>
+            }
+
+            @if (memberHasActiveLoan()) {
+              <div class="alert alert-error py-2 px-3 mb-3 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <span>{{ 'PARALLEL_LOANS.MEMBER_HAS_ACTIVE' | translate }}</span>
+              </div>
+            }
+          }
 
           <form [formGroup]="form">
           <fieldset class="fieldset mb-3">
@@ -43,9 +81,14 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PARALLEL_LOANS.AMOUNT' | translate }} (Gs) <span class="text-error">*</span></legend>
+              <legend class="fieldset-legend">
+                {{ 'PARALLEL_LOANS.AMOUNT' | translate }} (Gs) <span class="text-error">*</span>
+                @if (!editLoan && cashBoxService.balance().balance > 0) {
+                  <span class="text-base-content/40 font-normal ml-1">{{ 'PARALLEL_LOANS.MAX_HINT' | translate }} {{ cashBoxService.balance().balance | number:'1.0-0' }}</span>
+                }
+              </legend>
               <input type="number" class="input input-bordered w-full" formControlName="amount"
-                [class.input-error]="form.controls.amount.invalid && form.controls.amount.touched" />
+                [class.input-error]="form.controls.amount.invalid && form.controls.amount.touched || amountExceedsBalance()" />
               @if (form.controls.amount.invalid && form.controls.amount.touched) {
                 <span class="text-error text-xs mt-1">{{ 'VALIDATION.AMOUNT_GT_ZERO' | translate }}</span>
               }
@@ -115,10 +158,21 @@ import { CreateParallelLoanFormGroup } from '../../../../core/forms';
             </div>
           }
 
+          @if (saveError()) {
+            <div class="alert alert-error py-2 px-3 mb-3 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              <span>{{ saveError() }}</span>
+            </div>
+          }
+
           <div class="divider my-2"></div>
           <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="onCancel()">{{ 'APP.CANCEL' | translate }}</button>
-            <button class="btn btn-primary" [disabled]="form.invalid || saving()" (click)="save()">
+            <button class="btn btn-primary"
+              [disabled]="form.invalid || saving() || (!editLoan && (noCashFunds() || memberHasActiveLoan() || amountExceedsBalance()))"
+              (click)="save()">
               @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
               {{ 'APP.SAVE' | translate }}
             </button>
@@ -138,9 +192,12 @@ export class CreateParallelLoanDialogComponent implements OnChanges {
 
   private readonly service = inject(ParallelLoansService);
   readonly membersService = inject(MembersService);
+  readonly cashBoxService = inject(CashBoxService);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   saving = signal(false);
+  saveError = signal<string | null>(null);
   months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
 
   form: FormGroup<CreateParallelLoanFormGroup> = this.fb.nonNullable.group({
@@ -172,8 +229,32 @@ export class CreateParallelLoanDialogComponent implements OnChanges {
     return { installmentAmount, totalToReturn: actualTotal, gain: actualTotal - amount };
   });
 
+  noCashFunds = computed(() => {
+    if (this.editLoan) return false;
+    return this.cashBoxService.balance().balance <= 0;
+  });
+
+  amountExceedsBalance = computed(() => {
+    if (this.editLoan) return false;
+    const balance = this.cashBoxService.balance().balance;
+    if (balance <= 0) return false;
+    const amount = this.formValues()?.amount ?? 0;
+    return amount > 0 && amount > balance;
+  });
+
+  memberHasActiveLoan = computed(() => {
+    if (this.editLoan) return false;
+    const memberId = this.formValues()?.memberId;
+    if (!memberId) return false;
+    return this.service.loans().some(l => l.memberId === memberId && l.status === 'active');
+  });
+
   ngOnChanges(): void {
     if (!this.show) return;
+    this.saveError.set(null);
+    if (!this.editLoan) {
+      this.cashBoxService.loadBalance(this.groupId);
+    }
     if (this.editLoan) {
       this.form.reset({
         memberId: this.editLoan.memberId,
@@ -200,12 +281,16 @@ export class CreateParallelLoanDialogComponent implements OnChanges {
   save(): void {
     if (this.form.invalid) return;
     this.saving.set(true);
+    this.saveError.set(null);
     const obs = this.editLoan
       ? this.service.update(this.groupId, this.editLoan.id, this.form.getRawValue())
       : this.service.create(this.groupId, this.form.getRawValue());
     obs.subscribe({
       next: () => { this.saving.set(false); this.saved.emit(); },
-      error: () => { this.saving.set(false); },
+      error: (err) => {
+        this.saving.set(false);
+        this.saveError.set(err?.error?.message ?? this.translate.instant('PARALLEL_LOANS.SAVE_ERROR'));
+      },
     });
   }
 
