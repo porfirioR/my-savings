@@ -303,7 +303,7 @@ export class RuedasManager {
 
       for (const slot of slots) {
         const cuotaNumber = slots.length + 1 - slot.position;
-        const amount = slot.installmentAmount + rueda.contributionAmount;
+        const amount = slot.installmentAmount; // contribution unknown for next rueda
         const paymentKey = `${slot.memberId}:${nextMonth}:${nextYear}`;
         const paymentRecord = paymentIndex.get(paymentKey);
 

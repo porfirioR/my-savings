@@ -96,7 +96,7 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
                       <span class="text-xs font-semibold"
                         [class.text-warning]="p.paymentType === 'previous_rueda'"
                         [class.text-primary]="p.paymentType === 'current_rueda'">
-                        {{ p.cuotaNumber }}/{{ totalMonths() }}
+                        {{ p.cuotaNumber }}/{{ installmentCount() }}
                       </span>
                       @if (p.paymentType === 'previous_rueda') {
                         <span class="badge badge-xs badge-warning ml-1">
@@ -155,6 +155,12 @@ export class RuedaTimelineComponent implements OnChanges {
     if (tl.length <= 1) return false;
     if (idx !== tl.length - 1) return false;
     return !tl[idx]?.disbursedToMemberId;
+  });
+
+  installmentCount = computed(() => {
+    const tl = this.timeline();
+    if (tl.length === 0) return 0;
+    return tl[tl.length - 1]?.disbursedToMemberId ? tl.length : tl.length - 1;
   });
 
   current(): RuedaTimelineMonth | null {
