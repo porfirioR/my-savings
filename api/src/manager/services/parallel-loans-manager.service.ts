@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CashBoxAccess, ParallelLoansAccess } from '../../access/data/services';
 import {
   ParallelLoanAccessModel,
@@ -48,23 +48,49 @@ export class ParallelLoansManager {
   }
 
   async create(req: CreateParallelLoanRequest): Promise<ParallelLoanModel> {
+    const hasActive = await this.parallelLoansAccess.hasActiveByMember(req.memberId);
+    if (hasActive) {
+      throw new BadRequestException('Este miembro ya tiene un préstamo paralelo activo.');
+    }
+
+    const cashBalance = await this.cashBoxAccess.getBalance(req.groupId);
+    if (cashBalance.balance <= 0) {
+      throw new BadRequestException('No hay fondos suficientes en caja para realizar un préstamo.');
+    }
+    if (req.amount > cashBalance.balance) {
+      throw new BadRequestException('El monto solicitado supera el saldo disponible en caja.');
+    }
+
     const interestRateDecimal = req.interestRate / 100;
     const { installmentAmount, totalToReturn } = calculateInstallment(
       req.amount, interestRateDecimal, req.totalInstallments, req.roundingUnit ?? 1000,
     );
-    return this.mapToModel(
-      await this.parallelLoansAccess.create({
-        groupId: req.groupId,
-        memberId: req.memberId,
-        amount: req.amount,
-        interestRate: interestRateDecimal,
-        totalToReturn,
-        installmentAmount,
-        totalInstallments: req.totalInstallments,
-        startMonth: req.startMonth,
-        startYear: req.startYear,
-      }),
-    );
+
+    const created = await this.parallelLoansAccess.create({
+      groupId: req.groupId,
+      memberId: req.memberId,
+      amount: req.amount,
+      interestRate: interestRateDecimal,
+      totalToReturn,
+      installmentAmount,
+      totalInstallments: req.totalInstallments,
+      startMonth: req.startMonth,
+      startYear: req.startYear,
+    });
+
+    await this.cashBoxAccess.createMovement(new CreateCashMovementAccessRequest(
+      req.groupId,
+      'out',
+      'automatic',
+      'parallel_loan_disbursement',
+      req.amount,
+      req.startMonth,
+      req.startYear,
+      `Prestamo Paralelo - ${created.memberName}`,
+      created.id,
+    ));
+
+    return this.mapToModel(created);
   }
 
   async update(id: string, req: UpdateParallelLoanRequest): Promise<ParallelLoanModel> {

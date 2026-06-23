@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, signal } from '@angular/core';
+import { Component, computed, inject, Input, OnChanges, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { RuedasService } from '../../services/ruedas.service';
@@ -28,13 +28,25 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
           <span class="text-sm font-medium flex-1 text-center">
             @if (c.position === 1) {
               {{ 'RUEDAS.TIMELINE_JUNTA' | translate }} - {{ 'RUEDAS.TIMELINE_MONTH' | translate }} 1
+            } @else if (isJuntaNewRueda()) {
+              {{ 'RUEDAS.TIMELINE_JUNTA_NEW' | translate }}
             } @else {
               {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ c.position }}/{{ totalMonths() - 1 }}
             }
             &mdash; {{ 'MONTHS.' + c.calendarMonth | translate }} {{ c.calendarYear }}
           </span>
-          <button class="btn btn-xs btn-ghost" (click)="next()" [disabled]="activeIndex() >= timeline().length - 2">›</button>
+          <button class="btn btn-xs btn-ghost" (click)="next()" [disabled]="activeIndex() >= timeline().length - 1">›</button>
         </div>
+
+        <!-- Junta nueva rueda banner -->
+        @if (isJuntaNewRueda()) {
+          <div class="alert alert-info py-2 px-3 mb-3 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ 'RUEDAS.TIMELINE_JUNTA_NEW_BANNER' | translate }}</span>
+          </div>
+        }
 
         <!-- Disbursement info (hidden on final junta page) -->
         @if (c.disbursedToMemberId) {
@@ -84,7 +96,7 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
                       <span class="text-xs font-semibold"
                         [class.text-warning]="p.paymentType === 'previous_rueda'"
                         [class.text-primary]="p.paymentType === 'current_rueda'">
-                        {{ p.cuotaNumber }}/{{ totalMonths() }}
+                        {{ p.cuotaNumber }}/{{ installmentCount() }}
                       </span>
                       @if (p.paymentType === 'previous_rueda') {
                         <span class="badge badge-xs badge-warning ml-1">
@@ -137,6 +149,20 @@ export class RuedaTimelineComponent implements OnChanges {
     }
   }
 
+  isJuntaNewRueda = computed(() => {
+    const tl = this.timeline();
+    const idx = this.activeIndex();
+    if (tl.length <= 1) return false;
+    if (idx !== tl.length - 1) return false;
+    return !tl[idx]?.disbursedToMemberId;
+  });
+
+  installmentCount = computed(() => {
+    const tl = this.timeline();
+    if (tl.length === 0) return 0;
+    return tl[tl.length - 1]?.disbursedToMemberId ? tl.length : tl.length - 1;
+  });
+
   current(): RuedaTimelineMonth | null {
     return this.timeline()[this.activeIndex()] ?? null;
   }
@@ -150,6 +176,6 @@ export class RuedaTimelineComponent implements OnChanges {
   }
 
   next(): void {
-    if (this.activeIndex() < this.timeline().length - 2) this.activeIndex.update(i => i + 1);
+    if (this.activeIndex() < this.timeline().length - 1) this.activeIndex.update(i => i + 1);
   }
 }

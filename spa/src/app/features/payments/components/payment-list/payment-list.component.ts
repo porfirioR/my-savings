@@ -44,18 +44,20 @@ interface ValidMonth {
                 @if (currentValidMonth(); as cm) {
                   @if (cm.index === 1) {
                     {{ 'RUEDAS.TIMELINE_JUNTA' | translate }} - {{ 'RUEDAS.TIMELINE_MONTH' | translate }} 1
+                  } @else if (isJuntaNewRueda()) {
+                    {{ 'RUEDAS.TIMELINE_JUNTA_NEW' | translate }}
                   } @else {
                     {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index }}/{{ selectedRueda()?.slotCount ?? 10 }}
                   }
                   &mdash; {{ 'MONTHS.' + cm.month | translate }} {{ cm.year }}
                 }
               </span>
-              <button class="btn btn-xs btn-ghost" (click)="nextMonth()" [disabled]="activeMonthIndex() >= validMonths().length - 2">›</button>
+              <button class="btn btn-xs btn-ghost" (click)="nextMonth()" [disabled]="activeMonthIndex() >= validMonths().length - 1">›</button>
             </div>
           }
 
           <button class="btn btn-outline btn-sm ml-auto" (click)="generate()"
-            [disabled]="!selectedRuedaId() || !currentValidMonth() || generating() || allPaid() || selectedRueda()?.status !== 'active'">
+            [disabled]="!selectedRuedaId() || !currentValidMonth() || generating() || allPaid() || selectedRueda()?.status !== 'active' || isJuntaNewRueda()">
             @if (generating()) { <span class="loading loading-spinner loading-xs"></span> }
             {{ 'PAYMENTS.GENERATE' | translate }}
           </button>
@@ -110,92 +112,111 @@ interface ValidMonth {
         <div class="text-center py-16 text-base-content/50 text-sm">
           {{ 'PAYMENTS.SELECT_RUEDA' | translate }}
         </div>
-      } @else if (service.payments().length === 0) {
+      } @else if (!isJuntaNewRueda() && service.payments().length === 0) {
         <div class="text-center py-16 text-base-content/50 text-sm">
           {{ 'PAYMENTS.EMPTY' | translate }}
         </div>
       } @else {
         @if (currentValidMonth(); as cm) {
-          <div class="alert alert-info py-2 px-3 mb-3 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-            <span>
-              @if (cm.index === 1) {
-                {{ 'RUEDAS.TIMELINE_MONTH' | translate }} 1:
-              } @else {
-                {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index }}:
-              }
-              <strong>{{ getMemberByPosition(cm.index) }}</strong> lleva
-            </span>
+          @if (isJuntaNewRueda()) {
+            <div class="alert alert-info py-2 px-3 mb-3 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>{{ 'RUEDAS.TIMELINE_JUNTA_NEW_BANNER' | translate }}</span>
+            </div>
+          } @else {
+            <div class="alert alert-info py-2 px-3 mb-3 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+              <span>
+                @if (cm.index === 1) {
+                  {{ 'RUEDAS.TIMELINE_MONTH' | translate }} 1:
+                } @else {
+                  {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index }}:
+                }
+                <strong>{{ getMemberByPosition(cm.index) }}</strong> lleva
+              </span>
+            </div>
+          }
+        }
+        @if (service.payments().length > 0) {
+          <div class="overflow-x-auto rounded-box border border-base-300">
+            <table class="table table-pin-rows w-full text-sm">
+              <thead>
+                <tr class="bg-base-200">
+                  <th>{{ 'PAYMENTS.MEMBER' | translate }}</th>
+                  <th>Tipo</th>
+                  <th class="text-right">{{ 'PAYMENTS.INSTALLMENT' | translate }}</th>
+                  <th class="text-right">{{ 'PAYMENTS.CONTRIBUTION' | translate }}</th>
+                  <th class="text-right">{{ 'PAYMENTS.TOTAL' | translate }}</th>
+                  <th class="text-center">{{ 'PAYMENTS.STATUS' | translate }}</th>
+                  @if (!isJuntaNewRueda()) {
+                    <th class="text-center">{{ 'APP.ACTIONS' | translate }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of service.payments(); track p.id) {
+                  <tr class="hover:bg-base-200/50" [class.opacity-60]="p.status === 'paid'">
+                    <td class="font-medium">{{ p.memberName }}</td>
+                    <td>
+                      <span class="badge badge-xs badge-outline whitespace-nowrap"
+                        [class.badge-primary]="p.paymentType === 'current_rueda'"
+                        [class.badge-warning]="p.paymentType === 'previous_rueda'"
+                        [class.badge-ghost]="p.paymentType === 'contribution_only'">
+                        @if (p.paymentType === 'current_rueda') { {{ 'PAYMENTS.PAYMENT_TYPE_CURRENT' | translate }} }
+                        @else if (p.paymentType === 'previous_rueda') { {{ 'PAYMENTS.PAYMENT_TYPE_PREVIOUS' | translate }} }
+                        @else { {{ 'PAYMENTS.PAYMENT_TYPE_CONTRIBUTION' | translate }} }
+                      </span>
+                    </td>
+                    <td class="text-right text-base-content/70">{{ p.installmentAmount | number:'1.0-0' }}</td>
+                    <td class="text-right text-base-content/70">{{ p.contributionAmount | number:'1.0-0' }}</td>
+                    <td class="text-right font-semibold">{{ p.totalAmount | number:'1.0-0' }}</td>
+                    <td class="text-center">
+                      <span class="badge badge-sm badge-outline"
+                        [class.badge-success]="p.status === 'paid'"
+                        [class.badge-warning]="p.status === 'pending'">
+                        {{ (p.status === 'paid' ? 'PAYMENTS.PAID' : 'PAYMENTS.PENDING') | translate }}
+                      </span>
+                    </td>
+                    @if (!isJuntaNewRueda()) {
+                      <td class="text-center">
+                        @if (p.status === 'pending') {
+                          <button class="btn btn-circle btn-xs btn-success" [disabled]="toggling() === p.id" (click)="togglePaid(p.id, 'paid')">
+                            @if (toggling() === p.id) { <span class="loading loading-spinner loading-xs"></span> }
+                            @else { ✓ }
+                          </button>
+                        } @else {
+                          <button class="btn btn-circle btn-xs btn-ghost text-error hover:bg-error hover:text-white" [disabled]="toggling() === p.id" (click)="togglePaid(p.id, 'unpaid')">
+                            @if (toggling() === p.id) { <span class="loading loading-spinner loading-xs"></span> }
+                            @else {
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                              </svg>
+                            }
+                          </button>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr class="font-bold bg-base-200">
+                  <td colspan="4" class="text-right">Total:</td>
+                  <td class="text-right">{{ totalAmount() | number:'1.0-0' }} Gs</td>
+                  @if (!isJuntaNewRueda()) {
+                    <td colspan="2"></td>
+                  } @else {
+                    <td></td>
+                  }
+                </tr>
+              </tfoot>
+            </table>
           </div>
         }
-        <div class="overflow-x-auto rounded-box border border-base-300">
-          <table class="table table-pin-rows w-full text-sm">
-            <thead>
-              <tr class="bg-base-200">
-                <th>{{ 'PAYMENTS.MEMBER' | translate }}</th>
-                <th>Tipo</th>
-                <th class="text-right">{{ 'PAYMENTS.INSTALLMENT' | translate }}</th>
-                <th class="text-right">{{ 'PAYMENTS.CONTRIBUTION' | translate }}</th>
-                <th class="text-right">{{ 'PAYMENTS.TOTAL' | translate }}</th>
-                <th class="text-center">{{ 'PAYMENTS.STATUS' | translate }}</th>
-                <th class="text-center">{{ 'APP.ACTIONS' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (p of service.payments(); track p.id) {
-                <tr class="hover:bg-base-200/50" [class.opacity-60]="p.status === 'paid'">
-                  <td class="font-medium">{{ p.memberName }}</td>
-                  <td>
-                    <span class="badge badge-xs badge-outline whitespace-nowrap"
-                      [class.badge-primary]="p.paymentType === 'current_rueda'"
-                      [class.badge-warning]="p.paymentType === 'previous_rueda'"
-                      [class.badge-ghost]="p.paymentType === 'contribution_only'">
-                      @if (p.paymentType === 'current_rueda') { {{ 'PAYMENTS.PAYMENT_TYPE_CURRENT' | translate }} }
-                      @else if (p.paymentType === 'previous_rueda') { {{ 'PAYMENTS.PAYMENT_TYPE_PREVIOUS' | translate }} }
-                      @else { {{ 'PAYMENTS.PAYMENT_TYPE_CONTRIBUTION' | translate }} }
-                    </span>
-                  </td>
-                  <td class="text-right text-base-content/70">{{ p.installmentAmount | number:'1.0-0' }}</td>
-                  <td class="text-right text-base-content/70">{{ p.contributionAmount | number:'1.0-0' }}</td>
-                  <td class="text-right font-semibold">{{ p.totalAmount | number:'1.0-0' }}</td>
-                  <td class="text-center">
-                    <span class="badge badge-sm badge-outline"
-                      [class.badge-success]="p.status === 'paid'"
-                      [class.badge-warning]="p.status === 'pending'">
-                      {{ (p.status === 'paid' ? 'PAYMENTS.PAID' : 'PAYMENTS.PENDING') | translate }}
-                    </span>
-                  </td>
-                  <td class="text-center">
-                    @if (p.status === 'pending') {
-                      <button class="btn btn-circle btn-xs btn-success" [disabled]="toggling() === p.id" (click)="togglePaid(p.id, 'paid')">
-                        @if (toggling() === p.id) { <span class="loading loading-spinner loading-xs"></span> }
-                        @else { ✓ }
-                      </button>
-                    } @else {
-                      <button class="btn btn-circle btn-xs btn-ghost text-error hover:bg-error hover:text-white" [disabled]="toggling() === p.id" (click)="togglePaid(p.id, 'unpaid')">
-                        @if (toggling() === p.id) { <span class="loading loading-spinner loading-xs"></span> }
-                        @else {
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-                          </svg>
-                        }
-                      </button>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-            <tfoot>
-              <tr class="font-bold bg-base-200">
-                <td colspan="4" class="text-right">Total:</td>
-                <td class="text-right">{{ totalAmount() | number:'1.0-0' }} Gs</td>
-                <td colspan="2"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
       }
     </div>
   `,
@@ -243,6 +264,12 @@ export class PaymentListComponent implements OnInit {
   allPaid = computed(() => {
     const list = this.service.payments();
     return list.length > 0 && list.every(p => p.status === 'paid');
+  });
+
+  isJuntaNewRueda = computed(() => {
+    const rueda = this.selectedRueda();
+    if (!rueda) return false;
+    return rueda.type === 'continua' && this.activeMonthIndex() === this.validMonths().length - 1;
   });
 
   ngOnInit(): void {

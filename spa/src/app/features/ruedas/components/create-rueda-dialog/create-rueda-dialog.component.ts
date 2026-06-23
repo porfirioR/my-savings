@@ -418,10 +418,10 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
       next: (prev) => {
         const prevSlots = (prev.slots ?? []).sort((a, b) => a.position - b.position);
 
-        // Auto-fill start date: last slot + 2 months (skip final junta, start after it)
+        // Auto-fill start date: last slot + 1 month (new rueda opens the same month as the previous rueda's final junta)
         const last = prevSlots[prevSlots.length - 1];
         if (last) {
-          const { month, year } = this.addMonths(last.loanMonth, last.loanYear, 2);
+          const { month, year } = this.addMonths(last.loanMonth, last.loanYear, 1);
           this.form.controls.startMonth.setValue(month, { emitEvent: false });
           this.form.controls.startYear.setValue(year, { emitEvent: false });
         }
