@@ -17,7 +17,7 @@ import { CreateRuedaFormGroup } from '../../../../core/forms';
   template: `
     @if (show) {
       <div class="modal modal-open">
-        <div class="modal-box w-11/12 max-w-2xl">
+        <div class="modal-box w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
           <h3 class="font-bold text-lg mb-1">{{ 'RUEDAS.NEW' | translate }}</h3>
           <p class="text-sm text-base-content/50 mb-4">{{ 'RUEDAS.NEW_SUBTITLE' | translate }}</p>
 
@@ -558,19 +558,21 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
   }
 
   recalculateVariableAmounts(): void {
-    const { loanAmount, interestRate, roundingUnit } = this.form.getRawValue();
-    if (!loanAmount || loanAmount <= 0 || this.slots.length === 0) return;
+    const { interestRate, roundingUnit, contributionAmount } = this.form.getRawValue();
+    const N = this.slots.length;
+    if (N === 0) return;
 
     const rate = 1 + (interestRate / 100);
-    const months = this.slots.length;
+    const C = contributionAmount ?? 0;
     const ceil = (n: number, unit: number) =>
       unit === 0 ? Math.ceil(n) : Math.ceil(n / unit) * unit;
 
     let accumulated = 0;
-    for (const slot of this.slots) {
-      slot.loanAmount = loanAmount + accumulated;
-      accumulated += ceil(slot.loanAmount * rate / months, roundingUnit);
-    }
+    this.slots.forEach((slot, index) => {
+      const remainingContributors = N - index;
+      slot.loanAmount = remainingContributors * C + accumulated;
+      accumulated += ceil(slot.loanAmount * rate / N, roundingUnit);
+    });
   }
 
   getSuggestion(): void {

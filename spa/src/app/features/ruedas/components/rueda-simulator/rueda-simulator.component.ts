@@ -100,17 +100,17 @@ export class RuedaSimulatorComponent {
     const prevMembers = this.previousRuedaMembers.length;
 
     for (let i = 1; i <= N; i++) {
-      const receivedCount = i - 1;
-      const inflow = (receivedCount > 0 ? receivedCount : 0) * (Q + C) +
+      const priorRecipients = i - 1;
+      const inflow = priorRecipients * (Q + C) +
                      (prevMembers > 0 ? prevMembers * prevInstallment : 0);
       const contributions = N * C;
-      const disbursement = i === 1 ? 0 : Q;
+      const disbursement = Q;
       const balance = cashBalance + inflow - contributions - disbursement;
 
       result.push({
         month: currentMonth,
         year: currentYear,
-        receivedCount,
+        receivedCount: i,
         inflow,
         contributions,
         disbursement,
