@@ -95,17 +95,28 @@ export class RuedaSimulatorComponent {
 
     const N = this.newMemberCount;
     const Q = this.newLoanAmount;
+    const rate = this.newInterestRate / 100;
     const C = this.newContributionAmount;
+    const rounding = this.newRoundingUnit;
     const prevInstallment = this.previousRuedaInstallment;
-    const prevMembers = this.previousRuedaMembers.length;
+    const hasPrev = this.previousRuedaMembers.length > 0;
+
+    // Derive monthly installment from loan parameters (same formula as backend)
+    const rawTotal = Q * (1 + rate);
+    const newInstallment = rounding > 0
+      ? Math.round(rawTotal / N / rounding) * rounding
+      : Math.round(rawTotal / N);
 
     for (let i = 1; i <= N; i++) {
-      const priorRecipients = i - 1;
-      const inflow = priorRecipients * (Q + C) +
-                     (prevMembers > 0 ? prevMembers * prevInstallment : 0);
+      // Slots 1..i-1 already received new loan → pay new installment
+      // Slots i..N (including receiver) → pay previous rueda installment (continua)
+      const newPayers = i - 1;
+      const prevPayers = hasPrev ? N - i + 1 : 0;
+
+      const inflow = newPayers * newInstallment + prevPayers * prevInstallment;
       const contributions = N * C;
       const disbursement = Q;
-      const balance = cashBalance + inflow - contributions - disbursement;
+      const balance = cashBalance + inflow + contributions - disbursement;
 
       result.push({
         month: currentMonth,
