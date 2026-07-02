@@ -6,6 +6,7 @@ import { Group } from '../../models/group.model';
 import { CreateGroupDialogComponent } from '../create-group-dialog/create-group-dialog.component';
 import { DeleteGroupDialogComponent } from '../delete-group-dialog/delete-group-dialog.component';
 import { ThemeService } from '../../../../core/services/theme.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-group-list',
@@ -34,6 +35,11 @@ import { ThemeService } from '../../../../core/services/theme.service';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
               {{ 'GROUPS.NEW' | translate }}
+            </button>
+            <button class="btn btn-ghost btn-sm btn-circle text-error" (click)="logout()" title="Cerrar sesión">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -107,6 +113,7 @@ import { ThemeService } from '../../../../core/services/theme.service';
 export class GroupListComponent implements OnInit {
   readonly service = inject(GroupsService);
   readonly theme = inject(ThemeService);
+  private readonly auth = inject(AuthService);
   showCreateDialog = signal(false);
   deletingGroup = signal<Group | null>(null);
 
@@ -116,5 +123,9 @@ export class GroupListComponent implements OnInit {
 
   openDeleteDialog(group: Group): void {
     this.deletingGroup.set(group);
+  }
+
+  logout(): void {
+    this.auth.logout();
   }
 }

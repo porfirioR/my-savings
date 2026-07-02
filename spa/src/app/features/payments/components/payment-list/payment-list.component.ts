@@ -6,6 +6,7 @@ import { RuedasService } from '../../../ruedas/services/ruedas.service';
 import { Rueda } from '../../../ruedas/models/rueda.model';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 interface ValidMonth {
   month: number;
@@ -224,6 +225,7 @@ interface ValidMonth {
 export class PaymentListComponent implements OnInit {
   readonly service = inject(PaymentsService);
   readonly ruedasService = inject(RuedasService);
+  private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
 
   private groupId = '';
@@ -356,8 +358,12 @@ export class PaymentListComponent implements OnInit {
       next: () => {
         this.toggling.set('');
         this.ruedasService.loadByGroup(this.groupId);
+        this.toast.success(action === 'paid' ? 'Pago registrado correctamente' : 'Pago revertido correctamente');
       },
-      error: () => this.toggling.set(''),
+      error: () => {
+        this.toggling.set('');
+        this.toast.error(action === 'paid' ? 'No se pudo registrar el pago' : 'No se pudo revertir el pago');
+      },
     });
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, timeout, TimeoutError } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { ALLOWED_USER } from '../constants/auth.const';
 import { environment } from '../../../environments/environment';
 
@@ -20,6 +20,8 @@ const DEV_USER: SwaUser = {
   userRoles: ['authenticated'],
 };
 
+const DEV_LOGGED_OUT_KEY = 'dev_logged_out';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -30,7 +32,8 @@ export class AuthService {
 
   async loadUser(): Promise<void> {
     if (!environment.production) {
-      this.user.set(DEV_USER);
+      const loggedOut = localStorage.getItem(DEV_LOGGED_OUT_KEY) === '1';
+      this.user.set(loggedOut ? null : DEV_USER);
       this.checked.set(true);
       return;
     }
@@ -41,11 +44,9 @@ export class AuthService {
           .pipe(timeout(8000)),
       );
       this.user.set(response.clientPrincipal);
-    } catch (err) {
+    } catch {
       this.user.set(null);
-      if (err instanceof TimeoutError) {
-        this.authAlert.set('session_expired');
-      }
+      this.authAlert.set('session_expired');
     } finally {
       this.checked.set(true);
     }
@@ -57,11 +58,22 @@ export class AuthService {
   }
 
   login(): void {
+    if (!environment.production) {
+      localStorage.removeItem(DEV_LOGGED_OUT_KEY);
+      this.authAlert.set(null);
+      window.location.href = '/';
+      return;
+    }
     const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
     window.location.href = `/.auth/login/github?post_login_redirect_uri=${returnUrl}`;
   }
 
   logout(): void {
+    if (!environment.production) {
+      localStorage.setItem(DEV_LOGGED_OUT_KEY, '1');
+      window.location.href = '/';
+      return;
+    }
     window.location.href = '/.auth/logout';
   }
 }

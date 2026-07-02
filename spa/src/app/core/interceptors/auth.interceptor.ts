@@ -7,7 +7,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   return next(req).pipe(
     catchError(err => {
-      if (err.status === 401 && !req.url.includes('/.auth/')) {
+      if ((err.status === 401 || err.status === 403) && !req.url.includes('/.auth/')) {
         auth.authAlert.set('session_expired');
       }
       return throwError(() => err);

@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ThemeService } from './core/services/theme.service';
 import { AuthService } from './core/services/auth.service';
+import { ToastService } from './core/services/toast.service';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,14 @@ import { AuthService } from './core/services/auth.service';
   imports: [RouterOutlet, TranslateModule],
   template: `
     <router-outlet />
+
+    <div class="toast toast-top toast-end z-50">
+      @for (t of toast.toasts(); track t.id) {
+        <div class="alert" [class.alert-success]="t.type === 'success'" [class.alert-error]="t.type === 'error'">
+          <span>{{ t.text }}</span>
+        </div>
+      }
+    </div>
 
     @if (auth.authAlert()) {
       <div class="modal modal-open">
@@ -38,8 +47,11 @@ import { AuthService } from './core/services/auth.service';
               Tu sesión expiró o hubo un problema de conexión.<br>
               Volvé a iniciar sesión para continuar.
             </p>
-            <button class="btn btn-primary btn-sm w-full" (click)="loginAgain()">
+            <button class="btn btn-primary btn-sm w-full mb-2" (click)="loginAgain()">
               Iniciar sesión
+            </button>
+            <button class="btn btn-ghost btn-sm w-full" (click)="logoutNow()">
+              Cerrar sesión
             </button>
           }
 
@@ -50,6 +62,7 @@ import { AuthService } from './core/services/auth.service';
 })
 export class AppComponent implements OnDestroy {
   readonly auth = inject(AuthService);
+  readonly toast = inject(ToastService);
   private readonly theme = inject(ThemeService);
 
   countdown = signal(5);
