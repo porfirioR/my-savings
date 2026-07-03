@@ -6,6 +6,7 @@ import { RuedasService } from '../../services/ruedas.service';
 import { MembersService } from '../../../members/services/members.service';
 import { Rueda, RuedaSlot } from '../../models/rueda.model';
 import { UpdateRuedaFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 interface SlotRow {
   position: number;
@@ -146,10 +147,9 @@ interface SlotRow {
                           <td>
                             @if (isPending) {
                               <select class="select select-bordered select-xs w-full"
-                                [value]="row.memberId"
                                 (change)="onSlotMemberChange(row.position, $event)">
-                                @for (m of sortedActiveMembers; track m.id) {
-                                  <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
+                                @for (m of memberOptionsForSlot(row); track m.id) {
+                                  <option [value]="m.id" [selected]="m.id === row.memberId">{{ m.firstName }} {{ m.lastName }}{{ !m.isActive ? ' (' + ('MEMBERS.INACTIVE' | translate) + ')' : '' }}</option>
                                 }
                               </select>
                             } @else {
@@ -197,6 +197,7 @@ export class EditRuedaDialogComponent implements OnChanges {
   private readonly service = inject(RuedasService);
   readonly membersService = inject(MembersService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   saving = signal(false);
   loading = signal(false);
@@ -214,6 +215,23 @@ export class EditRuedaDialogComponent implements OnChanges {
     return this.membersService.members()
       .filter(m => m.isActive)
       .sort((a, b) => a.position - b.position);
+  }
+
+  /**
+   * Active members plus, if this slot's current member is inactive, that
+   * specific member too — so it displays correctly and can still be kept
+   * (or swapped for an active one), without offering unrelated inactive
+   * members that aren't assigned to this slot.
+   */
+  memberOptionsForSlot(row: SlotRow) {
+    const active = this.sortedActiveMembers;
+    if (row.memberId && !active.some(m => m.id === row.memberId)) {
+      const current = this.membersService.members().find(m => m.id === row.memberId);
+      if (current) {
+        return [...active, current];
+      }
+    }
+    return active;
   }
 
   months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -272,7 +290,10 @@ export class EditRuedaDialogComponent implements OnChanges {
 
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.loading.set(false);
+        this.toast.error('TOAST.RUEDA_LOAD_ERROR');
+      },
     });
   }
 
@@ -317,8 +338,15 @@ export class EditRuedaDialogComponent implements OnChanges {
 
     this.saving.set(true);
     this.service.update(this.groupId, this.rueda.id, payload).subscribe({
-      next: () => { this.saving.set(false); this.saved.emit(); },
-      error: () => { this.saving.set(false); },
+      next: () => {
+        this.saving.set(false);
+        this.saved.emit();
+        this.toast.success('TOAST.RUEDA_UPDATED');
+      },
+      error: () => {
+        this.saving.set(false);
+        this.toast.error('TOAST.RUEDA_UPDATE_ERROR');
+      },
     });
   }
 

@@ -328,8 +328,15 @@ export class PaymentListComponent implements OnInit {
     if (!this.selectedRuedaId() || !cm) return;
     this.generating.set(true);
     this.service.generate(this.groupId, this.selectedRuedaId(), { month: cm.month, year: cm.year }).subscribe({
-      next: () => { this.generating.set(false); this.load(); },
-      error: () => this.generating.set(false),
+      next: () => {
+        this.generating.set(false);
+        this.load();
+        this.toast.success('TOAST.PAYMENTS_GENERATED');
+      },
+      error: () => {
+        this.generating.set(false);
+        this.toast.error('TOAST.PAYMENTS_GENERATE_ERROR');
+      },
     });
   }
 
@@ -358,11 +365,11 @@ export class PaymentListComponent implements OnInit {
       next: () => {
         this.toggling.set('');
         this.ruedasService.loadByGroup(this.groupId);
-        this.toast.success(action === 'paid' ? 'Pago registrado correctamente' : 'Pago revertido correctamente');
+        this.toast.success(action === 'paid' ? 'TOAST.PAYMENT_REGISTERED' : 'TOAST.PAYMENT_REVERTED');
       },
       error: () => {
         this.toggling.set('');
-        this.toast.error(action === 'paid' ? 'No se pudo registrar el pago' : 'No se pudo revertir el pago');
+        this.toast.error(action === 'paid' ? 'TOAST.PAYMENT_REGISTER_ERROR' : 'TOAST.PAYMENT_REVERT_ERROR');
       },
     });
   }

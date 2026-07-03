@@ -107,11 +107,11 @@ export class AddMemberDialogComponent {
         this.saving = false;
         this.form.reset({ firstName: '', lastName: '', phone: '', position: 1, joinedMonth: new Date().getMonth() + 1, joinedYear: new Date().getFullYear() });
         this.saved.emit();
-        this.toast.success('Miembro agregado correctamente');
+        this.toast.success('TOAST.MEMBER_ADDED');
       },
       error: () => {
         this.saving = false;
-        this.toast.error('No se pudo agregar el miembro');
+        this.toast.error('TOAST.MEMBER_ADD_ERROR');
       },
     });
   }

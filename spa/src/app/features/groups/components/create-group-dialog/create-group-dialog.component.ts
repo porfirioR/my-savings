@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { GroupsService } from '../../services/groups.service';
 import { CreateGroupFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-create-group-dialog',
@@ -68,6 +69,7 @@ export class CreateGroupDialogComponent {
 
   private readonly service = inject(GroupsService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   saving = false;
   months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -86,8 +88,12 @@ export class CreateGroupDialogComponent {
         this.saving = false;
         this.form.reset({ name: '', startMonth: 1, startYear: new Date().getFullYear() });
         this.saved.emit();
+        this.toast.success('TOAST.GROUP_CREATED');
       },
-      error: () => { this.saving = false; },
+      error: () => {
+        this.saving = false;
+        this.toast.error('TOAST.GROUP_CREATE_ERROR');
+      },
     });
   }
 

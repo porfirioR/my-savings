@@ -12,10 +12,10 @@ import { ToastService } from './core/services/toast.service';
   template: `
     <router-outlet />
 
-    <div class="toast toast-top toast-end z-50">
+    <div class="toast toast-bottom toast-end z-50">
       @for (t of toast.toasts(); track t.id) {
         <div class="alert" [class.alert-success]="t.type === 'success'" [class.alert-error]="t.type === 'error'">
-          <span>{{ t.text }}</span>
+          <span>{{ t.text | translate }}</span>
         </div>
       }
     </div>

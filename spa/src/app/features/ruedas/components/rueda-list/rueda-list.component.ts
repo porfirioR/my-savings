@@ -8,6 +8,7 @@ import { Rueda } from '../../models/rueda.model';
 import { CreateRuedaDialogComponent } from '../create-rueda-dialog/create-rueda-dialog.component';
 import { EditRuedaDialogComponent } from '../edit-rueda-dialog/edit-rueda-dialog.component';
 import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.component';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-rueda-list',
@@ -169,6 +170,7 @@ export class RuedaListComponent implements OnInit {
   readonly service = inject(RuedasService);
   private readonly membersService = inject(MembersService);
   private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
 
   groupId = '';
   private autoCreate = false;
@@ -233,16 +235,26 @@ export class RuedaListComponent implements OnInit {
         this.deleting.set('');
         this.showDeleteConfirm.set(false);
         this.selectedRueda.set(null);
+        this.toast.success('TOAST.RUEDA_DELETED');
       },
-      error: () => { this.deleting.set(''); },
+      error: () => {
+        this.deleting.set('');
+        this.toast.error('TOAST.RUEDA_DELETE_ERROR');
+      },
     });
   }
 
   changeStatus(ruedaId: string, status: 'active' | 'completed'): void {
     this.updating.set(ruedaId);
     this.service.update(this.groupId, ruedaId, { status }).subscribe({
-      next: () => this.updating.set(''),
-      error: () => this.updating.set(''),
+      next: () => {
+        this.updating.set('');
+        this.toast.success(status === 'active' ? 'TOAST.RUEDA_ACTIVATED' : 'TOAST.RUEDA_COMPLETED');
+      },
+      error: () => {
+        this.updating.set('');
+        this.toast.error('TOAST.RUEDA_STATUS_ERROR');
+      },
     });
   }
 }

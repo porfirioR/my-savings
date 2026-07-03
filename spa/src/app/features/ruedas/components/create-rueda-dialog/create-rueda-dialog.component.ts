@@ -9,6 +9,7 @@ import { MembersService } from '../../../members/services/members.service';
 import { CashBoxService } from '../../../cash-box/services/cash-box.service';
 import { RuedaSimulatorComponent } from '../rueda-simulator/rueda-simulator.component';
 import { CreateRuedaFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-create-rueda-dialog',
@@ -315,6 +316,7 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
   readonly membersService = inject(MembersService);
   readonly cashBoxService = inject(CashBoxService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   saving = signal(false);
   suggested = signal<number | null>(null);
@@ -446,7 +448,10 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
         this.prevRuedaLocked.set(true);
         this.loadingPrevRueda.set(false);
       },
-      error: () => this.loadingPrevRueda.set(false),
+      error: () => {
+        this.loadingPrevRueda.set(false);
+        this.toast.error('TOAST.PREV_RUEDA_LOAD_ERROR');
+      },
     });
   }
 
@@ -651,8 +656,12 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
       next: () => {
         this.saving.set(false);
         this.saved.emit();
+        this.toast.success('TOAST.RUEDA_CREATED');
       },
-      error: () => { this.saving.set(false); },
+      error: () => {
+        this.saving.set(false);
+        this.toast.error('TOAST.RUEDA_CREATE_ERROR');
+      },
     });
   }
 

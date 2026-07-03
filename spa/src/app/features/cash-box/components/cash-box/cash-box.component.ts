@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CashBoxService } from '../../services/cash-box.service';
 import { CashMovement } from '../../models/cash-box.model';
 import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-dialog.component';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-cash-box',
@@ -143,6 +144,7 @@ import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-
 export class CashBoxComponent implements OnInit {
   readonly service = inject(CashBoxService);
   private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
 
   groupId = '';
   showModal = signal(false);
@@ -213,8 +215,15 @@ export class CashBoxComponent implements OnInit {
   confirmDelete(id: string): void {
     this.deleting.set(true);
     this.service.deleteMovement(this.groupId, id).subscribe({
-      next: () => { this.deletingId.set(null); this.deleting.set(false); },
-      error: () => { this.deleting.set(false); },
+      next: () => {
+        this.deletingId.set(null);
+        this.deleting.set(false);
+        this.toast.success('TOAST.MOVEMENT_DELETED');
+      },
+      error: () => {
+        this.deleting.set(false);
+        this.toast.error('TOAST.MOVEMENT_DELETE_ERROR');
+      },
     });
   }
 }

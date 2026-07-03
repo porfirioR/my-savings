@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CashBoxService } from '../../services/cash-box.service';
 import { CashMovement } from '../../models/cash-box.model';
 import { CreateMovementFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-add-movement-dialog',
@@ -119,6 +120,7 @@ export class AddMovementDialogComponent implements OnChanges {
 
   private readonly service = inject(CashBoxService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   saving = signal(false);
   months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1 }));
@@ -163,8 +165,15 @@ export class AddMovementDialogComponent implements OnChanges {
       ? this.service.updateMovement(this.groupId, this.editMovement.id, raw)
       : this.service.addMovement(this.groupId, raw);
     obs.subscribe({
-      next: () => { this.saving.set(false); this.saved.emit(); },
-      error: () => { this.saving.set(false); },
+      next: () => {
+        this.saving.set(false);
+        this.saved.emit();
+        this.toast.success(this.editMovement ? 'TOAST.MOVEMENT_UPDATED' : 'TOAST.MOVEMENT_ADDED');
+      },
+      error: () => {
+        this.saving.set(false);
+        this.toast.error('TOAST.MOVEMENT_SAVE_ERROR');
+      },
     });
   }
 

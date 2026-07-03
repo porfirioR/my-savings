@@ -122,11 +122,11 @@ export class EditMemberDialogComponent implements OnChanges {
       next: () => {
         this.saving = false;
         this.saved.emit();
-        this.toast.success('Miembro actualizado correctamente');
+        this.toast.success('TOAST.MEMBER_UPDATED');
       },
       error: () => {
         this.saving = false;
-        this.toast.error('No se pudo actualizar el miembro');
+        this.toast.error('TOAST.MEMBER_UPDATE_ERROR');
       },
     });
   }
