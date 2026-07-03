@@ -150,6 +150,11 @@ export class RuedasManager {
       if (hasPending) throw new BadRequestException('COMPLETE_HAS_PENDING');
     }
 
+    if (req.slots?.some((s) => s.memberId)) {
+      const current = await this.ruedasAccess.findById(id);
+      if (current.status !== 'pending') throw new BadRequestException('SLOT_MEMBER_CHANGE_NOT_PENDING');
+    }
+
     let installmentAmount: number | undefined;
     let totalToReturn: number | undefined;
 

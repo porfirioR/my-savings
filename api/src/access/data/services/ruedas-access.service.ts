@@ -250,11 +250,16 @@ export class RuedasAccess extends BaseAccessService {
   }
 
 
-  async updateSlotsPreviousLoanAmount(ruedaId: string, slots: { position: number; previousLoanAmount?: number | null }[]): Promise<void> {
+  async updateSlotsPreviousLoanAmount(ruedaId: string, slots: { position: number; previousLoanAmount?: number | null; memberId?: string }[]): Promise<void> {
     for (const slot of slots) {
+      const update: { previous_loan_amount: number | null; member_id?: string } = {
+        previous_loan_amount: slot.previousLoanAmount ?? null,
+      };
+      if (slot.memberId) update.member_id = slot.memberId;
+
       const { error } = await this.dbContext
         .from('rueda_slots')
-        .update({ previous_loan_amount: slot.previousLoanAmount ?? null })
+        .update(update)
         .eq('rueda_id', ruedaId)
         .eq('slot_position', slot.position);
       if (error) throw new Error(error.message);

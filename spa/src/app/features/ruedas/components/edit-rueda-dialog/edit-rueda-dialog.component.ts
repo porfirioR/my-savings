@@ -143,7 +143,19 @@ interface SlotRow {
                       @for (row of slots(); track row.position) {
                         <tr>
                           <td class="text-base-content/50">{{ row.position }}</td>
-                          <td>{{ row.memberName || '—' }}</td>
+                          <td>
+                            @if (isPending) {
+                              <select class="select select-bordered select-xs w-full"
+                                [value]="row.memberId"
+                                (change)="onSlotMemberChange(row.position, $event)">
+                                @for (m of sortedActiveMembers; track m.id) {
+                                  <option [value]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
+                                }
+                              </select>
+                            } @else {
+                              {{ row.memberName || '—' }}
+                            }
+                          </td>
                           <td class="text-right">{{ row.loanAmount | number:'1.0-0' }}</td>
                           <td>
                             <input type="number" class="input input-bordered input-xs w-full text-right"
@@ -192,6 +204,16 @@ export class EditRuedaDialogComponent implements OnChanges {
 
   get isCompleted(): boolean {
     return this.rueda?.status === 'completed';
+  }
+
+  get isPending(): boolean {
+    return this.rueda?.status === 'pending';
+  }
+
+  get sortedActiveMembers() {
+    return this.membersService.members()
+      .filter(m => m.isActive)
+      .sort((a, b) => a.position - b.position);
   }
 
   months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -268,6 +290,17 @@ export class EditRuedaDialogComponent implements OnChanges {
     ));
   }
 
+  onSlotMemberChange(position: number, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const memberId = select.value;
+    const member = this.membersService.members().find(m => m.id === memberId);
+    this.slots.update(rows => rows.map(r =>
+      r.position === position
+        ? { ...r, memberId, memberName: member ? `${member.firstName} ${member.lastName}` : r.memberName }
+        : r
+    ));
+  }
+
   save(): void {
     if (!this.rueda) return;
 
@@ -275,7 +308,11 @@ export class EditRuedaDialogComponent implements OnChanges {
       ? { notes: this.form.controls.notes.value ?? '' }
       : {
           ...this.form.getRawValue(),
-          slots: this.slots().map(s => ({ position: s.position, previousLoanAmount: s.previousLoanAmount })),
+          slots: this.slots().map(s => ({
+            position: s.position,
+            previousLoanAmount: s.previousLoanAmount,
+            ...(this.isPending && s.memberId ? { memberId: s.memberId } : {}),
+          })),
         };
 
     this.saving.set(true);

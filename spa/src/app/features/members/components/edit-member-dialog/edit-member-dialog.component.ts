@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MembersService } from '../../services/members.service';
 import { Member } from '../../models/member.model';
 import { UpdateMemberFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-edit-member-dialog',
@@ -87,6 +88,7 @@ export class EditMemberDialogComponent implements OnChanges {
 
   private readonly service = inject(MembersService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   saving = false;
   months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -95,7 +97,7 @@ export class EditMemberDialogComponent implements OnChanges {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     phone: [''],
-    position: [1, [Validators.required, Validators.min(1), Validators.max(15)]],
+    position: [1, [Validators.required, Validators.min(1), Validators.max(30)]],
     joinedMonth: [new Date().getMonth() + 1, Validators.required],
     joinedYear: [new Date().getFullYear(), [Validators.required, Validators.min(2000)]],
   });
@@ -117,8 +119,15 @@ export class EditMemberDialogComponent implements OnChanges {
     if (this.form.invalid || !this.member) return;
     this.saving = true;
     this.service.update(this.groupId, this.member.id, this.form.getRawValue()).subscribe({
-      next: () => { this.saving = false; this.saved.emit(); },
-      error: () => { this.saving = false; },
+      next: () => {
+        this.saving = false;
+        this.saved.emit();
+        this.toast.success('Miembro actualizado correctamente');
+      },
+      error: () => {
+        this.saving = false;
+        this.toast.error('No se pudo actualizar el miembro');
+      },
     });
   }
 

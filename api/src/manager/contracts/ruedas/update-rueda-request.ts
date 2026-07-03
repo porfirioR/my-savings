@@ -1,6 +1,7 @@
 export interface UpdateRuedaSlotRequest {
   position: number;
   previousLoanAmount?: number | null;
+  memberId?: string;
 }
 
 export class UpdateRuedaRequest {
