@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TranslateModule } from '@ngx-translate/core';
 import { MembersService } from '../../services/members.service';
 import { CreateMemberFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-add-member-dialog',
@@ -84,6 +85,7 @@ export class AddMemberDialogComponent {
 
   private readonly service = inject(MembersService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   saving = false;
   months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -92,7 +94,7 @@ export class AddMemberDialogComponent {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     phone: [''],
-    position: [1, [Validators.required, Validators.min(1), Validators.max(15)]],
+    position: [1, [Validators.required, Validators.min(1), Validators.max(30)]],
     joinedMonth: [new Date().getMonth() + 1, Validators.required],
     joinedYear: [new Date().getFullYear(), [Validators.required, Validators.min(2000)]],
   });
@@ -105,8 +107,12 @@ export class AddMemberDialogComponent {
         this.saving = false;
         this.form.reset({ firstName: '', lastName: '', phone: '', position: 1, joinedMonth: new Date().getMonth() + 1, joinedYear: new Date().getFullYear() });
         this.saved.emit();
+        this.toast.success('TOAST.MEMBER_ADDED');
       },
-      error: () => { this.saving = false; },
+      error: () => {
+        this.saving = false;
+        this.toast.error('TOAST.MEMBER_ADD_ERROR');
+      },
     });
   }
 

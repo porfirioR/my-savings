@@ -6,6 +6,7 @@ import { RuedasService } from '../../../ruedas/services/ruedas.service';
 import { Rueda } from '../../../ruedas/models/rueda.model';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 interface ValidMonth {
   month: number;
@@ -224,6 +225,7 @@ interface ValidMonth {
 export class PaymentListComponent implements OnInit {
   readonly service = inject(PaymentsService);
   readonly ruedasService = inject(RuedasService);
+  private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
 
   private groupId = '';
@@ -326,8 +328,15 @@ export class PaymentListComponent implements OnInit {
     if (!this.selectedRuedaId() || !cm) return;
     this.generating.set(true);
     this.service.generate(this.groupId, this.selectedRuedaId(), { month: cm.month, year: cm.year }).subscribe({
-      next: () => { this.generating.set(false); this.load(); },
-      error: () => this.generating.set(false),
+      next: () => {
+        this.generating.set(false);
+        this.load();
+        this.toast.success('TOAST.PAYMENTS_GENERATED');
+      },
+      error: () => {
+        this.generating.set(false);
+        this.toast.error('TOAST.PAYMENTS_GENERATE_ERROR');
+      },
     });
   }
 
@@ -356,8 +365,12 @@ export class PaymentListComponent implements OnInit {
       next: () => {
         this.toggling.set('');
         this.ruedasService.loadByGroup(this.groupId);
+        this.toast.success(action === 'paid' ? 'TOAST.PAYMENT_REGISTERED' : 'TOAST.PAYMENT_REVERTED');
       },
-      error: () => this.toggling.set(''),
+      error: () => {
+        this.toggling.set('');
+        this.toast.error(action === 'paid' ? 'TOAST.PAYMENT_REGISTER_ERROR' : 'TOAST.PAYMENT_REVERT_ERROR');
+      },
     });
   }
 }

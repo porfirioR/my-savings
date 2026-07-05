@@ -34,9 +34,12 @@ CREATE TABLE members (
     left_month   SMALLINT CHECK (left_month BETWEEN 1 AND 12),
     left_year    SMALLINT CHECK (left_year >= 2000),
     created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE (group_id, position)
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Only currently active members occupy a position; once a member exits,
+-- their old position becomes free for a replacement to take over.
+CREATE UNIQUE INDEX members_group_id_position_active_key ON members(group_id, position) WHERE is_active;
 
 -- =============================================================
 -- TABLE: ruedas

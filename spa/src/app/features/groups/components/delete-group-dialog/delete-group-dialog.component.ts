@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { GroupsService } from '../../services/groups.service';
 import { Group } from '../../models/group.model';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-delete-group-dialog',
@@ -60,6 +61,7 @@ export class DeleteGroupDialogComponent implements OnChanges {
   @Output() deleted = new EventEmitter<void>();
 
   private readonly service = inject(GroupsService);
+  private readonly toast = inject(ToastService);
 
   saving = signal(false);
   confirmInput = '';
@@ -77,8 +79,12 @@ export class DeleteGroupDialogComponent implements OnChanges {
       next: () => {
         this.saving.set(false);
         this.deleted.emit();
+        this.toast.success('TOAST.GROUP_DELETED');
       },
-      error: () => { this.saving.set(false); },
+      error: () => {
+        this.saving.set(false);
+        this.toast.error('TOAST.GROUP_DELETE_ERROR');
+      },
     });
   }
 

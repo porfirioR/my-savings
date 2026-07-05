@@ -337,3 +337,9 @@ ALTER TABLE members ADD CONSTRAINT members_position_check CHECK (position BETWEE
 -- Allow up to 30 slots per rueda (was 15)
 ALTER TABLE rueda_slots DROP CONSTRAINT IF EXISTS rueda_slots_slot_position_check;
 ALTER TABLE rueda_slots ADD CONSTRAINT rueda_slots_slot_position_check CHECK (slot_position BETWEEN 1 AND 30);
+
+-- Free up a member's position once they exit, so a replacement can take over
+-- the same slot number. Previously UNIQUE(group_id, position) blocked this
+-- forever since the exited member's row keeps its position.
+ALTER TABLE members DROP CONSTRAINT IF EXISTS members_group_id_position_key;
+CREATE UNIQUE INDEX IF NOT EXISTS members_group_id_position_active_key ON members(group_id, position) WHERE is_active;

@@ -9,6 +9,7 @@ import { MembersService } from '../../../members/services/members.service';
 import { CashBoxService } from '../../../cash-box/services/cash-box.service';
 import { ParallelLoan } from '../../models/parallel-loan.model';
 import { CreateParallelLoanFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-create-parallel-loan-dialog',
@@ -195,6 +196,7 @@ export class CreateParallelLoanDialogComponent implements OnChanges {
   readonly cashBoxService = inject(CashBoxService);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
+  private readonly toast = inject(ToastService);
 
   saving = signal(false);
   saveError = signal<string | null>(null);
@@ -286,7 +288,11 @@ export class CreateParallelLoanDialogComponent implements OnChanges {
       ? this.service.update(this.groupId, this.editLoan.id, this.form.getRawValue())
       : this.service.create(this.groupId, this.form.getRawValue());
     obs.subscribe({
-      next: () => { this.saving.set(false); this.saved.emit(); },
+      next: () => {
+        this.saving.set(false);
+        this.saved.emit();
+        this.toast.success(this.editLoan ? 'TOAST.LOAN_UPDATED' : 'TOAST.LOAN_CREATED');
+      },
       error: (err) => {
         this.saving.set(false);
         this.saveError.set(err?.error?.message ?? this.translate.instant('PARALLEL_LOANS.SAVE_ERROR'));

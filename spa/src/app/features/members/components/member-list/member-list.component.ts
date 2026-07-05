@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MembersService } from '../../services/members.service';
@@ -48,7 +48,7 @@ import { ExitMemberDialogComponent } from '../exit-member-dialog/exit-member-dia
               </tr>
             </thead>
             <tbody>
-              @for (m of service.members(); track m.id; let i = $index) {
+              @for (m of sortedMembers(); track m.id; let i = $index) {
                 <tr class="hover:bg-base-200/50">
                   <td class="text-base-content/40 text-xs">{{ i + 1 }}</td>
                   <td class="font-medium">{{ m.firstName }}</td>
@@ -116,6 +116,12 @@ export class MemberListComponent implements OnInit {
   showExitModal = signal(false);
   selectedMember = signal<Member | null>(null);
   selectedMemberId = signal('');
+
+  sortedMembers = computed(() =>
+    [...this.service.members()].sort((a, b) =>
+      a.isActive === b.isActive ? a.position - b.position : (a.isActive ? -1 : 1)
+    )
+  );
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';

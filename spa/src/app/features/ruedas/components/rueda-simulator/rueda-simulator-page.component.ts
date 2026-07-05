@@ -1,13 +1,12 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { RuedaSimulatorComponent } from './rueda-simulator.component';
 
 @Component({
   selector: 'app-rueda-simulator-page',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, TranslateModule, RuedaSimulatorComponent],
+  imports: [FormsModule, TranslateModule, RuedaSimulatorComponent],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">

@@ -3,6 +3,7 @@ import { DecimalPipe, SlicePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ParallelLoansService } from '../../services/parallel-loans.service';
 import { ParallelLoan } from '../../models/parallel-loan.model';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-loan-payments-dialog',
@@ -87,6 +88,7 @@ export class LoanPaymentsDialogComponent implements OnChanges {
   @Output() closed = new EventEmitter<void>();
 
   readonly service = inject(ParallelLoansService);
+  private readonly toast = inject(ToastService);
 
   toggling = signal('');
   confirmingRevertId = signal('');
@@ -102,8 +104,14 @@ export class LoanPaymentsDialogComponent implements OnChanges {
     if (!this.loan) return;
     this.toggling.set(paymentId);
     this.service.markPayment(this.groupId, this.loan.id, paymentId).subscribe({
-      next: () => this.toggling.set(''),
-      error: () => this.toggling.set(''),
+      next: () => {
+        this.toggling.set('');
+        this.toast.success('TOAST.PAYMENT_REGISTERED');
+      },
+      error: () => {
+        this.toggling.set('');
+        this.toast.error('TOAST.PAYMENT_REGISTER_ERROR');
+      },
     });
   }
 
@@ -120,8 +128,14 @@ export class LoanPaymentsDialogComponent implements OnChanges {
     this.toggling.set(paymentId);
     this.confirmingRevertId.set('');
     this.service.unmarkPayment(this.groupId, this.loan.id, paymentId).subscribe({
-      next: () => this.toggling.set(''),
-      error: () => this.toggling.set(''),
+      next: () => {
+        this.toggling.set('');
+        this.toast.success('TOAST.PAYMENT_REVERTED');
+      },
+      error: () => {
+        this.toggling.set('');
+        this.toast.error('TOAST.PAYMENT_REVERT_ERROR');
+      },
     });
   }
 

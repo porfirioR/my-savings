@@ -6,6 +6,7 @@ import { RuedasService } from '../../services/ruedas.service';
 import { MembersService } from '../../../members/services/members.service';
 import { Rueda, RuedaSlot } from '../../models/rueda.model';
 import { UpdateRuedaFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
 
 interface SlotRow {
   position: number;
@@ -143,7 +144,18 @@ interface SlotRow {
                       @for (row of slots(); track row.position) {
                         <tr>
                           <td class="text-base-content/50">{{ row.position }}</td>
-                          <td>{{ row.memberName || '—' }}</td>
+                          <td>
+                            @if (isPending) {
+                              <select class="select select-bordered select-xs w-full"
+                                (change)="onSlotMemberChange(row.position, $event)">
+                                @for (m of memberOptionsForSlot(row); track m.id) {
+                                  <option [value]="m.id" [selected]="m.id === row.memberId">{{ m.firstName }} {{ m.lastName }}{{ !m.isActive ? ' (' + ('MEMBERS.INACTIVE' | translate) + ')' : '' }}</option>
+                                }
+                              </select>
+                            } @else {
+                              {{ row.memberName || '—' }}
+                            }
+                          </td>
                           <td class="text-right">{{ row.loanAmount | number:'1.0-0' }}</td>
                           <td>
                             <input type="number" class="input input-bordered input-xs w-full text-right"
@@ -185,6 +197,7 @@ export class EditRuedaDialogComponent implements OnChanges {
   private readonly service = inject(RuedasService);
   readonly membersService = inject(MembersService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   saving = signal(false);
   loading = signal(false);
@@ -192,6 +205,33 @@ export class EditRuedaDialogComponent implements OnChanges {
 
   get isCompleted(): boolean {
     return this.rueda?.status === 'completed';
+  }
+
+  get isPending(): boolean {
+    return this.rueda?.status === 'pending';
+  }
+
+  get sortedActiveMembers() {
+    return this.membersService.members()
+      .filter(m => m.isActive)
+      .sort((a, b) => a.position - b.position);
+  }
+
+  /**
+   * Active members plus, if this slot's current member is inactive, that
+   * specific member too — so it displays correctly and can still be kept
+   * (or swapped for an active one), without offering unrelated inactive
+   * members that aren't assigned to this slot.
+   */
+  memberOptionsForSlot(row: SlotRow) {
+    const active = this.sortedActiveMembers;
+    if (row.memberId && !active.some(m => m.id === row.memberId)) {
+      const current = this.membersService.members().find(m => m.id === row.memberId);
+      if (current) {
+        return [...active, current];
+      }
+    }
+    return active;
   }
 
   months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -250,7 +290,10 @@ export class EditRuedaDialogComponent implements OnChanges {
 
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.loading.set(false);
+        this.toast.error('TOAST.RUEDA_LOAD_ERROR');
+      },
     });
   }
 
@@ -268,6 +311,17 @@ export class EditRuedaDialogComponent implements OnChanges {
     ));
   }
 
+  onSlotMemberChange(position: number, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const memberId = select.value;
+    const member = this.membersService.members().find(m => m.id === memberId);
+    this.slots.update(rows => rows.map(r =>
+      r.position === position
+        ? { ...r, memberId, memberName: member ? `${member.firstName} ${member.lastName}` : r.memberName }
+        : r
+    ));
+  }
+
   save(): void {
     if (!this.rueda) return;
 
@@ -275,13 +329,24 @@ export class EditRuedaDialogComponent implements OnChanges {
       ? { notes: this.form.controls.notes.value ?? '' }
       : {
           ...this.form.getRawValue(),
-          slots: this.slots().map(s => ({ position: s.position, previousLoanAmount: s.previousLoanAmount })),
+          slots: this.slots().map(s => ({
+            position: s.position,
+            previousLoanAmount: s.previousLoanAmount,
+            ...(this.isPending && s.memberId ? { memberId: s.memberId } : {}),
+          })),
         };
 
     this.saving.set(true);
     this.service.update(this.groupId, this.rueda.id, payload).subscribe({
-      next: () => { this.saving.set(false); this.saved.emit(); },
-      error: () => { this.saving.set(false); },
+      next: () => {
+        this.saving.set(false);
+        this.saved.emit();
+        this.toast.success('TOAST.RUEDA_UPDATED');
+      },
+      error: () => {
+        this.saving.set(false);
+        this.toast.error('TOAST.RUEDA_UPDATE_ERROR');
+      },
     });
   }
 

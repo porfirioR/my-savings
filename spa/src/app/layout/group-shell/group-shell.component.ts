@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } fr
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { AuthService } from '../../core/services/auth.service';
 
 interface Group {
   id: string;
@@ -70,9 +71,10 @@ interface Group {
             <ul class="flex flex-col gap-0.5 flex-1">
               <li>
                 <a [routerLink]="['ruedas']"
-                   routerLinkActive="bg-primary/10 text-primary font-semibold"
-                   (click)="closeSidebar()"
-                   class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                  routerLinkActive="bg-primary/10 text-primary font-semibold"
+                  (click)="closeSidebar()"
+                  class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                   </svg>
@@ -81,9 +83,10 @@ interface Group {
               </li>
               <li>
                 <a [routerLink]="['rueda']"
-                   routerLinkActive="bg-primary/10 text-primary font-semibold"
-                   (click)="closeSidebar()"
-                   class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                  routerLinkActive="bg-primary/10 text-primary font-semibold"
+                  (click)="closeSidebar()"
+                  class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                   </svg>
@@ -92,9 +95,10 @@ interface Group {
               </li>
               <li>
                 <a [routerLink]="['rueda-simulator']"
-                   routerLinkActive="bg-primary/10 text-primary font-semibold"
-                   (click)="closeSidebar()"
-                   class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                  routerLinkActive="bg-primary/10 text-primary font-semibold"
+                  (click)="closeSidebar()"
+                  class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
@@ -103,9 +107,10 @@ interface Group {
               </li>
               <li>
                 <a [routerLink]="['members']"
-                   routerLinkActive="bg-primary/10 text-primary font-semibold"
-                   (click)="closeSidebar()"
-                   class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                  routerLinkActive="bg-primary/10 text-primary font-semibold"
+                  (click)="closeSidebar()"
+                  class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
                   </svg>
@@ -114,9 +119,10 @@ interface Group {
               </li>
               <li>
                 <a [routerLink]="['parallel-loans']"
-                   routerLinkActive="bg-primary/10 text-primary font-semibold"
-                   (click)="closeSidebar()"
-                   class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                  routerLinkActive="bg-primary/10 text-primary font-semibold"
+                  (click)="closeSidebar()"
+                  class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
@@ -125,9 +131,10 @@ interface Group {
               </li>
               <li>
                 <a [routerLink]="['cash-box']"
-                   routerLinkActive="bg-primary/10 text-primary font-semibold"
-                   (click)="closeSidebar()"
-                   class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content">
+                  routerLinkActive="bg-primary/10 text-primary font-semibold"
+                  (click)="closeSidebar()"
+                  class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                   </svg>
@@ -152,6 +159,13 @@ interface Group {
                   Modo oscuro
                 }
               </button>
+              <button (click)="logout()"
+                class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-error/10 text-base-content/70 hover:text-error cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Cerrar sesión
+              </button>
             </div>
           </nav>
         </aside>
@@ -163,13 +177,21 @@ export class GroupShellComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(ApiService);
+  private readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
 
   group = signal<Group | null>(null);
 
   ngOnInit(): void {
     const groupId = this.route.snapshot.paramMap.get('groupId')!;
-    this.api.get<Group>(`groups/${groupId}`).subscribe(g => this.group.set(g));
+    this.api.get<Group>(`groups/${groupId}`).subscribe({
+      next: g => this.group.set(g),
+      error: () => this.auth.authAlert.set('session_expired'),
+    });
+  }
+
+  logout(): void {
+    this.auth.logout();
   }
 
   createRueda(): void {
