@@ -7,6 +7,7 @@ import { MembersService } from '../../../members/services/members.service';
 import { Rueda, RuedaSlot } from '../../models/rueda.model';
 import { UpdateRuedaFormGroup } from '../../../../core/forms';
 import { ToastService } from '../../../../core/services/toast.service';
+import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
 
 interface SlotRow {
   position: number;
@@ -343,9 +344,9 @@ export class EditRuedaDialogComponent implements OnChanges {
         this.saved.emit();
         this.toast.success('TOAST.RUEDA_UPDATED');
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        this.toast.error('TOAST.RUEDA_UPDATE_ERROR');
+        this.toast.error(backendErrorToastKey(err, 'TOAST.RUEDA_UPDATE_ERROR'));
       },
     });
   }

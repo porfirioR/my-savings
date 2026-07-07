@@ -1,5 +1,6 @@
 //always fist db-context and base-access
 export * from './db-context.service';
+export * from './unique-constraint-errors';
 export * from './base-access.service';
 //access services
 export * from './cash-box-access.service';

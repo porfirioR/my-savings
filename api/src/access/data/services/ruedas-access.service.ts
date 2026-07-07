@@ -147,10 +147,7 @@ export class RuedasAccess extends BaseAccessService {
       .select()
       .single();
 
-    if (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
+    this.throwIfError(error);
     return this.mapToModel(data as RuedaEntity);
   }
 
@@ -203,7 +200,7 @@ export class RuedasAccess extends BaseAccessService {
       .upsert(records, { onConflict: 'rueda_id,slot_position' })
       .select();
 
-    if (error) throw new Error(error.message);
+    this.throwIfError(error);
     return (data as RuedaSlotEntity[]).map((e) => this.mapSlotToModel(e));
   }
 
@@ -262,7 +259,7 @@ export class RuedasAccess extends BaseAccessService {
         .update(update)
         .eq('rueda_id', ruedaId)
         .eq('slot_position', slot.position);
-      if (error) throw new Error(error.message);
+      this.throwIfError(error);
     }
   }
 
