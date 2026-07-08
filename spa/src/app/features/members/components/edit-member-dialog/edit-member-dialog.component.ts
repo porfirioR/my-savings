@@ -5,6 +5,7 @@ import { MembersService } from '../../services/members.service';
 import { Member } from '../../models/member.model';
 import { UpdateMemberFormGroup } from '../../../../core/forms';
 import { ToastService } from '../../../../core/services/toast.service';
+import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
 
 @Component({
   selector: 'app-edit-member-dialog',
@@ -124,9 +125,9 @@ export class EditMemberDialogComponent implements OnChanges {
         this.saved.emit();
         this.toast.success('TOAST.MEMBER_UPDATED');
       },
-      error: () => {
+      error: (err) => {
         this.saving = false;
-        this.toast.error('TOAST.MEMBER_UPDATE_ERROR');
+        this.toast.error(backendErrorToastKey(err, 'TOAST.MEMBER_UPDATE_ERROR'));
       },
     });
   }

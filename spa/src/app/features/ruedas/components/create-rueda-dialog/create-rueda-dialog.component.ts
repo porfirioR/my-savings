@@ -10,6 +10,7 @@ import { CashBoxService } from '../../../cash-box/services/cash-box.service';
 import { RuedaSimulatorComponent } from '../rueda-simulator/rueda-simulator.component';
 import { CreateRuedaFormGroup } from '../../../../core/forms';
 import { ToastService } from '../../../../core/services/toast.service';
+import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
 
 @Component({
   selector: 'app-create-rueda-dialog',
@@ -658,9 +659,9 @@ export class CreateRuedaDialogComponent implements OnChanges, OnDestroy {
         this.saved.emit();
         this.toast.success('TOAST.RUEDA_CREATED');
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        this.toast.error('TOAST.RUEDA_CREATE_ERROR');
+        this.toast.error(backendErrorToastKey(err, 'TOAST.RUEDA_CREATE_ERROR'));
       },
     });
   }

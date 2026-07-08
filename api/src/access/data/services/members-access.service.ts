@@ -67,7 +67,7 @@ export class MembersAccess extends BaseAccessService {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    this.throwIfError(error);
     return this.mapToModel(data as MemberEntity);
   }
 
@@ -88,7 +88,7 @@ export class MembersAccess extends BaseAccessService {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    this.throwIfError(error);
     return this.mapToModel(data as MemberEntity);
   }
 

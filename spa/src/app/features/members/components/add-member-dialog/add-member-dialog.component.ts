@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MembersService } from '../../services/members.service';
 import { CreateMemberFormGroup } from '../../../../core/forms';
 import { ToastService } from '../../../../core/services/toast.service';
+import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
 
 @Component({
   selector: 'app-add-member-dialog',
@@ -109,9 +110,9 @@ export class AddMemberDialogComponent {
         this.saved.emit();
         this.toast.success('TOAST.MEMBER_ADDED');
       },
-      error: () => {
+      error: (err) => {
         this.saving = false;
-        this.toast.error('TOAST.MEMBER_ADD_ERROR');
+        this.toast.error(backendErrorToastKey(err, 'TOAST.MEMBER_ADD_ERROR'));
       },
     });
   }
