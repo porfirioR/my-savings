@@ -68,6 +68,9 @@ CREATE TABLE ruedas (
     -- How slot loan amounts are defined: 'constant' = all slots use rueda loanAmount, 'variable' = per slot
     slot_amount_mode              VARCHAR(10) NOT NULL DEFAULT 'constant' CHECK (slot_amount_mode IN ('constant', 'variable')),
     notes                         TEXT,
+    -- Optional user-renamed label for this rueda's column in the contributions ledger
+    -- (defaults to "Rueda N (MM/YYYY)" when null)
+    contribution_label            VARCHAR(150),
     created_at                    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at                    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (group_id, rueda_number)
@@ -199,6 +202,48 @@ CREATE TABLE parallel_loan_payments (
 );
 
 -- =============================================================
+-- TABLE: contribution_periods
+-- A "manual" contribution period: a historical rueda-like cycle that
+-- predates being tracked in this app, kept only for the contributions
+-- ledger (not a real rueda: no slots, no payments).
+-- =============================================================
+CREATE TABLE contribution_periods (
+    id                           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id                     UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    name                         VARCHAR(100) NOT NULL,
+    monthly_contribution_amount  NUMERIC(15,0) NOT NULL CHECK (monthly_contribution_amount >= 0),
+    member_count                 SMALLINT CHECK (member_count >= 0),
+    position                     SMALLINT NOT NULL,
+    created_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- =============================================================
+-- TABLE: member_contributions
+-- One row per member per period (either a real completed rueda, via
+-- rueda_id, or a manual contribution_period, via contribution_period_id
+-- - exactly one of the two is set). Active ruedas are NEVER stored here;
+-- their total is always computed live from rueda_monthly_payments.
+-- =============================================================
+CREATE TABLE member_contributions (
+    id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id                UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    member_id               UUID NOT NULL REFERENCES members(id),
+    rueda_id                UUID REFERENCES ruedas(id) ON DELETE CASCADE,
+    contribution_period_id  UUID REFERENCES contribution_periods(id) ON DELETE CASCADE,
+    amount                  NUMERIC(15,0) NOT NULL CHECK (amount >= 0),
+    description             TEXT,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CHECK (
+        (rueda_id IS NOT NULL AND contribution_period_id IS NULL) OR
+        (rueda_id IS NULL AND contribution_period_id IS NOT NULL)
+    ),
+    UNIQUE (member_id, rueda_id),
+    UNIQUE (member_id, contribution_period_id)
+);
+
+-- =============================================================
 -- INDEXES
 -- =============================================================
 
@@ -239,6 +284,16 @@ CREATE INDEX idx_plp_loan_id ON parallel_loan_payments(parallel_loan_id);
 CREATE INDEX idx_plp_loan_month_year ON parallel_loan_payments(parallel_loan_id, month, year);
 CREATE INDEX idx_plp_is_paid ON parallel_loan_payments(parallel_loan_id, is_paid);
 
+-- contribution_periods
+CREATE INDEX idx_cp_group_id ON contribution_periods(group_id);
+CREATE INDEX idx_cp_group_position ON contribution_periods(group_id, position);
+
+-- member_contributions
+CREATE INDEX idx_mc_group_id ON member_contributions(group_id);
+CREATE INDEX idx_mc_member_id ON member_contributions(member_id);
+CREATE INDEX idx_mc_rueda_id ON member_contributions(rueda_id);
+CREATE INDEX idx_mc_period_id ON member_contributions(contribution_period_id);
+
 -- =============================================================
 -- TRIGGER: auto-update updated_at
 -- =============================================================
@@ -276,6 +331,14 @@ CREATE TRIGGER trg_cash_movements_updated_at
 
 CREATE TRIGGER trg_parallel_loans_updated_at
     BEFORE UPDATE ON parallel_loans
+    FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();
+
+CREATE TRIGGER trg_contribution_periods_updated_at
+    BEFORE UPDATE ON contribution_periods
+    FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();
+
+CREATE TRIGGER trg_member_contributions_updated_at
+    BEFORE UPDATE ON member_contributions
     FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();
 
 -- =============================================================

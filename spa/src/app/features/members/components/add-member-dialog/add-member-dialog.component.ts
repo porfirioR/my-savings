@@ -47,7 +47,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
             </fieldset>
             <div class="grid grid-cols-2 gap-3 mb-4">
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">{{ 'MEMBERS.JOINED' | translate }} Mes <span class="text-error">*</span></legend>
+                <legend class="fieldset-legend">{{ 'MEMBERS.JOINED' | translate }} {{ 'PAYMENTS.MONTH' | translate }} <span class="text-error">*</span></legend>
                 <select class="select select-bordered w-full" formControlName="joinedMonth">
                   @for (m of months; track m) {
                     <option [ngValue]="m">{{ 'MONTHS.' + m | translate }}</option>
@@ -55,7 +55,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                 </select>
               </fieldset>
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Año <span class="text-error">*</span></legend>
+                <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }} <span class="text-error">*</span></legend>
                 <input type="number" class="input input-bordered w-full" formControlName="joinedYear"
                   [class.input-error]="form.controls.joinedYear.invalid && form.controls.joinedYear.touched" />
                 @if (form.controls.joinedYear.invalid && form.controls.joinedYear.touched) {

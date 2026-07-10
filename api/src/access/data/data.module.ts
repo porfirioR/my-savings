@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import {
   BaseAccessService,
   CashBoxAccess,
+  ContributionsAccess,
   DbContextService,
   GroupsAccess,
   MembersAccess,
@@ -15,6 +16,7 @@ import { UtilityModule } from '../../utility/utility.module';
 const services = [
   DbContextService,
   CashBoxAccess,
+  ContributionsAccess,
   GroupsAccess,
   MembersAccess,
   ParallelLoansAccess,

@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 interface SimulationMonth {
   month: number;
@@ -39,12 +39,12 @@ interface SimulationMonth {
             <table class="table table-sm w-full">
               <thead>
                 <tr class="text-base-content/60">
-                  <th class="text-left">Mes</th>
-                  <th class="text-right">Recibieron</th>
-                  <th class="text-right">Entrada (Gs)</th>
-                  <th class="text-right">Aportes (Gs)</th>
-                  <th class="text-right">Desembolso (Gs)</th>
-                  <th class="text-right">Saldo (Gs)</th>
+                  <th class="text-left">{{ 'RUEDA_SIMULATOR.COL_MONTH' | translate }}</th>
+                  <th class="text-right">{{ 'RUEDA_SIMULATOR.COL_RECEIVED' | translate }}</th>
+                  <th class="text-right">{{ 'RUEDA_SIMULATOR.COL_INFLOW' | translate }}</th>
+                  <th class="text-right">{{ 'RUEDA_SIMULATOR.COL_CONTRIBUTIONS' | translate }}</th>
+                  <th class="text-right">{{ 'RUEDA_SIMULATOR.COL_DISBURSEMENT' | translate }}</th>
+                  <th class="text-right">{{ 'RUEDA_SIMULATOR.COL_BALANCE' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -80,10 +80,7 @@ export class RuedaSimulatorComponent {
   @Input() startYear = 2026;
   @Input() initialCashBalance = 0;
 
-  monthLabels = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
+  private readonly translate = inject(TranslateService);
 
   months(): SimulationMonth[] {
     if (!this.hasData()) return [];
@@ -153,6 +150,6 @@ export class RuedaSimulatorComponent {
   }
 
   monthName(monthNum: number): string {
-    return this.monthLabels[monthNum - 1] || '';
+    return this.translate.instant('MONTHS.' + monthNum);
   }
 }

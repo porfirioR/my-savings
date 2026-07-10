@@ -1,7 +1,8 @@
 import { Component, effect, inject, OnDestroy, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from './core/services/theme.service';
+import { LanguageService } from './core/services/language.service';
 import { AuthService } from './core/services/auth.service';
 import { ToastService } from './core/services/toast.service';
 
@@ -26,32 +27,32 @@ import { ToastService } from './core/services/toast.service';
 
           @if (auth.authAlert() === 'wrong_user') {
             <div class="text-5xl mb-4">🚫</div>
-            <h3 class="font-bold text-lg mb-2">Acceso no permitido</h3>
+            <h3 class="font-bold text-lg mb-2">{{ 'APP.WRONG_USER_TITLE' | translate }}</h3>
             @if (auth.user(); as user) {
               <p class="text-base-content/70 text-sm mb-1">
-                Iniciaste sesión como <strong>{{ user.userDetails }}</strong>,
-                pero esta aplicación solo está disponible para el usuario autorizado.
+                {{ 'APP.LOGGED_IN_AS' | translate }} <strong>{{ user.userDetails }}</strong>,
+                {{ 'APP.WRONG_USER_MESSAGE' | translate }}
               </p>
             }
             <p class="text-base-content/50 text-xs mb-6">
-              Cerrando sesión en <span class="font-bold text-base-content/80">{{ countdown() }}</span>...
+              {{ 'APP.LOGGING_OUT_IN' | translate }} <span class="font-bold text-base-content/80">{{ countdown() }}</span>...
             </p>
             <button class="btn btn-error btn-sm w-full" (click)="logoutNow()">
-              Cerrar sesión ahora
+              {{ 'APP.LOGOUT_NOW' | translate }}
             </button>
 
           } @else {
             <div class="text-5xl mb-4">⏱</div>
-            <h3 class="font-bold text-lg mb-2">Sesión finalizada</h3>
+            <h3 class="font-bold text-lg mb-2">{{ 'APP.SESSION_EXPIRED_TITLE' | translate }}</h3>
             <p class="text-base-content/70 text-sm mb-6">
-              Tu sesión expiró o hubo un problema de conexión.<br>
-              Volvé a iniciar sesión para continuar.
+              {{ 'APP.SESSION_EXPIRED_MESSAGE' | translate }}<br>
+              {{ 'APP.SESSION_EXPIRED_RETRY' | translate }}
             </p>
             <button class="btn btn-primary btn-sm w-full mb-2" (click)="loginAgain()">
-              Iniciar sesión
+              {{ 'APP.LOGIN' | translate }}
             </button>
             <button class="btn btn-ghost btn-sm w-full" (click)="logoutNow()">
-              Cerrar sesión
+              {{ 'APP.LOGOUT' | translate }}
             </button>
           }
 
@@ -64,13 +65,13 @@ export class AppComponent implements OnDestroy {
   readonly auth = inject(AuthService);
   readonly toast = inject(ToastService);
   private readonly theme = inject(ThemeService);
+  private readonly language = inject(LanguageService);
 
   countdown = signal(5);
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private translate: TranslateService) {
-    this.translate.setDefaultLang('es');
-    this.translate.use('es');
+  constructor() {
+    this.language.init();
     this.theme.init();
 
     effect(() => {

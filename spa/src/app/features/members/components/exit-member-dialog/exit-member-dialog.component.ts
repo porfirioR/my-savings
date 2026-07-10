@@ -17,7 +17,7 @@ import { ExitMemberFormGroup } from '../../../../core/forms';
           <form [formGroup]="form">
             <div class="grid grid-cols-2 gap-3 mb-3">
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">{{ 'MEMBERS.LEFT' | translate }} Mes <span class="text-error">*</span></legend>
+                <legend class="fieldset-legend">{{ 'MEMBERS.LEFT' | translate }} {{ 'PAYMENTS.MONTH' | translate }} <span class="text-error">*</span></legend>
                 <select class="select select-bordered w-full" formControlName="leftMonth">
                   @for (m of months; track m) {
                     <option [ngValue]="m">{{ 'MONTHS.' + m | translate }}</option>
@@ -25,7 +25,7 @@ import { ExitMemberFormGroup } from '../../../../core/forms';
                 </select>
               </fieldset>
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Año <span class="text-error">*</span></legend>
+                <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }} <span class="text-error">*</span></legend>
                 <input type="number" class="input input-bordered w-full" formControlName="leftYear"
                   [class.input-error]="form.controls.leftYear.invalid && form.controls.leftYear.touched" />
                 @if (form.controls.leftYear.invalid && form.controls.leftYear.touched) {
@@ -72,7 +72,7 @@ import { ExitMemberFormGroup } from '../../../../core/forms';
               </div>
             } @else {
               <div class="alert mb-3">
-                <span>Sin diferencia. Liquidación en cero.</span>
+                <span>{{ 'MEMBERS.SETTLEMENT_ZERO' | translate }}</span>
               </div>
             }
           }

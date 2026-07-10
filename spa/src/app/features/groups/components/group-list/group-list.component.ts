@@ -19,7 +19,7 @@ import { AuthService } from '../../../../core/services/auth.service';
         <div class="flex items-center justify-between mb-2">
           <h1 class="text-2xl font-bold tracking-tight">{{ 'GROUPS.TITLE' | translate }}</h1>
           <div class="flex items-center gap-2">
-            <button class="btn btn-ghost btn-sm btn-circle" (click)="theme.toggle()" [title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'">
+            <button class="btn btn-ghost btn-sm btn-circle" (click)="theme.toggle()" [title]="(theme.isDark() ? 'APP.LIGHT_MODE' : 'APP.DARK_MODE') | translate">
               @if (theme.isDark()) {
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71m12.02 0-.71-.71M5.64 5.64l-.71-.71M12 5a7 7 0 100 14A7 7 0 0012 5z"/>
@@ -36,7 +36,7 @@ import { AuthService } from '../../../../core/services/auth.service';
               </svg>
               {{ 'GROUPS.NEW' | translate }}
             </button>
-            <button class="btn btn-ghost btn-sm btn-circle text-error" (click)="logout()" title="Cerrar sesión">
+            <button class="btn btn-ghost btn-sm btn-circle text-error" (click)="logout()" [title]="'APP.LOGOUT' | translate">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
               </svg>

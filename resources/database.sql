@@ -343,3 +343,54 @@ ALTER TABLE rueda_slots ADD CONSTRAINT rueda_slots_slot_position_check CHECK (sl
 -- forever since the exited member's row keeps its position.
 ALTER TABLE members DROP CONSTRAINT IF EXISTS members_group_id_position_key;
 CREATE UNIQUE INDEX IF NOT EXISTS members_group_id_position_active_key ON members(group_id, position) WHERE is_active;
+
+-- Contributions module: manual (pre-app) periods + per-member ledger for
+-- completed ruedas and manual periods. Active ruedas are computed live,
+-- never stored here.
+CREATE TABLE IF NOT EXISTS contribution_periods (
+    id                           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id                     UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    name                         VARCHAR(100) NOT NULL,
+    monthly_contribution_amount  NUMERIC(15,0) NOT NULL CHECK (monthly_contribution_amount >= 0),
+    member_count                 SMALLINT CHECK (member_count >= 0),
+    position                     SMALLINT NOT NULL,
+    created_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at                   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS member_contributions (
+    id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id                UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    member_id               UUID NOT NULL REFERENCES members(id),
+    rueda_id                UUID REFERENCES ruedas(id) ON DELETE CASCADE,
+    contribution_period_id  UUID REFERENCES contribution_periods(id) ON DELETE CASCADE,
+    amount                  NUMERIC(15,0) NOT NULL CHECK (amount >= 0),
+    description             TEXT,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CHECK (
+        (rueda_id IS NOT NULL AND contribution_period_id IS NULL) OR
+        (rueda_id IS NULL AND contribution_period_id IS NOT NULL)
+    ),
+    UNIQUE (member_id, rueda_id),
+    UNIQUE (member_id, contribution_period_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cp_group_id ON contribution_periods(group_id);
+CREATE INDEX IF NOT EXISTS idx_cp_group_position ON contribution_periods(group_id, position);
+CREATE INDEX IF NOT EXISTS idx_mc_group_id ON member_contributions(group_id);
+CREATE INDEX IF NOT EXISTS idx_mc_member_id ON member_contributions(member_id);
+CREATE INDEX IF NOT EXISTS idx_mc_rueda_id ON member_contributions(rueda_id);
+CREATE INDEX IF NOT EXISTS idx_mc_period_id ON member_contributions(contribution_period_id);
+
+CREATE TRIGGER trg_contribution_periods_updated_at
+    BEFORE UPDATE ON contribution_periods
+    FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();
+
+CREATE TRIGGER trg_member_contributions_updated_at
+    BEFORE UPDATE ON member_contributions
+    FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();
+
+-- Optional user-renamed label for a rueda's column in the contributions ledger
+-- (defaults to "Rueda N (MM/YYYY)" when null)
+ALTER TABLE ruedas ADD COLUMN IF NOT EXISTS contribution_label VARCHAR(150);

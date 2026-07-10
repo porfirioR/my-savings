@@ -12,7 +12,24 @@
     "CLOSE": "Close",
     "YES": "Yes",
     "NO": "No",
-    "ACTIONS": "Actions"
+    "ACTIONS": "Actions",
+    "WRONG_USER_TITLE": "Access not allowed",
+    "LOGGED_IN_AS": "You're logged in as",
+    "WRONG_USER_MESSAGE": "but this application is only available for the authorized user.",
+    "LOGGING_OUT_IN": "Logging out in",
+    "LOGOUT_NOW": "Log out now",
+    "SESSION_EXPIRED_TITLE": "Session ended",
+    "SESSION_EXPIRED_MESSAGE": "Your session expired or there was a connection problem.",
+    "SESSION_EXPIRED_RETRY": "Log in again to continue.",
+    "LOGIN": "Log in",
+    "LOGOUT": "Log out",
+    "LIGHT_MODE": "Light mode",
+    "DARK_MODE": "Dark mode"
+  },
+  "UNAUTHORIZED": {
+    "TITLE": "Access denied",
+    "LOGGED_IN_AS": "Logged in as",
+    "MESSAGE": "but you don't have permission to access."
   },
   "MONTHS": {
     "1": "January", "2": "February", "3": "March", "4": "April",
@@ -25,7 +42,8 @@
     "POSITION_RANGE": "Position between 1 and 15",
     "AMOUNT_GT_ZERO": "Amount required (greater than 0)",
     "INSTALLMENTS_MIN": "Minimum 1 installment",
-    "MEMBER_REQUIRED": "Select a member"
+    "MEMBER_REQUIRED": "Select a member",
+    "SELECT_MONTH": "Select a month"
   },
   "NAV": {
     "GROUPS": "Groups",
@@ -33,13 +51,18 @@
     "RUEDAS": "Ruedas",
     "MEMBERS": "Members",
     "PARALLEL_LOANS": "Loans",
-    "CASH_BOX": "Cash Box"
+    "CASH_BOX": "Cash Box",
+    "CONTRIBUTIONS": "Contributions",
+    "SIMULATOR": "Simulator"
   },
   "GROUPS": {
     "TITLE": "Savings Groups",
     "NEW": "New Group",
+    "NEW_SUBTITLE": "Enter the new savings group's information.",
     "NAME": "Name",
     "START_DATE": "Start Date",
+    "START_MONTH": "Start month",
+    "START_YEAR": "Start year",
     "TOTAL_RUEDAS": "Ruedas",
     "EMPTY": "No groups registered",
     "DELETE_TITLE": "Delete group",
@@ -78,6 +101,15 @@
     "NEW": "New Rueda",
     "NEW_SUBTITLE": "Configure the parameters of the new rueda.",
     "NUMBER": "Rueda No.",
+    "CURRENT": "Rueda",
+    "AUTO_BADGE": "auto",
+    "LOADING_PREV_RUEDA": "Loading previous rueda data...",
+    "CASH_CURRENT": "Current cash:",
+    "PREV_INSTALLMENTS_LABEL": "Prev. installments:",
+    "MEMBERS_CONTRIBUTION_HINT": "{{count}} members × {{amount}} Gs contribution",
+    "EXPAND_HINT": "Expand \"View detailed flow\" to simulate the balance month by month.",
+    "TURNS_PREV_RUEDA": "{{count}} slots (previous rueda)",
+    "TAKES_TURN": "takes the turn",
     "TYPE": "Type",
     "TYPE_NEW": "New",
     "TYPE_CONTINUA": "Continua",
@@ -140,6 +172,24 @@
     "SIMULATOR_EMPTY": "Configure the rueda to see the simulation.",
     "SIMULATOR_WARNING": "Caution: cash box will go negative in some months. Consider increasing contribution or reducing loan amount."
   },
+  "RUEDA_SIMULATOR": {
+    "MEMBERS": "Members",
+    "LOAN_AMOUNT": "Loan Amount (Gs)",
+    "INTEREST_RATE": "Interest Rate (%)",
+    "CONTRIBUTION": "Contribution (Gs)",
+    "ROUNDING": "Rounding",
+    "ROUNDING_NONE": "No rounding",
+    "START_MONTH_YEAR": "Start Month / Year",
+    "INITIAL_CASH": "Initial Cash Box Balance (Gs)",
+    "PREV_MEMBERS": "Prev. rueda members",
+    "PREV_INSTALLMENT": "Prev. installment per member (Gs)",
+    "COL_MONTH": "Month",
+    "COL_RECEIVED": "Received",
+    "COL_INFLOW": "Inflow (Gs)",
+    "COL_CONTRIBUTIONS": "Contributions (Gs)",
+    "COL_DISBURSEMENT": "Disbursement (Gs)",
+    "COL_BALANCE": "Balance (Gs)"
+  },
   "PAYMENTS": {
     "TITLE": "Monthly Payments",
     "GENERATE": "Generate List",
@@ -165,7 +215,11 @@
     "EMPTY": "No payments for this month. Generate the list first.",
     "SUMMARY": "Summary",
     "TOTAL_COLLECTED": "Total Collected",
-    "TOTAL_PENDING": "Total Pending"
+    "TOTAL_PENDING": "Total Pending",
+    "TYPE": "Type",
+    "PAID_SUFFIX": "paid",
+    "PENDING_SUFFIX": "pending",
+    "REVERT_PAYMENT": "Revert payment"
   },
   "CASH_BOX": {
     "TITLE": "Cash Box",
@@ -175,6 +229,8 @@
     "ADD_SUBTITLE": "Register a new movement in the cash box.",
     "EDIT_MOVEMENT": "Edit Movement",
     "EDIT_SUBTITLE": "Modify the movement details.",
+    "SELECT_PLACEHOLDER": "-- Select --",
+    "DELETE_CONFIRM_Q": "Delete?",
     "TYPE": "Type",
     "TYPE_IN": "Income",
     "TYPE_OUT": "Expense",
@@ -191,6 +247,26 @@
     "CATEGORY_member_entry": "Member entry",
     "CATEGORY_member_exit": "Member exit",
     "CATEGORY_adjustment": "Adjustment"
+  },
+  "CONTRIBUTIONS": {
+    "TITLE": "Contributions",
+    "ADD_PERIOD": "New period",
+    "ADD_PERIOD_SUBTITLE": "Register a historical period that isn't linked to a rueda in the system.",
+    "PERIOD_NAME": "Period name",
+    "MONTHLY_AMOUNT": "Monthly contribution",
+    "MEMBER_COUNT": "Member count",
+    "MEMBER": "Member",
+    "MEMBERS_SHORT": "members",
+    "TOTAL": "Total",
+    "MANUAL_ENTRY": "Manual entry",
+    "ACTIVE_RUEDA": "Active rueda",
+    "COMPLETED_RUEDA": "Completed rueda",
+    "EDIT_CONTRIBUTION": "Register contribution",
+    "AMOUNT": "Amount",
+    "DESCRIPTION": "Description (optional)",
+    "DESCRIPTION_PLACEHOLDER": "E.g.: wasn't registered at the time",
+    "RENAME_HINT": "Click to rename",
+    "EMPTY": "There are no periods or ruedas to show yet."
   },
   "PARALLEL_LOANS": {
     "TITLE": "Parallel Loans",
@@ -263,6 +339,14 @@
     "MOVEMENT_UPDATED": "Movement updated successfully",
     "MOVEMENT_SAVE_ERROR": "Could not save the movement",
     "MOVEMENT_DELETED": "Movement deleted successfully",
-    "MOVEMENT_DELETE_ERROR": "Could not delete the movement"
+    "MOVEMENT_DELETE_ERROR": "Could not delete the movement",
+    "CONTRIBUTION_PERIOD_CREATED": "Period created successfully",
+    "CONTRIBUTION_PERIOD_CREATE_ERROR": "Could not create the period",
+    "CONTRIBUTION_SAVED": "Contribution registered successfully",
+    "CONTRIBUTION_SAVE_ERROR": "Could not register the contribution",
+    "CONTRIBUTION_LABEL_UPDATED": "Name updated successfully",
+    "CONTRIBUTION_LABEL_UPDATE_ERROR": "Could not update the name",
+    "CONTRIBUTION_PERIOD_DELETED": "Period deleted successfully",
+    "CONTRIBUTION_PERIOD_DELETE_ERROR": "Could not delete the period"
   }
 }

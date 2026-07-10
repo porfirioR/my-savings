@@ -119,7 +119,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               </select>
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend">{{ 'PAYMENTS.MONTH' | translate }} inicio <span class="text-error">*</span></legend>
+              <legend class="fieldset-legend">{{ 'GROUPS.START_MONTH' | translate }} <span class="text-error">*</span></legend>
               <select class="select select-bordered w-full" formControlName="startMonth">
                 @for (m of months; track m.value) {
                   <option [ngValue]="m.value">{{ 'MONTHS.' + m.value | translate }}</option>

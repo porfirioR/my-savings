@@ -1,4 +1,5 @@
 export * from './cash-box.controller';
+export * from './contributions.controller';
 export * from './groups.controller';
 export * from './members.controller';
 export * from './parallel-loans.controller';

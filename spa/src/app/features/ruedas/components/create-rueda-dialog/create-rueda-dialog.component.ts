@@ -39,7 +39,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
             <fieldset class="fieldset">
               <legend class="fieldset-legend">
                 {{ 'RUEDAS.START_MONTH_YEAR' | translate }} <span class="text-error">*</span>
-                @if (prevRuedaLocked()) { <span class="badge badge-xs badge-neutral ml-1">auto</span> }
+                @if (prevRuedaLocked()) { <span class="badge badge-xs badge-neutral ml-1">{{ 'RUEDAS.AUTO_BADGE' | translate }}</span> }
               </legend>
               <div class="join w-full">
                 <select class="select select-bordered join-item flex-1" formControlName="startMonth">
@@ -76,7 +76,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                 }
                 @if (loadingPrevRueda()) {
                   <span class="text-xs text-base-content/50 mt-1 flex items-center gap-1">
-                    <span class="loading loading-spinner loading-xs"></span> Cargando datos de la rueda anterior...
+                    <span class="loading loading-spinner loading-xs"></span> {{ 'RUEDAS.LOADING_PREV_RUEDA' | translate }}
                   </span>
                 }
               </fieldset>
@@ -137,11 +137,11 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
               @if (prevRuedaLocked()) {
                 <div class="mt-2 space-y-2">
                   <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-base-content/50">
-                    <span>Caja actual: <span class="font-semibold" [class.text-success]="cashBoxService.balance().balance >= 0" [class.text-error]="cashBoxService.balance().balance < 0">{{ cashBoxService.balance().balance | number:'1.0-0' }} Gs</span></span>
-                    <span>Cuotas ant.: <span class="font-semibold text-warning">{{ sumPrevLoanAmounts | number:'1.0-0' }} Gs</span></span>
-                    <span>{{ memberCount }} × {{ (form.controls.contributionAmount.value ?? 0) | number:'1.0-0' }} Gs aporte</span>
+                    <span>{{ 'RUEDAS.CASH_CURRENT' | translate }} <span class="font-semibold" [class.text-success]="cashBoxService.balance().balance >= 0" [class.text-error]="cashBoxService.balance().balance < 0">{{ cashBoxService.balance().balance | number:'1.0-0' }} Gs</span></span>
+                    <span>{{ 'RUEDAS.PREV_INSTALLMENTS_LABEL' | translate }} <span class="font-semibold text-warning">{{ sumPrevLoanAmounts | number:'1.0-0' }} Gs</span></span>
+                    <span>{{ 'RUEDAS.MEMBERS_CONTRIBUTION_HINT' | translate:{ count: memberCount, amount: (form.controls.contributionAmount.value ?? 0) | number:'1.0-0' } }}</span>
                   </div>
-                  <p class="text-xs text-base-content/40 italic">Expandí "Ver flujo detallado" para simular el saldo mes a mes.</p>
+                  <p class="text-xs text-base-content/40 italic">{{ 'RUEDAS.EXPAND_HINT' | translate }}</p>
 
                   <app-rueda-simulator
                     [previousRuedaInstallment]="sumPrevLoanAmounts / (previousRuedaMemberCount || 1)"
@@ -158,7 +158,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                 </div>
               } @else {
                 <p class="text-xs text-base-content/40 mt-1">
-                  {{ memberCount }} miembros × {{ (form.controls.contributionAmount.value ?? 0) | number:'1.0-0' }} Gs aporte
+                  {{ 'RUEDAS.MEMBERS_CONTRIBUTION_HINT' | translate:{ count: memberCount, amount: (form.controls.contributionAmount.value ?? 0) | number:'1.0-0' } }}
                 </p>
               }
             </fieldset>
@@ -197,7 +197,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                   </button>
                 </div>
               } @else {
-                <span class="badge badge-neutral badge-sm ml-auto">{{ memberCount }} turnos (rueda anterior)</span>
+                <span class="badge badge-neutral badge-sm ml-auto">{{ 'RUEDAS.TURNS_PREV_RUEDA' | translate:{ count: memberCount } }}</span>
               }
             </div>
 
@@ -257,7 +257,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                     </button>
                   </div>
                 } @else {
-                  <span class="badge badge-warning badge-sm">auto</span>
+                  <span class="badge badge-warning badge-sm">{{ 'RUEDAS.AUTO_BADGE' | translate }}</span>
                 }
               </div>
               <p class="text-xs text-base-content/50 mb-2">{{ 'RUEDAS.PREV_AMOUNTS_HINT' | translate }}</p>

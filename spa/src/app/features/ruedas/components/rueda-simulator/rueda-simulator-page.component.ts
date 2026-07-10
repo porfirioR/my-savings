@@ -10,7 +10,7 @@ import { RuedaSimulatorComponent } from './rueda-simulator.component';
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
-        <h2 class="text-2xl font-bold tracking-tight">Simulador</h2>
+        <h2 class="text-2xl font-bold tracking-tight">{{ 'NAV.SIMULATOR' | translate }}</h2>
       </div>
       <div class="divider mt-0 mb-6"></div>
 
@@ -19,36 +19,36 @@ import { RuedaSimulatorComponent } from './rueda-simulator.component';
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Miembros</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.MEMBERS' | translate }}</legend>
             <input type="number" class="input input-bordered input-sm w-full" [(ngModel)]="memberCount" min="1" />
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Monto Préstamo (Gs)</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.LOAN_AMOUNT' | translate }}</legend>
             <input type="number" class="input input-bordered input-sm w-full" [(ngModel)]="loanAmount" min="0" />
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Tasa Interés (%)</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.INTEREST_RATE' | translate }}</legend>
             <input type="number" class="input input-bordered input-sm w-full" [(ngModel)]="interestRate" min="0" step="0.5" />
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Aporte (Gs)</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.CONTRIBUTION' | translate }}</legend>
             <input type="number" class="input input-bordered input-sm w-full" [(ngModel)]="contributionAmount" min="0" />
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Redondeo</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.ROUNDING' | translate }}</legend>
             <select class="select select-bordered select-sm w-full" [(ngModel)]="roundingUnit">
-              <option [ngValue]="0">Sin redondeo</option>
+              <option [ngValue]="0">{{ 'RUEDA_SIMULATOR.ROUNDING_NONE' | translate }}</option>
               <option [ngValue]="500">500 Gs</option>
               <option [ngValue]="1000">1.000 Gs</option>
             </select>
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Mes / Año inicio</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.START_MONTH_YEAR' | translate }}</legend>
             <div class="join w-full">
               <select class="select select-bordered select-sm join-item flex-1" [(ngModel)]="startMonth">
                 @for (m of months; track m.value) {
@@ -60,17 +60,17 @@ import { RuedaSimulatorComponent } from './rueda-simulator.component';
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Saldo inicial Caja (Gs)</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.INITIAL_CASH' | translate }}</legend>
             <input type="number" class="input input-bordered input-sm w-full" [(ngModel)]="initialBalance" />
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Miembros rueda ant.</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.PREV_MEMBERS' | translate }}</legend>
             <input type="number" class="input input-bordered input-sm w-full" [(ngModel)]="prevMemberCount" min="0" />
           </fieldset>
 
           <fieldset class="fieldset">
-            <legend class="fieldset-legend">Cuota ant. por miembro (Gs)</legend>
+            <legend class="fieldset-legend">{{ 'RUEDA_SIMULATOR.PREV_INSTALLMENT' | translate }}</legend>
             <input type="number" class="input input-bordered input-sm w-full" [(ngModel)]="prevInstallmentAmount" min="0" />
           </fieldset>
 

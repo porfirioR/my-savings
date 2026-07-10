@@ -25,7 +25,7 @@ import { ToastService } from '../../../../core/services/toast.service';
                   <th class="w-10">#</th>
                   <th>{{ 'CASH_BOX.DATE' | translate }}</th>
                   <th class="text-right">{{ 'PARALLEL_LOANS.INSTALLMENT' | translate }}</th>
-                  <th class="text-center">Estado</th>
+                  <th class="text-center">{{ 'PAYMENTS.STATUS' | translate }}</th>
                   <th class="w-12"></th>
                 </tr>
               </thead>
@@ -55,13 +55,13 @@ import { ToastService } from '../../../../core/services/toast.service';
                         <div class="flex items-center gap-1 justify-center">
                           <button class="btn btn-xs btn-error" [disabled]="toggling() === p.id" (click)="confirmRevert(p.id)">
                             @if (toggling() === p.id) { <span class="loading loading-spinner loading-xs"></span> }
-                            @else { Sí }
+                            @else { {{ 'APP.YES' | translate }} }
                           </button>
-                          <button class="btn btn-xs btn-ghost" (click)="cancelRevert()">No</button>
+                          <button class="btn btn-xs btn-ghost" (click)="cancelRevert()">{{ 'APP.NO' | translate }}</button>
                         </div>
                       } @else {
                         <button class="btn btn-xs btn-ghost text-warning opacity-60 hover:opacity-100"
-                          title="Revertir pago"
+                          [title]="'PAYMENTS.REVERT_PAYMENT' | translate"
                           (click)="askRevert(p.id)">↩</button>
                       }
                     </td>

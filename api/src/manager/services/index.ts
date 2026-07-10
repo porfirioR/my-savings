@@ -1,4 +1,5 @@
 export * from './cash-box-manager.service';
+export * from './contributions-manager.service';
 export * from './groups-manager.service';
 export * from './members-manager.service';
 export * from './parallel-loans-manager.service';

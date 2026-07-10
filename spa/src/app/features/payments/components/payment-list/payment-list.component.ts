@@ -95,12 +95,12 @@ interface ValidMonth {
           <div class="stat">
             <div class="stat-title text-xs">{{ 'PAYMENTS.TOTAL_COLLECTED' | translate }}</div>
             <div class="stat-value text-success text-xl">{{ service.summary.totalCollected | number:'1.0-0' }}</div>
-            <div class="stat-desc">{{ service.summary.paidCount }} pagos</div>
+            <div class="stat-desc">{{ service.summary.paidCount }} {{ 'PAYMENTS.PAID_SUFFIX' | translate }}</div>
           </div>
           <div class="stat">
             <div class="stat-title text-xs">{{ 'PAYMENTS.TOTAL_PENDING' | translate }}</div>
             <div class="stat-value text-warning text-xl">{{ service.summary.totalPending | number:'1.0-0' }}</div>
-            <div class="stat-desc">{{ service.summary.pendingCount }} pendientes</div>
+            <div class="stat-desc">{{ service.summary.pendingCount }} {{ 'PAYMENTS.PENDING_SUFFIX' | translate }}</div>
           </div>
         </div>
       }
@@ -137,7 +137,7 @@ interface ValidMonth {
                 } @else {
                   {{ 'RUEDAS.TIMELINE_MONTH' | translate }} {{ cm.index }}:
                 }
-                <strong>{{ getMemberByPosition(cm.index) }}</strong> lleva
+                <strong>{{ getMemberByPosition(cm.index) }}</strong> {{ 'RUEDAS.TAKES_TURN' | translate }}
               </span>
             </div>
           }
@@ -148,7 +148,7 @@ interface ValidMonth {
               <thead>
                 <tr class="bg-base-200">
                   <th>{{ 'PAYMENTS.MEMBER' | translate }}</th>
-                  <th>Tipo</th>
+                  <th>{{ 'PAYMENTS.TYPE' | translate }}</th>
                   <th class="text-right">{{ 'PAYMENTS.INSTALLMENT' | translate }}</th>
                   <th class="text-right">{{ 'PAYMENTS.CONTRIBUTION' | translate }}</th>
                   <th class="text-right">{{ 'PAYMENTS.TOTAL' | translate }}</th>
@@ -206,7 +206,7 @@ interface ValidMonth {
               </tbody>
               <tfoot>
                 <tr class="font-bold bg-base-200">
-                  <td colspan="4" class="text-right">Total:</td>
+                  <td colspan="4" class="text-right">{{ 'PAYMENTS.TOTAL' | translate }}:</td>
                   <td class="text-right">{{ totalAmount() | number:'1.0-0' }} Gs</td>
                   @if (!isJuntaNewRueda()) {
                     <td colspan="2"></td>

@@ -3,6 +3,7 @@ import { PaymentAccessModel } from '../../access/contracts/payments';
 import { PaymentsAccess, RuedasAccess } from '../../access/data/services';
 import { GeneratePaymentsRequest, MarkPaymentRequest, PaymentModel } from '../contracts/payments';
 import { CashBoxManager } from './cash-box-manager.service';
+import { ContributionsManager } from './contributions-manager.service';
 import { CreateCashMovementRequest } from '../contracts/cash-box';
 import { toReferenceUuid } from '../../utility/helpers';
 
@@ -12,6 +13,7 @@ export class PaymentsManager {
     private readonly paymentsAccess: PaymentsAccess,
     private readonly ruedasAccess: RuedasAccess,
     private readonly cashBoxManager: CashBoxManager,
+    private readonly contributionsManager: ContributionsManager,
   ) {}
 
   private mapToModel(accessModel: PaymentAccessModel): PaymentModel {
@@ -134,6 +136,7 @@ export class PaymentsManager {
           status: 'completed',
           ...(ruedaDone.endMonth ? { endMonth: ruedaDone.endMonth, endYear: ruedaDone.endYear ?? undefined } : {}),
         });
+        await this.contributionsManager.snapshotCompletedRueda(result.ruedaId);
       }
     } else {
       const completion = await this.paymentsAccess.checkMonthCompletion(
@@ -144,6 +147,14 @@ export class PaymentsManager {
 
       if (completion?.groupId) {
         await this.cashBoxManager.deleteByReference(completion.groupId, referenceId);
+      }
+
+      // If unmarking this payment un-completes an already-completed rueda,
+      // revert its status and drop the stored contribution snapshot.
+      const rueda = await this.ruedasAccess.findById(result.ruedaId);
+      if (rueda.status === 'completed') {
+        await this.ruedasAccess.update(result.ruedaId, { status: 'active' });
+        await this.contributionsManager.clearRuedaContributions(result.ruedaId);
       }
     }
 
