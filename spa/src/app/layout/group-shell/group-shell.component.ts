@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } fr
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { LanguageService } from '../../core/services/language.service';
 import { AuthService } from '../../core/services/auth.service';
 
 interface Group {
@@ -54,14 +55,14 @@ interface Group {
             <h2 class="font-bold text-lg leading-tight truncate">{{ group()?.name ?? '...' }}</h2>
             @if (group()) {
               <p class="text-xs text-base-content/50 mt-0.5">
-                Rueda {{ group()!.totalRuedas }}
+                {{ 'RUEDAS.CURRENT' | translate }} {{ group()!.totalRuedas }}
               </p>
               <button (click)="createRueda()"
                 class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors bg-primary/10 text-primary hover:bg-primary/20 mt-1 cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                Nueva Rueda
+                {{ 'RUEDAS.NEW' | translate }}
               </button>
             }
           </div>
@@ -102,7 +103,7 @@ interface Group {
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  Simulador
+                  {{ 'NAV.SIMULATOR' | translate }}
                 </a>
               </li>
               <li>
@@ -141,6 +142,18 @@ interface Group {
                   {{ 'NAV.CASH_BOX' | translate }}
                 </a>
               </li>
+              <li>
+                <a [routerLink]="['contributions']"
+                  routerLinkActive="bg-primary/10 text-primary font-semibold"
+                  (click)="closeSidebar()"
+                  class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h2v6H9zm4 0V7h2v10h-2zm-8 0v-3h2v3H5zm-2 4h18v2H3v-2z"/>
+                  </svg>
+                  {{ 'NAV.CONTRIBUTIONS' | translate }}
+                </a>
+              </li>
             </ul>
 
             <!-- Theme toggle -->
@@ -151,20 +164,27 @@ interface Group {
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M5.64 18.36l-.71.71m12.02 0-.71-.71M5.64 5.64l-.71-.71M12 5a7 7 0 100 14A7 7 0 0012 5z"/>
                   </svg>
-                  Modo claro
+                  {{ 'APP.LIGHT_MODE' | translate }}
                 } @else {
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
                   </svg>
-                  Modo oscuro
+                  {{ 'APP.DARK_MODE' | translate }}
                 }
+              </button>
+              <button (click)="language.toggle()"
+                class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9l4.5-9 4.5 9m-8.25-3h7.5"/>
+                </svg>
+                {{ language.current() === 'en' ? 'Español' : 'English' }}
               </button>
               <button (click)="logout()"
                 class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-error/10 text-base-content/70 hover:text-error cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
-                Cerrar sesión
+                {{ 'APP.LOGOUT' | translate }}
               </button>
             </div>
           </nav>
@@ -179,6 +199,7 @@ export class GroupShellComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
+  readonly language = inject(LanguageService);
 
   group = signal<Group | null>(null);
 

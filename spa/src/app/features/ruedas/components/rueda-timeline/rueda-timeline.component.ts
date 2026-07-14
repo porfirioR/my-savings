@@ -69,7 +69,7 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
             <thead>
               <tr class="text-base-content/60">
                 <th class="w-6">#</th>
-                <th class="w-8">Lleva</th>
+                <th class="w-8">{{ 'RUEDAS.TAKES_TURN' | translate }}</th>
                 <th>{{ 'MEMBERS.TITLE' | translate }}</th>
                 <th class="text-right">{{ 'RUEDAS.INSTALLMENT' | translate }} (Gs)</th>
                 <th class="text-center">{{ 'RUEDAS.TIMELINE_CUOTA' | translate }}</th>

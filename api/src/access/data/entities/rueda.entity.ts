@@ -18,6 +18,7 @@ export interface RuedaEntity {
   previous_rueda_id: string | null;
   slot_amount_mode: 'constant' | 'variable';
   notes: string | null;
+  contribution_label: string | null;
   created_at: string;
   updated_at: string;
 }

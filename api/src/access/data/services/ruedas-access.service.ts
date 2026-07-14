@@ -59,6 +59,7 @@ export class RuedasAccess extends BaseAccessService {
       notes: entity.notes,
       createdAt: entity.created_at,
       updatedAt: entity.updated_at,
+      contributionLabel: entity.contribution_label,
       slots,
       slotCount: slotCount ?? slots?.length,
     };
@@ -301,6 +302,14 @@ export class RuedasAccess extends BaseAccessService {
 
   async delete(id: string): Promise<void> {
     const { error } = await this.dbContext.from('ruedas').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+  }
+
+  async updateContributionLabel(id: string, label: string): Promise<void> {
+    const { error } = await this.dbContext
+      .from('ruedas')
+      .update({ contribution_label: label })
+      .eq('id', id);
     if (error) throw new Error(error.message);
   }
 }

@@ -15,19 +15,19 @@ import { ToastService } from '../../../../core/services/toast.service';
       <div class="modal modal-open">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-1">{{ 'GROUPS.NEW' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">Completa los datos del nuevo grupo de ahorro.</p>
+          <p class="text-sm text-base-content/50 mb-4">{{ 'GROUPS.NEW_SUBTITLE' | translate }}</p>
           <form [formGroup]="form">
             <fieldset class="fieldset mb-3">
               <legend class="fieldset-legend">{{ 'GROUPS.NAME' | translate }} <span class="text-error">*</span></legend>
               <input type="text" class="input input-bordered w-full" formControlName="name"
                 [class.input-error]="form.controls.name.invalid && form.controls.name.touched" />
               @if (form.controls.name.invalid && form.controls.name.touched) {
-                <span class="text-error text-xs mt-1">Campo requerido</span>
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
               }
             </fieldset>
             <div class="grid grid-cols-2 gap-3 mb-3">
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Mes inicio <span class="text-error">*</span></legend>
+                <legend class="fieldset-legend">{{ 'GROUPS.START_MONTH' | translate }} <span class="text-error">*</span></legend>
                 <select class="select select-bordered w-full" formControlName="startMonth"
                   [class.select-error]="form.controls.startMonth.invalid && form.controls.startMonth.touched">
                   @for (m of months; track m) {
@@ -35,15 +35,15 @@ import { ToastService } from '../../../../core/services/toast.service';
                   }
                 </select>
                 @if (form.controls.startMonth.invalid && form.controls.startMonth.touched) {
-                  <span class="text-error text-xs mt-1">Selecciona un mes</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.SELECT_MONTH' | translate }}</span>
                 }
               </fieldset>
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Año inicio <span class="text-error">*</span></legend>
+                <legend class="fieldset-legend">{{ 'GROUPS.START_YEAR' | translate }} <span class="text-error">*</span></legend>
                 <input type="number" class="input input-bordered w-full" formControlName="startYear"
                   [class.input-error]="form.controls.startYear.invalid && form.controls.startYear.touched" />
                 @if (form.controls.startYear.invalid && form.controls.startYear.touched) {
-                  <span class="text-error text-xs mt-1">Año inválido</span>
+                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.YEAR_INVALID' | translate }}</span>
                 }
               </fieldset>
             </div>

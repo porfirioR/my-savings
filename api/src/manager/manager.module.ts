@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { DataModule } from '../access/data/data.module';
 import {
   CashBoxManager,
+  ContributionsManager,
   GroupsManager,
   MembersManager,
   ParallelLoansManager,
@@ -11,6 +12,7 @@ import {
 
 const services = [
   CashBoxManager,
+  ContributionsManager,
   GroupsManager,
   MembersManager,
   ParallelLoansManager,

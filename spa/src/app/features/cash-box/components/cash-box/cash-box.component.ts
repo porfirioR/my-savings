@@ -105,12 +105,12 @@ import { ToastService } from '../../../../core/services/toast.service';
                           <td class="text-right whitespace-nowrap">
                             @if (m.sourceType === 'manual') {
                               @if (deletingId() === m.id) {
-                                <span class="text-xs text-error mr-1">¿Eliminar?</span>
+                                <span class="text-xs text-error mr-1">{{ 'CASH_BOX.DELETE_CONFIRM_Q' | translate }}</span>
                                 <button class="btn btn-error btn-xs mr-1" [disabled]="deleting()" (click)="confirmDelete(m.id)">
                                   @if (deleting()) { <span class="loading loading-spinner loading-xs"></span> }
-                                  Sí
+                                  {{ 'APP.YES' | translate }}
                                 </button>
-                                <button class="btn btn-ghost btn-xs" (click)="cancelDelete()">No</button>
+                                <button class="btn btn-ghost btn-xs" (click)="cancelDelete()">{{ 'APP.NO' | translate }}</button>
                               } @else {
                                 <button class="btn btn-ghost btn-xs" (click)="openEditModal(m)">
                                   {{ 'APP.EDIT' | translate }}

@@ -12,7 +12,24 @@
     "CLOSE": "Cerrar",
     "YES": "Sí",
     "NO": "No",
-    "ACTIONS": "Acciones"
+    "ACTIONS": "Acciones",
+    "WRONG_USER_TITLE": "Acceso no permitido",
+    "LOGGED_IN_AS": "Iniciaste sesión como",
+    "WRONG_USER_MESSAGE": "pero esta aplicación solo está disponible para el usuario autorizado.",
+    "LOGGING_OUT_IN": "Cerrando sesión en",
+    "LOGOUT_NOW": "Cerrar sesión ahora",
+    "SESSION_EXPIRED_TITLE": "Sesión finalizada",
+    "SESSION_EXPIRED_MESSAGE": "Tu sesión expiró o hubo un problema de conexión.",
+    "SESSION_EXPIRED_RETRY": "Volvé a iniciar sesión para continuar.",
+    "LOGIN": "Iniciar sesión",
+    "LOGOUT": "Cerrar sesión",
+    "LIGHT_MODE": "Modo claro",
+    "DARK_MODE": "Modo oscuro"
+  },
+  "UNAUTHORIZED": {
+    "TITLE": "Acceso denegado",
+    "LOGGED_IN_AS": "Sesión iniciada como",
+    "MESSAGE": "pero no tenés permisos para acceder."
   },
   "MONTHS": {
     "1": "Enero", "2": "Febrero", "3": "Marzo", "4": "Abril",
@@ -25,7 +42,8 @@
     "POSITION_RANGE": "Posición entre 1 y 15",
     "AMOUNT_GT_ZERO": "Monto requerido (mayor a 0)",
     "INSTALLMENTS_MIN": "Mínimo 1 cuota",
-    "MEMBER_REQUIRED": "Selecciona un miembro"
+    "MEMBER_REQUIRED": "Selecciona un miembro",
+    "SELECT_MONTH": "Selecciona un mes"
   },
   "NAV": {
     "GROUPS": "Grupos",
@@ -33,13 +51,18 @@
     "RUEDAS": "Ruedas",
     "MEMBERS": "Miembros",
     "PARALLEL_LOANS": "Préstamos",
-    "CASH_BOX": "Caja"
+    "CASH_BOX": "Caja",
+    "CONTRIBUTIONS": "Aportes",
+    "SIMULATOR": "Simulador"
   },
   "GROUPS": {
     "TITLE": "Grupos de Ahorro",
     "NEW": "Nuevo Grupo",
+    "NEW_SUBTITLE": "Completa los datos del nuevo grupo de ahorro.",
     "NAME": "Nombre",
     "START_DATE": "Fecha de Inicio",
+    "START_MONTH": "Mes inicio",
+    "START_YEAR": "Año inicio",
     "TOTAL_RUEDAS": "Ruedas",
     "EMPTY": "No hay grupos registrados",
     "DELETE_TITLE": "Eliminar grupo",
@@ -78,6 +101,15 @@
     "NEW": "Nueva Rueda",
     "NEW_SUBTITLE": "Configurá los parámetros de la nueva rueda.",
     "NUMBER": "Rueda N°",
+    "CURRENT": "Rueda",
+    "AUTO_BADGE": "auto",
+    "LOADING_PREV_RUEDA": "Cargando datos de la rueda anterior...",
+    "CASH_CURRENT": "Caja actual:",
+    "PREV_INSTALLMENTS_LABEL": "Cuotas ant.:",
+    "MEMBERS_CONTRIBUTION_HINT": "{{count}} miembros × {{amount}} Gs aporte",
+    "EXPAND_HINT": "Expandí \"Ver flujo detallado\" para simular el saldo mes a mes.",
+    "TURNS_PREV_RUEDA": "{{count}} turnos (rueda anterior)",
+    "TAKES_TURN": "lleva",
     "TYPE": "Tipo",
     "TYPE_NEW": "Nueva",
     "TYPE_CONTINUA": "Continua",
@@ -140,6 +172,24 @@
     "SIMULATOR_EMPTY": "Configurá la rueda para ver la simulación.",
     "SIMULATOR_WARNING": "Cuidado: la caja llegará a números rojos en algunos meses. Considerá aumentar el aporte o reducir el monto del préstamo."
   },
+  "RUEDA_SIMULATOR": {
+    "MEMBERS": "Miembros",
+    "LOAN_AMOUNT": "Monto Préstamo (Gs)",
+    "INTEREST_RATE": "Tasa Interés (%)",
+    "CONTRIBUTION": "Aporte (Gs)",
+    "ROUNDING": "Redondeo",
+    "ROUNDING_NONE": "Sin redondeo",
+    "START_MONTH_YEAR": "Mes / Año inicio",
+    "INITIAL_CASH": "Saldo inicial Caja (Gs)",
+    "PREV_MEMBERS": "Miembros rueda ant.",
+    "PREV_INSTALLMENT": "Cuota ant. por miembro (Gs)",
+    "COL_MONTH": "Mes",
+    "COL_RECEIVED": "Recibieron",
+    "COL_INFLOW": "Entrada (Gs)",
+    "COL_CONTRIBUTIONS": "Aportes (Gs)",
+    "COL_DISBURSEMENT": "Desembolso (Gs)",
+    "COL_BALANCE": "Saldo (Gs)"
+  },
   "PAYMENTS": {
     "TITLE": "Pagos del Mes",
     "GENERATE": "Generar Lista",
@@ -165,7 +215,11 @@
     "EMPTY": "No hay pagos para este mes. Generá la lista primero.",
     "SUMMARY": "Resumen",
     "TOTAL_COLLECTED": "Total Recibido",
-    "TOTAL_PENDING": "Total Pendiente"
+    "TOTAL_PENDING": "Total Pendiente",
+    "TYPE": "Tipo",
+    "PAID_SUFFIX": "pagos",
+    "PENDING_SUFFIX": "pendientes",
+    "REVERT_PAYMENT": "Revertir pago"
   },
   "CASH_BOX": {
     "TITLE": "Caja",
@@ -175,6 +229,8 @@
     "ADD_SUBTITLE": "Registrá un nuevo movimiento en la caja.",
     "EDIT_MOVEMENT": "Editar Movimiento",
     "EDIT_SUBTITLE": "Modificá los datos del movimiento.",
+    "SELECT_PLACEHOLDER": "-- Seleccionar --",
+    "DELETE_CONFIRM_Q": "¿Eliminar?",
     "TYPE": "Tipo",
     "TYPE_IN": "Entrada",
     "TYPE_OUT": "Salida",
@@ -191,6 +247,26 @@
     "CATEGORY_member_entry": "Ingreso de miembro",
     "CATEGORY_member_exit": "Salida de miembro",
     "CATEGORY_adjustment": "Ajuste"
+  },
+  "CONTRIBUTIONS": {
+    "TITLE": "Aportes",
+    "ADD_PERIOD": "Nuevo período",
+    "ADD_PERIOD_SUBTITLE": "Registrá un período histórico que no está vinculado a una rueda del sistema.",
+    "PERIOD_NAME": "Nombre del período",
+    "MONTHLY_AMOUNT": "Aporte mensual",
+    "MEMBER_COUNT": "Cantidad de miembros",
+    "MEMBER": "Miembro",
+    "MEMBERS_SHORT": "miembros",
+    "TOTAL": "Total",
+    "MANUAL_ENTRY": "Carga manual",
+    "ACTIVE_RUEDA": "Rueda activa",
+    "COMPLETED_RUEDA": "Rueda completada",
+    "EDIT_CONTRIBUTION": "Registrar aporte",
+    "AMOUNT": "Monto",
+    "DESCRIPTION": "Descripción (opcional)",
+    "DESCRIPTION_PLACEHOLDER": "Ej: no se registró en su momento",
+    "RENAME_HINT": "Click para renombrar",
+    "EMPTY": "No hay períodos ni ruedas para mostrar todavía."
   },
   "PARALLEL_LOANS": {
     "TITLE": "Préstamos Paralelos",
@@ -263,6 +339,14 @@
     "MOVEMENT_UPDATED": "Movimiento actualizado correctamente",
     "MOVEMENT_SAVE_ERROR": "No se pudo guardar el movimiento",
     "MOVEMENT_DELETED": "Movimiento eliminado correctamente",
-    "MOVEMENT_DELETE_ERROR": "No se pudo eliminar el movimiento"
+    "MOVEMENT_DELETE_ERROR": "No se pudo eliminar el movimiento",
+    "CONTRIBUTION_PERIOD_CREATED": "Período creado correctamente",
+    "CONTRIBUTION_PERIOD_CREATE_ERROR": "No se pudo crear el período",
+    "CONTRIBUTION_SAVED": "Aporte registrado correctamente",
+    "CONTRIBUTION_SAVE_ERROR": "No se pudo registrar el aporte",
+    "CONTRIBUTION_LABEL_UPDATED": "Nombre actualizado correctamente",
+    "CONTRIBUTION_LABEL_UPDATE_ERROR": "No se pudo actualizar el nombre",
+    "CONTRIBUTION_PERIOD_DELETED": "Período eliminado correctamente",
+    "CONTRIBUTION_PERIOD_DELETE_ERROR": "No se pudo eliminar el período"
   }
 }

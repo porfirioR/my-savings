@@ -73,6 +73,13 @@ export const routes: Routes = [
             m => m.CashBoxComponent,
           ),
       },
+      {
+        path: 'contributions',
+        loadComponent: () =>
+          import('./features/contributions/components/contribution-list/contribution-list.component').then(
+            m => m.ContributionListComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: 'groups' },

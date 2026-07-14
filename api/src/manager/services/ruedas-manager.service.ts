@@ -5,6 +5,7 @@ import { calculateInstallment, toReferenceUuid } from '../../utility/helpers';
 import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest } from '../contracts/ruedas';
 import { RuedaMonthlyPaymentEntity } from '../../access/data/entities';
 import { CashBoxManager } from './cash-box-manager.service';
+import { ContributionsManager } from './contributions-manager.service';
 
 
 @Injectable()
@@ -12,6 +13,7 @@ export class RuedasManager {
   constructor(
     private readonly ruedasAccess: RuedasAccess,
     private readonly cashBoxManager: CashBoxManager,
+    private readonly contributionsManager: ContributionsManager,
   ) {}
 
   private mapSlotToModel(accessModel: RuedaSlotAccessModel): RuedaSlotModel {
@@ -56,6 +58,7 @@ export class RuedasManager {
       notes: accessModel.notes,
       createdAt: accessModel.createdAt,
       updatedAt: accessModel.updatedAt,
+      contributionLabel: accessModel.contributionLabel,
       slots: accessModel.slots?.map((s) => this.mapSlotToModel(s)),
       slotCount: accessModel.slotCount,
     };
@@ -150,6 +153,11 @@ export class RuedasManager {
       if (hasPending) throw new BadRequestException('COMPLETE_HAS_PENDING');
     }
 
+    let previousStatus: string | undefined;
+    if (req.status !== undefined) {
+      previousStatus = (await this.ruedasAccess.findById(id)).status;
+    }
+
     if (req.slots?.some((s) => s.memberId)) {
       const current = await this.ruedasAccess.findById(id);
       if (current.status !== 'pending') throw new BadRequestException('SLOT_MEMBER_CHANGE_NOT_PENDING');
@@ -182,6 +190,12 @@ export class RuedasManager {
 
     if (req.startMonth !== undefined || req.startYear !== undefined) {
       await this.ruedasAccess.updateSlotsDates(id, updated.startMonth, updated.startYear);
+    }
+
+    if (req.status === 'completed' && previousStatus !== 'completed') {
+      await this.contributionsManager.snapshotCompletedRueda(id);
+    } else if (req.status !== undefined && req.status !== 'completed' && previousStatus === 'completed') {
+      await this.contributionsManager.clearRuedaContributions(id);
     }
 
     return this.findById(id);

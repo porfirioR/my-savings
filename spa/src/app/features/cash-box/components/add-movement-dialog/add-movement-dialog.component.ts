@@ -62,7 +62,7 @@ import { ToastService } from '../../../../core/services/toast.service';
             <legend class="fieldset-legend">{{ 'CASH_BOX.CATEGORY' | translate }} <span class="text-error">*</span></legend>
             <select class="select select-bordered w-full" formControlName="category"
               [class.select-error]="form.controls.category.invalid && form.controls.category.touched">
-              <option value="">-- Seleccionar --</option>
+              <option value="">{{ 'CASH_BOX.SELECT_PLACEHOLDER' | translate }}</option>
               <option value="contribution">{{ 'CASH_BOX.CATEGORY_contribution' | translate }}</option>
               <option value="rueda_collection">{{ 'CASH_BOX.CATEGORY_rueda_collection' | translate }}</option>
               <option value="rueda_disbursement">{{ 'CASH_BOX.CATEGORY_rueda_disbursement' | translate }}</option>

@@ -1,4 +1,6 @@
 export * from './cash-movement.entity';
+export * from './contribution-period.entity';
+export * from './member-contribution.entity';
 export * from './group.entity';
 export * from './member.entity';
 export * from './parallel-loan-payment.entity';

@@ -23,6 +23,7 @@ export class RuedaModel {
     public notes: string | null,
     public createdAt: string,
     public updatedAt: string,
+    public contributionLabel: string | null = null,
     public slots?: RuedaSlotModel[],
     public slotCount?: number,
   ) {}
