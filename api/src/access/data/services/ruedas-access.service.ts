@@ -308,7 +308,7 @@ export class RuedasAccess extends BaseAccessService {
   async updateContributionLabel(id: string, label: string): Promise<void> {
     const { error } = await this.dbContext
       .from('ruedas')
-      .update({ contribution_label: label })
+      .update({ contribution_label: label.trim() || null })
       .eq('id', id);
     if (error) throw new Error(error.message);
   }

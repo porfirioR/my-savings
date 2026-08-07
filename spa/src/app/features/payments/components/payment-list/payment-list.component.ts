@@ -7,6 +7,7 @@ import { Rueda } from '../../../ruedas/models/rueda.model';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../../core/services/toast.service';
+import { RuedaLabelPipe } from '../../../ruedas/pipes/rueda-label.pipe';
 
 interface ValidMonth {
   month: number;
@@ -18,7 +19,7 @@ interface ValidMonth {
 @Component({
   selector: 'app-payment-list',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, TranslateModule],
+  imports: [FormsModule, DecimalPipe, TranslateModule, RuedaLabelPipe],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
@@ -33,7 +34,7 @@ interface ValidMonth {
           <select class="select select-bordered select-sm" [ngModel]="selectedRuedaId()" (ngModelChange)="onRuedaChange($event)">
             <option value="">-- Rueda --</option>
             @for (r of ruedasService.ruedas(); track r.id) {
-              <option [value]="r.id">{{ 'RUEDAS.NUMBER' | translate }} {{ r.ruedaNumber }}</option>
+              <option [value]="r.id">{{ r | ruedaLabel }}</option>
             }
           </select>
 

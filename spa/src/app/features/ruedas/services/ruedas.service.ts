@@ -54,4 +54,12 @@ export class RuedasService {
   getTimeline(groupId: string, ruedaId: string): Observable<RuedaTimelineMonth[]> {
     return this.api.get<RuedaTimelineMonth[]>(`groups/${groupId}/ruedas/${ruedaId}/timeline`);
   }
+
+  updateLabel(groupId: string, ruedaId: string, label: string | null): Observable<void> {
+    return this.api.put<void>(`groups/${groupId}/contributions/rueda-label/${ruedaId}`, { label: label ?? '' }).pipe(
+      tap(() => this.ruedas.update(list =>
+        list.map(r => r.id === ruedaId ? { ...r, contributionLabel: label || null } : r),
+      )),
+    );
+  }
 }

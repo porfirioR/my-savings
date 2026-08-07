@@ -11,11 +11,12 @@ import { RuedaSimulatorComponent } from '../rueda-simulator/rueda-simulator.comp
 import { CreateRuedaFormGroup } from '../../../../core/forms';
 import { ToastService } from '../../../../core/services/toast.service';
 import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
+import { RuedaLabelPipe } from '../../pipes/rueda-label.pipe';
 
 @Component({
   selector: 'app-create-rueda-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, TranslateModule, DecimalPipe, RuedaSimulatorComponent],
+  imports: [ReactiveFormsModule, FormsModule, TranslateModule, DecimalPipe, RuedaSimulatorComponent, RuedaLabelPipe],
   template: `
     @if (show) {
       <div class="modal modal-open">
@@ -62,7 +63,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                   @for (r of service.ruedas(); track r.id) {
                     @if (r.status === 'completed') {
                       <option [value]="r.id">
-                        {{ 'RUEDAS.NUMBER' | translate }} {{ r.ruedaNumber }}
+                        {{ r | ruedaLabel }}
                         — {{ 'MONTHS.' + r.startMonth | translate }} {{ r.startYear }}
                         @if (ruedaEndDates().get(r.id); as end) {
                           — {{ 'MONTHS.' + end.month | translate }} {{ end.year }}
