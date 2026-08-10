@@ -269,6 +269,7 @@
     "CATEGORY_member_exit": "Salida de miembro",
     "CATEGORY_adjustment": "Ajuste",
     "GROUP_PARALLEL_LOANS": "Préstamos paralelos",
+    "GROUP_MEMBER_CHANGES": "Salidas e ingresos de miembros",
     "GROUP_OTHERS": "Otros"
   },
   "CONTRIBUTIONS": {

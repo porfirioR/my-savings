@@ -165,11 +165,14 @@ export class CashBoxComponent implements OnInit {
     for (const m of this.sortedMovements()) {
       const ruedaMatch = m.description?.match(/Rueda (\d+)/);
       const isParallelLoan = m.category === 'parallel_loan_payment' || m.category === 'parallel_loan_disbursement';
+      const isMemberChange = m.category === 'member_exit' || m.category === 'member_entry';
       const key = ruedaMatch
         ? `Rueda ${ruedaMatch[1]}`
         : isParallelLoan
           ? 'CASH_BOX.GROUP_PARALLEL_LOANS'
-          : 'CASH_BOX.GROUP_OTHERS';
+          : isMemberChange
+            ? 'CASH_BOX.GROUP_MEMBER_CHANGES'
+            : 'CASH_BOX.GROUP_OTHERS';
 
       if (!groups.has(key)) {
         groups.set(key, { movements: [], totalIn: 0, totalOut: 0 });

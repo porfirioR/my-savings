@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ContributionsAccess, MembersAccess, RuedasAccess } from '../../access/data/services';
+import { ContributionsAccess, MemberReplacementsAccess, MembersAccess, RuedasAccess } from '../../access/data/services';
 import {
   ContributionColumnModel,
   ContributionPeriodModel,
@@ -9,6 +9,7 @@ import {
   UpdateContributionPeriodRequest,
   UpsertManualContributionRequest,
 } from '../contracts/contributions';
+import { MemberReplacementAccessModel } from '../../access/contracts/member-replacements';
 import { CreateContributionPeriodAccessRequest, UpdateContributionPeriodAccessRequest, UpsertManualContributionAccessRequest } from '../../access/contracts/contributions';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class ContributionsManager {
     private readonly contributionsAccess: ContributionsAccess,
     private readonly membersAccess: MembersAccess,
     private readonly ruedasAccess: RuedasAccess,
+    private readonly memberReplacementsAccess: MemberReplacementsAccess,
   ) {}
 
   private mapPeriodToModel(p: {
@@ -68,7 +70,14 @@ export class ContributionsManager {
     );
   }
 
-  /** Called right after a rueda transitions into 'completed'. Idempotent. */
+  /**
+   * Called right after a rueda transitions into 'completed'. Idempotent.
+   * Uses the uniform totalMonths x contributionAmount for every roster member -
+   * the granular rueda_monthly_payments rows for old completed ruedas are often
+   * incomplete (only the months actually tracked live through the app exist),
+   * so they're not a reliable source for a full-rueda total. Members who left
+   * mid-rueda need their reduced amount corrected manually in the ledger.
+   */
   async snapshotCompletedRueda(ruedaId: string): Promise<void> {
     const rueda = await this.ruedasAccess.findById(ruedaId);
     const slots = rueda.slots ?? [];
@@ -84,6 +93,71 @@ export class ContributionsManager {
   /** Called if a completed rueda reverts to a non-completed status. */
   async clearRuedaContributions(ruedaId: string): Promise<void> {
     return this.contributionsAccess.deleteRuedaContributions(ruedaId);
+  }
+
+  /**
+   * Distributes an incoming replacement member's paid installments across
+   * contribution columns: each paid installment first covers the current
+   * rueda's own monthly rate (what they'd owe as a regular member for that
+   * month), and whatever's left over "buys into" the group's history, filling
+   * the most recently completed rueda first, then manual periods from most
+   * recent to oldest, until the surplus runs out.
+   */
+  private distributeReplacementPayments(
+    schedule: { incomingPaid: boolean; incomingAmount: number }[],
+    currentColumn: ContributionColumnModel,
+    columns: ContributionColumnModel[],
+  ): Map<string, number> {
+    const result = new Map<string, number>();
+    let currentBucket = 0;
+    let surplus = 0;
+    for (const row of schedule) {
+      if (!row.incomingPaid) continue;
+      const toCurrent = Math.min(row.incomingAmount, currentColumn.monthlyAmount);
+      currentBucket += toCurrent;
+      surplus += row.incomingAmount - toCurrent;
+    }
+    result.set(currentColumn.id, currentBucket);
+
+    const historyBuckets = columns
+      .filter((c) => c.id !== currentColumn.id)
+      .sort((a, b) => b.position - a.position);
+
+    for (const bucket of historyBuckets) {
+      if (surplus <= 0) break;
+      const capacity = bucket.monthlyAmount * (bucket.memberCount ?? 0);
+      const applied = Math.min(surplus, capacity);
+      result.set(bucket.id, applied);
+      surplus -= applied;
+    }
+
+    return result;
+  }
+
+  /** Called once a member replacement's last installment is paid and the slot hands over. Freezes the buy-in distribution. */
+  async finalizeIncomingReplacement(replacement: MemberReplacementAccessModel): Promise<void> {
+    const matrix = await this.getMatrix(replacement.groupId);
+    const currentColumn = matrix.columns.find((c) => c.id === replacement.ruedaId);
+    if (!currentColumn) return;
+
+    const schedule = await this.memberReplacementsAccess.findScheduleByReplacement(replacement.id);
+    const buckets = this.distributeReplacementPayments(schedule, currentColumn, matrix.columns);
+
+    for (const [columnId, amount] of buckets) {
+      const column = matrix.columns.find((c) => c.id === columnId)!;
+      if (column.type === 'rueda') {
+        await this.contributionsAccess.upsertRuedaContribution(replacement.groupId, columnId, replacement.incomingMemberId, amount);
+      } else {
+        await this.contributionsAccess.upsertManualContribution(
+          new UpsertManualContributionAccessRequest(replacement.groupId, replacement.incomingMemberId, columnId, amount),
+        );
+      }
+    }
+  }
+
+  /** Called if a finalized member replacement reverts back to active (an installment got unmarked). */
+  async clearIncomingReplacementContributions(memberId: string): Promise<void> {
+    return this.contributionsAccess.deleteContributionsByMember(memberId);
   }
 
   async updateRuedaLabel(ruedaId: string, label: string): Promise<void> {
@@ -143,14 +217,27 @@ export class ContributionsManager {
       let columnValues: Map<string, number>;
       if (rueda.status === 'completed') {
         // Self-heal: ruedas completed before this feature existed have no
-        // stored snapshot yet - compute and persist it on first read.
+        // stored snapshot yet - compute and persist it on first read. storedByRueda
+        // was fetched before this call, so re-derive the same uniform amount
+        // snapshotCompletedRueda just persisted instead of relying on the stale map.
         if (!storedByRueda.has(rueda.id)) {
           await this.snapshotCompletedRueda(rueda.id);
+          const amount = roster.length * rueda.contributionAmount;
+          columnValues = new Map(roster.map((s) => [s.memberId, amount]));
+        } else {
+          columnValues = storedByRueda.get(rueda.id)!;
         }
-        const amount = roster.length * rueda.contributionAmount;
-        columnValues = storedByRueda.get(rueda.id) ?? new Map(roster.map((s) => [s.memberId, amount]));
       } else {
+        // Live real payments plus any frozen buy-in credit from a finalized
+        // member replacement (its own "current rueda" bucket was persisted
+        // here even though this rueda is still active).
         columnValues = new Map(Object.entries(await this.contributionsAccess.sumPaidContributionsByRueda(rueda.id)));
+        const stored = storedByRueda.get(rueda.id);
+        if (stored) {
+          for (const [memberId, amount] of stored) {
+            columnValues.set(memberId, (columnValues.get(memberId) ?? 0) + amount);
+          }
+        }
       }
 
       const label = rueda.contributionLabel ?? this.defaultRuedaLabel(rueda.ruedaNumber, rueda.startMonth, rueda.startYear);
@@ -159,9 +246,29 @@ export class ContributionsManager {
       ));
 
       for (const m of sortedMembers) {
-        if (rosterMemberIds.has(m.id)) {
+        // Normally only roster members (who held a slot) get a value here, but a
+        // member can have a real recorded contribution for a rueda without ever
+        // holding its slot - e.g. someone who informally took over mid-rueda
+        // before the replacements feature existed, corrected directly in the ledger.
+        if (rosterMemberIds.has(m.id) || columnValues.has(m.id)) {
           valuesByMember.get(m.id)![rueda.id] = columnValues.get(m.id) ?? 0;
         }
+      }
+    }
+
+    // Members currently mid buy-in (replacement not finalized yet): show their
+    // paid installments distributed live across the columns, so the matrix
+    // fills in progressively as they check off cuotas in Reemplazos.
+    const activeReplacements = (await this.memberReplacementsAccess.findByGroup(groupId)).filter((r) => r.status === 'active');
+    for (const replacement of activeReplacements) {
+      const memberValues = valuesByMember.get(replacement.incomingMemberId);
+      const currentColumn = columns.find((c) => c.id === replacement.ruedaId);
+      if (!memberValues || !currentColumn) continue;
+
+      const schedule = await this.memberReplacementsAccess.findScheduleByReplacement(replacement.id);
+      const buckets = this.distributeReplacementPayments(schedule, currentColumn, columns);
+      for (const [columnId, amount] of buckets) {
+        memberValues[columnId] = amount;
       }
     }
 

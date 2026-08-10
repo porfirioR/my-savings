@@ -12,6 +12,7 @@ import { ExitMemberRequest } from '../contracts/members';
 import { CreateCashMovementRequest } from '../contracts/cash-box';
 import { MembersManager } from './members-manager.service';
 import { CashBoxManager } from './cash-box-manager.service';
+import { ContributionsManager } from './contributions-manager.service';
 import { toReferenceUuid } from '../../utility/helpers';
 
 @Injectable()
@@ -23,6 +24,7 @@ export class MemberReplacementsManager {
     private readonly paymentsAccess: PaymentsAccess,
     private readonly membersManager: MembersManager,
     private readonly cashBoxManager: CashBoxManager,
+    private readonly contributionsManager: ContributionsManager,
   ) {}
 
   private mapToModel(a: MemberReplacementAccessModel): MemberReplacementModel {
@@ -165,9 +167,11 @@ export class MemberReplacementsManager {
       if (allIncomingPaid && replacement.status !== 'completed') {
         await this.ruedasAccess.reassignSlotMember(replacement.ruedaId, replacement.slotPosition, replacement.incomingMemberId);
         await this.replacementsAccess.updateStatus(replacement.id, 'completed');
+        await this.contributionsManager.finalizeIncomingReplacement(replacement);
       } else if (!allIncomingPaid && replacement.status === 'completed') {
         await this.ruedasAccess.reassignSlotMember(replacement.ruedaId, replacement.slotPosition, replacement.outgoingMemberId);
         await this.replacementsAccess.updateStatus(replacement.id, 'active');
+        await this.contributionsManager.clearIncomingReplacementContributions(replacement.incomingMemberId);
       }
     }
 
