@@ -62,7 +62,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               <input type="checkbox" />
               <div class="collapse-title font-medium bg-base-200">
                 <div class="flex items-center justify-between">
-                  <span>{{ group[0] }}</span>
+                  <span>{{ group[0].startsWith('Rueda ') ? group[0] : (group[0] | translate) }}</span>
                   <div class="flex gap-4 text-sm mr-8">
                     <span class="text-success">+ {{ group[1].totalIn | number:'1.0-0' }} Gs</span>
                     <span class="text-error">- {{ group[1].totalOut | number:'1.0-0' }} Gs</span>
@@ -164,13 +164,18 @@ export class CashBoxComponent implements OnInit {
 
     for (const m of this.sortedMovements()) {
       const ruedaMatch = m.description?.match(/Rueda (\d+)/);
-      const ruedaKey = ruedaMatch ? `Rueda ${ruedaMatch[1]}` : 'Otros';
+      const isParallelLoan = m.category === 'parallel_loan_payment' || m.category === 'parallel_loan_disbursement';
+      const key = ruedaMatch
+        ? `Rueda ${ruedaMatch[1]}`
+        : isParallelLoan
+          ? 'CASH_BOX.GROUP_PARALLEL_LOANS'
+          : 'CASH_BOX.GROUP_OTHERS';
 
-      if (!groups.has(ruedaKey)) {
-        groups.set(ruedaKey, { movements: [], totalIn: 0, totalOut: 0 });
+      if (!groups.has(key)) {
+        groups.set(key, { movements: [], totalIn: 0, totalOut: 0 });
       }
 
-      const group = groups.get(ruedaKey)!;
+      const group = groups.get(key)!;
       group.movements.push(m);
       if (m.type === 'in') group.totalIn += m.amount;
       else group.totalOut += m.amount;

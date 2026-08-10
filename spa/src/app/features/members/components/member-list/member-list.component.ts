@@ -103,7 +103,7 @@ import { ExitMemberDialogComponent } from '../exit-member-dialog/exit-member-dia
       [groupId]="groupId"
       [memberId]="selectedMemberId()"
       (closed)="showExitModal.set(false)"
-      (saved)="showExitModal.set(false)" />
+      (saved)="onExitSaved()" />
   `,
 })
 export class MemberListComponent implements OnInit {
@@ -140,5 +140,9 @@ export class MemberListComponent implements OnInit {
   openExitModal(memberId: string): void {
     this.selectedMemberId.set(memberId);
     this.showExitModal.set(true);
+  }
+
+  onExitSaved(): void {
+    this.service.loadByGroup(this.groupId);
   }
 }

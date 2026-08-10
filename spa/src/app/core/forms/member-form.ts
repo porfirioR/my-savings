@@ -24,3 +24,12 @@ export interface ExitMemberFormGroup {
   accumulatedContributions: FormControl<number>
   remainingLoanBalance: FormControl<number>
 }
+
+export interface ReplacementFormGroup {
+  incomingFirstName: FormControl<string>
+  incomingLastName: FormControl<string>
+  incomingPhone: FormControl<string>
+  outgoingMonthlyAmount: FormControl<number>
+  incomingTotalAmount: FormControl<number>
+  incomingInstallments: FormControl<number>
+}

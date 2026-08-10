@@ -305,6 +305,44 @@ export class RuedasAccess extends BaseAccessService {
     if (error) throw new Error(error.message);
   }
 
+  async findActiveSlotByMember(groupId: string, memberId: string): Promise<{
+    ruedaId: string;
+    ruedaNumber: number;
+    slotPosition: number;
+    loanMonth: number;
+    loanYear: number;
+  } | null> {
+    const { data, error } = await this.dbContext
+      .from('rueda_slots')
+      .select('slot_position, loan_month, loan_year, ruedas!inner(id, rueda_number, group_id, status)')
+      .eq('member_id', memberId)
+      .eq('ruedas.group_id', groupId)
+      .eq('ruedas.status', 'active')
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!data) return null;
+
+    const row = data as any;
+    return {
+      ruedaId: row.ruedas.id,
+      ruedaNumber: row.ruedas.rueda_number,
+      slotPosition: row.slot_position,
+      loanMonth: row.loan_month,
+      loanYear: row.loan_year,
+    };
+  }
+
+  async reassignSlotMember(ruedaId: string, slotPosition: number, memberId: string): Promise<void> {
+    const { error } = await this.dbContext
+      .from('rueda_slots')
+      .update({ member_id: memberId })
+      .eq('rueda_id', ruedaId)
+      .eq('slot_position', slotPosition);
+
+    if (error) throw new Error(error.message);
+  }
+
   async updateContributionLabel(id: string, label: string): Promise<void> {
     const { error } = await this.dbContext
       .from('ruedas')

@@ -54,6 +54,21 @@ export class PaymentsAccess extends BaseAccessService {
     return (data as any[]).map((e) => this.mapToModel(e));
   }
 
+  async findLatestByMember(ruedaId: string, memberId: string): Promise<PaymentAccessModel | null> {
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('*, members(first_name, last_name)')
+      .eq('rueda_id', ruedaId)
+      .eq('member_id', memberId)
+      .order('year', { ascending: false })
+      .order('month', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    return data ? this.mapToModel(data as any) : null;
+  }
+
   async findById(id: string): Promise<PaymentAccessModel> {
     const { data, error } = await this.dbContext
       .from('rueda_monthly_payments')
