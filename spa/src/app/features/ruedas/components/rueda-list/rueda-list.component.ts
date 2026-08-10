@@ -9,11 +9,12 @@ import { CreateRuedaDialogComponent } from '../create-rueda-dialog/create-rueda-
 import { EditRuedaDialogComponent } from '../edit-rueda-dialog/edit-rueda-dialog.component';
 import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.component';
 import { ToastService } from '../../../../core/services/toast.service';
+import { RuedaLabelPipe } from '../../pipes/rueda-label.pipe';
 
 @Component({
   selector: 'app-rueda-list',
   standalone: true,
-  imports: [DecimalPipe, TranslateModule, CreateRuedaDialogComponent, EditRuedaDialogComponent, RuedaTimelineComponent],
+  imports: [DecimalPipe, TranslateModule, CreateRuedaDialogComponent, EditRuedaDialogComponent, RuedaTimelineComponent, RuedaLabelPipe],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
@@ -43,7 +44,7 @@ import { ToastService } from '../../../../core/services/toast.service';
                 <!-- Card header: number + status + actions -->
                 <div class="flex items-center justify-between mb-3">
                   <h3 class="font-bold text-base">
-                    {{ 'RUEDAS.NUMBER' | translate }} {{ r.ruedaNumber }}
+                    {{ r | ruedaLabel }}
                   </h3>
                   <div class="flex items-center gap-2">
                     <span class="badge badge-sm"
@@ -111,7 +112,7 @@ import { ToastService } from '../../../../core/services/toast.service';
                   }
                 </div>
                 @if (timelineRuedaId() === r.id) {
-                  <app-rueda-timeline [groupId]="groupId" [ruedaId]="r.id" />
+                  <app-rueda-timeline [groupId]="groupId" [ruedaId]="r.id" [ruedaLabel]="r | ruedaLabel" />
                 }
               </div>
             </div>

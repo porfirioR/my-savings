@@ -53,7 +53,8 @@
     "PARALLEL_LOANS": "Préstamos",
     "CASH_BOX": "Caja",
     "CONTRIBUTIONS": "Aportes",
-    "SIMULATOR": "Simulador"
+    "SIMULATOR": "Simulador",
+    "REPLACEMENTS": "Reemplazos"
   },
   "GROUPS": {
     "TITLE": "Grupos de Ahorro",
@@ -94,7 +95,19 @@
     "SETTLEMENT_ZERO": "Sin diferencia. Liquidación en cero.",
     "EMPTY": "No hay miembros registrados",
     "EXIT_ACTIVE_LOANS_ERROR": "Este miembro tiene préstamos paralelos activos. Saldá los préstamos antes de procesar la salida.",
-    "EXIT_ERROR": "Ocurrió un error al procesar la salida. Intentá de nuevo."
+    "EXIT_ERROR": "Ocurrió un error al procesar la salida. Intentá de nuevo.",
+    "REPLACE_TOGGLE": "Reemplazar con un nuevo miembro",
+    "REPLACE_HINT": "Se dará de baja a este miembro y se creará el nuevo en su misma posición. El cronograma de cuotas se gestiona luego desde \"Reemplazos\".",
+    "OUTGOING_MONTHLY_AMOUNT": "Monto mensual que debía pagar (Gs)",
+    "OUTGOING_MONTHLY_AMOUNT_HINT": "Cuota + aporte que este miembro pagaba, descontado de caja cada mes hasta su turno (así se anula lo que la recaudación de la rueda asume que este cupo pagó, evitando que el aporte se cuente dos veces).",
+    "OUTGOING_SECTION": "Datos de quien sale",
+    "INCOMING_SECTION": "Datos de quien entra",
+    "INCOMING_TOTAL_AMOUNT": "Monto total de ingreso (Gs)",
+    "INCOMING_INSTALLMENTS": "Cantidad de cuotas",
+    "INCOMING_INSTALLMENTS_HINT": "El monto total de ingreso se divide en partes iguales entre esta cantidad de meses.",
+    "INCOMING_MONTHLY_PREVIEW": "El nuevo miembro va a pagar {{amount}} Gs por mes.",
+    "REPLACE_SUCCESS": "Reemplazo creado: se generaron {{count}} cuotas en el cronograma.",
+    "REPLACE_NO_ACTIVE_SLOT_ERROR": "Este miembro no tiene un turno activo en ninguna rueda, no se puede armar un reemplazo."
   },
   "RUEDAS": {
     "TITLE": "Ruedas",
@@ -110,6 +123,11 @@
     "EXPAND_HINT": "Expandí \"Ver flujo detallado\" para simular el saldo mes a mes.",
     "TURNS_PREV_RUEDA": "{{count}} turnos (rueda anterior)",
     "TAKES_TURN": "lleva",
+    "SUMMARY_OPEN": "Compartir resumen",
+    "SUMMARY_PERSON": "Personas",
+    "SUMMARY_INSTALLMENT": "Cuota",
+    "SUMMARY_CURRENT_TURN": "Mes actual",
+    "SUMMARY_PAID": "Pagado",
     "TYPE": "Tipo",
     "TYPE_NEW": "Nueva",
     "TYPE_CONTINUA": "Continua",
@@ -134,6 +152,9 @@
     "EDIT": "Editar Rueda",
     "EDIT_SUBTITLE": "Modificá los parámetros de la rueda.",
     "EDIT_COMPLETED_HINT": "Esta rueda está completada. Solo podés editar las notas.",
+    "RENAME_LABEL": "Nombre mostrado",
+    "RENAME_LABEL_PLACEHOLDER": "Ej: Rueda 5",
+    "RENAME_LABEL_HINT": "Dejalo vacío para usar el nombre automático (\"Rueda N°\").",
     "DELETE": "Eliminar Rueda",
     "DELETE_CONFIRM": "¿Estás seguro de que querés eliminar esta rueda? Esta acción no se puede deshacer.",
     "NOTES": "Notas",
@@ -246,7 +267,9 @@
     "CATEGORY_parallel_loan_disbursement": "Desembolso préstamo paralelo",
     "CATEGORY_member_entry": "Ingreso de miembro",
     "CATEGORY_member_exit": "Salida de miembro",
-    "CATEGORY_adjustment": "Ajuste"
+    "CATEGORY_adjustment": "Ajuste",
+    "GROUP_PARALLEL_LOANS": "Préstamos paralelos",
+    "GROUP_OTHERS": "Otros"
   },
   "CONTRIBUTIONS": {
     "TITLE": "Aportes",
@@ -306,6 +329,7 @@
     "MEMBER_ADD_ERROR": "No se pudo agregar el miembro",
     "MEMBER_UPDATED": "Miembro actualizado correctamente",
     "MEMBER_UPDATE_ERROR": "No se pudo actualizar el miembro",
+    "MEMBER_EXITED": "Salida procesada correctamente",
     "MEMBER_POSITION_TAKEN": "Esa posición ya está ocupada por un miembro activo. Elegí otra o desactivá al que la ocupa.",
     "RUEDA_NUMBER_TAKEN": "Ya existe una rueda con ese número en este grupo.",
     "SLOT_POSITION_TAKEN": "Ese turno ya está ocupado en esta rueda.",
@@ -347,6 +371,25 @@
     "CONTRIBUTION_LABEL_UPDATED": "Nombre actualizado correctamente",
     "CONTRIBUTION_LABEL_UPDATE_ERROR": "No se pudo actualizar el nombre",
     "CONTRIBUTION_PERIOD_DELETED": "Período eliminado correctamente",
-    "CONTRIBUTION_PERIOD_DELETE_ERROR": "No se pudo eliminar el período"
+    "CONTRIBUTION_PERIOD_DELETE_ERROR": "No se pudo eliminar el período",
+    "MEMBER_REPLACEMENT_CREATED": "Reemplazo creado correctamente",
+    "REPLACEMENT_LOAD_ERROR": "No se pudo cargar el cronograma",
+    "REPLACEMENT_MARKED_PAID": "Movimiento registrado en caja",
+    "REPLACEMENT_MARKED_UNPAID": "Movimiento revertido de caja",
+    "REPLACEMENT_MARK_ERROR": "No se pudo registrar el movimiento",
+    "REPLACEMENT_UPDATE_ERROR": "No se pudo actualizar el monto"
+  },
+  "REPLACEMENTS": {
+    "TITLE": "Reemplazos",
+    "SUBTITLE": "Salidas e ingresos de miembros a mitad de rueda: cronograma mensual de compensación.",
+    "EMPTY": "No hay reemplazos registrados. Se crean desde \"Procesar Salida\" en Miembros.",
+    "STATUS_ACTIVE": "En curso",
+    "STATUS_COMPLETED": "Completado",
+    "SLOT": "Turno",
+    "OUTGOING_MONTHLY": "Salida mensual",
+    "INCOMING_TOTAL": "Ingreso total",
+    "SCHEDULE": "Cronograma",
+    "OUTGOING": "Salida",
+    "INCOMING": "Ingreso"
   }
 }

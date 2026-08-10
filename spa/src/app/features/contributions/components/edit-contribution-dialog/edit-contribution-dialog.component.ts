@@ -31,8 +31,8 @@ interface EditContributionFormGroup {
             </fieldset>
             <fieldset class="fieldset mb-4">
               <legend class="fieldset-legend">{{ 'CONTRIBUTIONS.DESCRIPTION' | translate }}</legend>
-              <input type="text" class="input input-bordered w-full" formControlName="description"
-                [placeholder]="'CONTRIBUTIONS.DESCRIPTION_PLACEHOLDER' | translate" />
+              <textarea class="textarea textarea-bordered w-full" rows="2" formControlName="description"
+                [placeholder]="'CONTRIBUTIONS.DESCRIPTION_PLACEHOLDER' | translate"></textarea>
             </fieldset>
           </form>
           <div class="divider my-2"></div>

@@ -394,3 +394,54 @@ CREATE TRIGGER trg_member_contributions_updated_at
 -- Optional user-renamed label for a rueda's column in the contributions ledger
 -- (defaults to "Rueda N (MM/YYYY)" when null)
 ALTER TABLE ruedas ADD COLUMN IF NOT EXISTS contribution_label VARCHAR(150);
+
+-- Member replacements: exit of one member paired with the new member who
+-- takes over their slot. Both owe a monthly amount (outgoing: their old
+-- installment+contribution; incoming: buy-in total split into installments)
+-- until the slot's disbursement month. Amounts are entered manually by the
+-- admin; this only tracks the monthly schedule and check-off state.
+CREATE TABLE IF NOT EXISTS member_replacements (
+    id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id                UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    rueda_id                UUID NOT NULL REFERENCES ruedas(id) ON DELETE CASCADE,
+    slot_position           SMALLINT NOT NULL CHECK (slot_position BETWEEN 1 AND 30),
+    outgoing_member_id      UUID NOT NULL REFERENCES members(id),
+    outgoing_monthly_amount NUMERIC(15,0) NOT NULL CHECK (outgoing_monthly_amount >= 0),
+    incoming_member_id      UUID NOT NULL REFERENCES members(id),
+    incoming_total_amount   NUMERIC(15,0) NOT NULL CHECK (incoming_total_amount >= 0),
+    incoming_installments   SMALLINT NOT NULL CHECK (incoming_installments >= 1),
+    status                  VARCHAR(10) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed')),
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS member_replacement_schedule (
+    id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    replacement_id     UUID NOT NULL REFERENCES member_replacements(id) ON DELETE CASCADE,
+    month              SMALLINT NOT NULL CHECK (month BETWEEN 1 AND 12),
+    year               SMALLINT NOT NULL CHECK (year >= 2000),
+    installment_number SMALLINT NOT NULL CHECK (installment_number >= 1),
+    outgoing_amount    NUMERIC(15,0) NOT NULL CHECK (outgoing_amount >= 0),
+    outgoing_paid      BOOLEAN NOT NULL DEFAULT FALSE,
+    outgoing_paid_at   TIMESTAMPTZ,
+    incoming_amount    NUMERIC(15,0) NOT NULL CHECK (incoming_amount >= 0),
+    incoming_paid      BOOLEAN NOT NULL DEFAULT FALSE,
+    incoming_paid_at   TIMESTAMPTZ,
+    created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (replacement_id, month, year)
+);
+
+CREATE INDEX IF NOT EXISTS idx_mr_group_id ON member_replacements(group_id);
+CREATE INDEX IF NOT EXISTS idx_mr_rueda_id ON member_replacements(rueda_id);
+CREATE INDEX IF NOT EXISTS idx_mr_outgoing_member ON member_replacements(outgoing_member_id);
+CREATE INDEX IF NOT EXISTS idx_mr_incoming_member ON member_replacements(incoming_member_id);
+CREATE INDEX IF NOT EXISTS idx_mrs_replacement_id ON member_replacement_schedule(replacement_id);
+
+CREATE TRIGGER trg_member_replacements_updated_at
+    BEFORE UPDATE ON member_replacements
+    FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();
+
+CREATE TRIGGER trg_member_replacement_schedule_updated_at
+    BEFORE UPDATE ON member_replacement_schedule
+    FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();

@@ -80,6 +80,13 @@ export const routes: Routes = [
             m => m.ContributionListComponent,
           ),
       },
+      {
+        path: 'replacements',
+        loadComponent: () =>
+          import('./features/member-replacements/components/replacement-list/replacement-list.component').then(
+            m => m.ReplacementListComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: 'groups' },

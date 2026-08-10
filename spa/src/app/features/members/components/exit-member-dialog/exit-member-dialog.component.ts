@@ -1,17 +1,21 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MembersService } from '../../services/members.service';
-import { ExitMemberFormGroup } from '../../../../core/forms';
+import { MemberReplacementsService } from '../../../member-replacements/services/member-replacements.service';
+import { ExitMemberFormGroup, ReplacementFormGroup } from '../../../../core/forms';
+import { ToastService } from '../../../../core/services/toast.service';
+import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
 
 @Component({
   selector: 'app-exit-member-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule],
+  imports: [ReactiveFormsModule, FormsModule, TranslateModule, DecimalPipe],
   template: `
     @if (show) {
       <div class="modal modal-open">
-        <div class="modal-box">
+        <div class="modal-box max-w-lg">
           <h3 class="font-bold text-lg mb-1">{{ 'MEMBERS.EXIT' | translate }}</h3>
           <p class="text-sm text-base-content/50 mb-4">{{ 'MEMBERS.EXIT_SUBTITLE' | translate }}</p>
           <form [formGroup]="form">
@@ -50,41 +54,79 @@ import { ExitMemberFormGroup } from '../../../../core/forms';
               }
             </fieldset>
           </form>
+
+          <div class="divider my-2"></div>
+
+          <label class="label cursor-pointer justify-start gap-3 mb-2">
+            <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" [(ngModel)]="replaceEnabled" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onReplaceToggle($event)" />
+            <span class="label-text font-medium">{{ 'MEMBERS.REPLACE_TOGGLE' | translate }}</span>
+          </label>
+
+          @if (replaceEnabled) {
+            <p class="text-xs text-base-content/50 mb-3">{{ 'MEMBERS.REPLACE_HINT' | translate }}</p>
+            <form [formGroup]="replacementForm">
+              <p class="text-xs font-semibold uppercase text-base-content/40 mb-2">{{ 'MEMBERS.OUTGOING_SECTION' | translate }}</p>
+              <fieldset class="fieldset mb-4">
+                <legend class="fieldset-legend">{{ 'MEMBERS.OUTGOING_MONTHLY_AMOUNT' | translate }}</legend>
+                <div class="relative">
+                  <div class="input input-bordered w-full flex items-center bg-base-200 text-base-content/70">
+                    {{ replacementForm.controls.outgoingMonthlyAmount.value | number:'1.0-0' }}
+                  </div>
+                  @if (outgoingAmountLoading()) {
+                    <span class="loading loading-spinner loading-xs absolute right-3 top-1/2 -translate-y-1/2"></span>
+                  }
+                </div>
+                <p class="text-xs text-base-content/40 mt-1">{{ 'MEMBERS.OUTGOING_MONTHLY_AMOUNT_HINT' | translate }}</p>
+              </fieldset>
+
+              <p class="text-xs font-semibold uppercase text-base-content/40 mb-2">{{ 'MEMBERS.INCOMING_SECTION' | translate }}</p>
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <fieldset class="fieldset">
+                  <legend class="fieldset-legend">{{ 'MEMBERS.FIRST_NAME' | translate }} <span class="text-error">*</span></legend>
+                  <input type="text" class="input input-bordered w-full" formControlName="incomingFirstName"
+                    [class.input-error]="replacementForm.controls.incomingFirstName.invalid && replacementForm.controls.incomingFirstName.touched" />
+                </fieldset>
+                <fieldset class="fieldset">
+                  <legend class="fieldset-legend">{{ 'MEMBERS.LAST_NAME' | translate }} <span class="text-error">*</span></legend>
+                  <input type="text" class="input input-bordered w-full" formControlName="incomingLastName"
+                    [class.input-error]="replacementForm.controls.incomingLastName.invalid && replacementForm.controls.incomingLastName.touched" />
+                </fieldset>
+              </div>
+              <fieldset class="fieldset mb-3">
+                <legend class="fieldset-legend">{{ 'MEMBERS.PHONE' | translate }}</legend>
+                <input type="text" class="input input-bordered w-full" formControlName="incomingPhone" />
+              </fieldset>
+              <div class="grid grid-cols-2 gap-3 mb-1">
+                <fieldset class="fieldset">
+                  <legend class="fieldset-legend">{{ 'MEMBERS.INCOMING_TOTAL_AMOUNT' | translate }} <span class="text-error">*</span></legend>
+                  <input type="number" class="input input-bordered w-full" formControlName="incomingTotalAmount"
+                    [class.input-error]="replacementForm.controls.incomingTotalAmount.invalid && replacementForm.controls.incomingTotalAmount.touched" />
+                </fieldset>
+                <fieldset class="fieldset">
+                  <legend class="fieldset-legend">{{ 'MEMBERS.INCOMING_INSTALLMENTS' | translate }} <span class="text-error">*</span></legend>
+                  <input type="number" class="input input-bordered w-full" formControlName="incomingInstallments"
+                    [class.input-error]="replacementForm.controls.incomingInstallments.invalid && replacementForm.controls.incomingInstallments.touched" />
+                </fieldset>
+              </div>
+              <p class="text-xs text-base-content/40 mb-1">{{ 'MEMBERS.INCOMING_INSTALLMENTS_HINT' | translate }}</p>
+              @if (incomingMonthlyPreview() > 0) {
+                <p class="text-xs font-medium text-success mb-3">{{ 'MEMBERS.INCOMING_MONTHLY_PREVIEW' | translate:{ amount: (incomingMonthlyPreview() | number:'1.0-0') } }}</p>
+              }
+            </form>
+          }
+
           @if (errorMsg()) {
             <div class="alert alert-error mb-3">
               <span>{{ errorMsg()! | translate }}</span>
             </div>
           }
-          @if (settlement()) {
-            @if (settlement()!.memberReceives > 0) {
-              <div class="alert alert-success mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>{{ 'MEMBERS.SETTLEMENT_RECEIVES' | translate:{ amount: settlement()!.memberReceives } }}</span>
-              </div>
-            } @else if (settlement()!.memberPays > 0) {
-              <div class="alert alert-warning mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                <span>{{ 'MEMBERS.SETTLEMENT_PAYS' | translate:{ amount: settlement()!.memberPays } }}</span>
-              </div>
-            } @else {
-              <div class="alert mb-3">
-                <span>{{ 'MEMBERS.SETTLEMENT_ZERO' | translate }}</span>
-              </div>
-            }
-          }
           <div class="divider my-2"></div>
           <div class="modal-action mt-0">
             <button class="btn btn-ghost" (click)="onClose()">{{ 'APP.CLOSE' | translate }}</button>
-            @if (!settlement()) {
-              <button class="btn btn-warning" [disabled]="form.invalid || saving()" (click)="processExit()">
-                @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
-                {{ 'APP.CONFIRM' | translate }}
-              </button>
-            }
+            <button class="btn btn-warning" [disabled]="form.invalid || (replaceEnabled && replacementForm.invalid) || saving()" (click)="processExit()">
+              @if (saving()) { <span class="loading loading-spinner loading-xs"></span> }
+              {{ 'APP.CONFIRM' | translate }}
+            </button>
           </div>
         </div>
         <div class="modal-backdrop" (click)="onClose()"></div>
@@ -100,11 +142,14 @@ export class ExitMemberDialogComponent implements OnChanges {
   @Output() saved = new EventEmitter<void>();
 
   private readonly service = inject(MembersService);
+  private readonly replacementsService = inject(MemberReplacementsService);
   private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastService);
 
   saving = signal(false);
-  settlement = signal<{ memberReceives: number; memberPays: number } | null>(null);
   errorMsg = signal<string | null>(null);
+  outgoingAmountLoading = signal(false);
+  replaceEnabled = false;
   months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   form: FormGroup<ExitMemberFormGroup> = this.fb.nonNullable.group({
@@ -114,39 +159,100 @@ export class ExitMemberDialogComponent implements OnChanges {
     remainingLoanBalance: [0, [Validators.required, Validators.min(0)]],
   });
 
+  replacementForm: FormGroup<ReplacementFormGroup> = this.fb.nonNullable.group({
+    incomingFirstName: ['', Validators.required],
+    incomingLastName: ['', Validators.required],
+    incomingPhone: [''],
+    outgoingMonthlyAmount: [{ value: 0, disabled: true }],
+    incomingTotalAmount: [0, [Validators.required, Validators.min(0)]],
+    incomingInstallments: [1, [Validators.required, Validators.min(1)]],
+  });
+
+  incomingMonthlyPreview(): number {
+    const { incomingTotalAmount, incomingInstallments } = this.replacementForm.getRawValue();
+    return incomingInstallments > 0 ? Math.round(incomingTotalAmount / incomingInstallments) : 0;
+  }
+
+  onReplaceToggle(enabled: boolean): void {
+    if (!enabled) return;
+    this.outgoingAmountLoading.set(true);
+    this.replacementsService.previewOutgoingAmount(this.groupId, this.memberId).subscribe({
+      next: ({ outgoingMonthlyAmount }) => {
+        this.outgoingAmountLoading.set(false);
+        this.replacementForm.controls.outgoingMonthlyAmount.setValue(outgoingMonthlyAmount);
+      },
+      error: (err) => {
+        this.outgoingAmountLoading.set(false);
+        this.errorMsg.set(this.resolveErrorKey(err));
+      },
+    });
+  }
+
   ngOnChanges(): void {
     if (this.show) {
-      this.settlement.set(null);
       this.errorMsg.set(null);
+      this.replaceEnabled = false;
       this.form.reset({
         leftMonth: new Date().getMonth() + 1,
         leftYear: new Date().getFullYear(),
         accumulatedContributions: 0,
         remainingLoanBalance: 0,
       });
+      this.replacementForm.reset({
+        incomingFirstName: '',
+        incomingLastName: '',
+        incomingPhone: '',
+        outgoingMonthlyAmount: 0,
+        incomingTotalAmount: 0,
+        incomingInstallments: 1,
+      });
     }
   }
 
   processExit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid || (this.replaceEnabled && this.replacementForm.invalid)) return;
     this.errorMsg.set(null);
     this.saving.set(true);
-    this.service.exit(this.groupId, this.memberId, this.form.getRawValue()).subscribe({
-      next: (result) => {
-        this.saving.set(false);
-        this.settlement.set(result);
-        this.saved.emit();
-      },
-      error: (err) => {
-        this.saving.set(false);
-        const msg = err?.error?.message;
-        this.errorMsg.set(msg === 'ACTIVE_PARALLEL_LOANS' ? 'MEMBERS.EXIT_ACTIVE_LOANS_ERROR' : 'MEMBERS.EXIT_ERROR');
-      },
-    });
+
+    if (this.replaceEnabled) {
+      const exit = this.form.getRawValue();
+      const replacement = this.replacementForm.getRawValue();
+      this.replacementsService.create(this.groupId, { outgoingMemberId: this.memberId, ...exit, ...replacement }).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.saved.emit();
+          this.toast.success('TOAST.MEMBER_REPLACEMENT_CREATED');
+          this.onClose();
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.errorMsg.set(this.resolveErrorKey(err));
+        },
+      });
+    } else {
+      this.service.exit(this.groupId, this.memberId, this.form.getRawValue()).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.saved.emit();
+          this.toast.success('TOAST.MEMBER_EXITED');
+          this.onClose();
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.errorMsg.set(this.resolveErrorKey(err));
+        },
+      });
+    }
+  }
+
+  private resolveErrorKey(err: any): string {
+    const msg = err?.error?.message;
+    if (msg === 'ACTIVE_PARALLEL_LOANS') return 'MEMBERS.EXIT_ACTIVE_LOANS_ERROR';
+    if (msg === 'NO_ACTIVE_SLOT') return 'MEMBERS.REPLACE_NO_ACTIVE_SLOT_ERROR';
+    return 'MEMBERS.EXIT_ERROR';
   }
 
   onClose(): void {
-    this.settlement.set(null);
     this.closed.emit();
   }
 }

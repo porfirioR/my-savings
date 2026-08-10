@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { RuedasService } from '../../services/ruedas.service';
 import { MembersService } from '../../../members/services/members.service';
@@ -8,6 +8,7 @@ import { Rueda, RuedaSlot } from '../../models/rueda.model';
 import { UpdateRuedaFormGroup } from '../../../../core/forms';
 import { ToastService } from '../../../../core/services/toast.service';
 import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
+import { RuedaLabelPipe } from '../../pipes/rueda-label.pipe';
 
 interface SlotRow {
   position: number;
@@ -20,15 +21,28 @@ interface SlotRow {
 @Component({
   selector: 'app-edit-rueda-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DecimalPipe],
+  imports: [ReactiveFormsModule, FormsModule, TranslateModule, DecimalPipe, RuedaLabelPipe],
   template: `
     @if (show) {
       <div class="modal modal-open">
         <div class="modal-box w-11/12 max-w-3xl max-h-[90vh] overflow-y-auto">
           <h3 class="font-bold text-lg mb-1">{{ 'RUEDAS.EDIT' | translate }}</h3>
-          <p class="text-sm text-base-content/50 mb-4">
-            {{ 'RUEDAS.EDIT_SUBTITLE' | translate }} &mdash; {{ 'RUEDAS.NUMBER' | translate }} {{ rueda?.ruedaNumber }}
+          <p class="text-sm text-base-content/50 mb-1">
+            {{ 'RUEDAS.EDIT_SUBTITLE' | translate }} &mdash; {{ rueda | ruedaLabel }}
           </p>
+
+          @if (rueda) {
+            <div class="flex items-center gap-2 mb-4">
+              <input type="text" class="input input-bordered input-sm flex-1"
+                [(ngModel)]="labelDraft" [ngModelOptions]="{ standalone: true }"
+                [placeholder]="'RUEDAS.RENAME_LABEL_PLACEHOLDER' | translate" />
+              <button type="button" class="btn btn-sm" [disabled]="savingLabel()" (click)="saveLabel()">
+                @if (savingLabel()) { <span class="loading loading-spinner loading-xs"></span> }
+                {{ 'APP.SAVE' | translate }}
+              </button>
+            </div>
+            <p class="text-xs text-base-content/40 -mt-3 mb-4">{{ 'RUEDAS.RENAME_LABEL_HINT' | translate }}</p>
+          }
 
           @if (loading()) {
             <div class="flex justify-center py-8">
@@ -203,6 +217,8 @@ export class EditRuedaDialogComponent implements OnChanges {
   saving = signal(false);
   loading = signal(false);
   slots = signal<SlotRow[]>([]);
+  labelDraft = '';
+  savingLabel = signal(false);
 
   get isCompleted(): boolean {
     return this.rueda?.status === 'completed';
@@ -251,8 +267,25 @@ export class EditRuedaDialogComponent implements OnChanges {
 
   ngOnChanges(): void {
     if (this.show && this.rueda) {
+      this.labelDraft = this.rueda.contributionLabel ?? '';
       this.loadFullRueda(this.rueda.id);
     }
+  }
+
+  saveLabel(): void {
+    if (!this.rueda) return;
+    this.savingLabel.set(true);
+    this.service.updateLabel(this.groupId, this.rueda.id, this.labelDraft).subscribe({
+      next: () => {
+        this.savingLabel.set(false);
+        if (this.rueda) this.rueda.contributionLabel = this.labelDraft.trim() || null;
+        this.toast.success('TOAST.RUEDA_UPDATED');
+      },
+      error: (err) => {
+        this.savingLabel.set(false);
+        this.toast.error(backendErrorToastKey(err, 'TOAST.RUEDA_UPDATE_ERROR'));
+      },
+    });
   }
 
   private loadFullRueda(ruedaId: string): void {

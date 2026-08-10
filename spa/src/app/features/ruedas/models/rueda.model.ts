@@ -20,6 +20,7 @@ export interface Rueda {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  contributionLabel: string | null;
   slots?: RuedaSlot[];
   slotCount?: number;
 }

@@ -154,6 +154,18 @@ interface Group {
                   {{ 'NAV.CONTRIBUTIONS' | translate }}
                 </a>
               </li>
+              <li>
+                <a [routerLink]="['replacements']"
+                  routerLinkActive="bg-primary/10 text-primary font-semibold"
+                  (click)="closeSidebar()"
+                  class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-base-300 text-base-content/70 hover:text-base-content"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4"/>
+                  </svg>
+                  {{ 'NAV.REPLACEMENTS' | translate }}
+                </a>
+              </li>
             </ul>
 
             <!-- Theme toggle -->

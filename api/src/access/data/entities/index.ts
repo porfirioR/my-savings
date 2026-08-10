@@ -3,6 +3,8 @@ export * from './contribution-period.entity';
 export * from './member-contribution.entity';
 export * from './group.entity';
 export * from './member.entity';
+export * from './member-replacement.entity';
+export * from './member-replacement-schedule.entity';
 export * from './parallel-loan-payment.entity';
 export * from './parallel-loan.entity';
 export * from './rueda-monthly-payment.entity';

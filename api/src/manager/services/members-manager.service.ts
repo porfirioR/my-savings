@@ -7,13 +7,16 @@ import {
   MemberModel,
   UpdateMemberRequest,
 } from '../contracts/members';
-import { calculateMemberExitSettlement } from '../../utility/helpers';
+import { CreateCashMovementRequest } from '../contracts/cash-box';
+import { calculateMemberExitSettlement, toReferenceUuid } from '../../utility/helpers';
+import { CashBoxManager } from './cash-box-manager.service';
 
 @Injectable()
 export class MembersManager {
   constructor(
     private readonly membersAccess: MembersAccess,
     private readonly parallelLoansAccess: ParallelLoansAccess,
+    private readonly cashBoxManager: CashBoxManager,
   ) {}
 
   private mapToModel(a: MemberAccessModel): MemberModel {
@@ -52,6 +55,25 @@ export class MembersManager {
     }
     const settlement = calculateMemberExitSettlement(accumulatedContributions, remainingLoanBalance);
     const updated = await this.membersAccess.processExit(id, req);
+
+    const referenceId = toReferenceUuid(`member-exit-settlement:${id}:${req.leftMonth}/${req.leftYear}`);
+    const description = `Ajuste salida ${updated.firstName} ${updated.lastName}`;
+    if (settlement.memberPays > 0) {
+      await this.cashBoxManager.createMovement(
+        new CreateCashMovementRequest(
+          updated.groupId, 'in', 'automatic', 'member_exit',
+          settlement.memberPays, req.leftMonth, req.leftYear, description, referenceId,
+        ),
+      );
+    } else if (settlement.memberReceives > 0) {
+      await this.cashBoxManager.createMovement(
+        new CreateCashMovementRequest(
+          updated.groupId, 'out', 'automatic', 'member_exit',
+          settlement.memberReceives, req.leftMonth, req.leftYear, description, referenceId,
+        ),
+      );
+    }
+
     return { member: this.mapToModel(updated), ...settlement };
   }
 }

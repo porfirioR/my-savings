@@ -3,18 +3,29 @@ import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { RuedasService } from '../../services/ruedas.service';
 import { RuedaTimelineMonth } from '../../models/rueda.model';
+import { RuedaSummaryDialogComponent } from '../rueda-summary-dialog/rueda-summary-dialog.component';
 
 @Component({
   selector: 'app-rueda-timeline',
   standalone: true,
-  imports: [DecimalPipe, TranslateModule],
+  imports: [DecimalPipe, TranslateModule, RuedaSummaryDialogComponent],
   template: `
     <div class="mt-4">
       <div class="flex items-center justify-between mb-3">
         <h4 class="font-semibold text-sm">{{ 'RUEDAS.TIMELINE' | translate }}</h4>
-        @if (loading()) {
-          <span class="loading loading-spinner loading-xs text-primary"></span>
-        }
+        <div class="flex items-center gap-2">
+          @if (current()) {
+            <button class="btn btn-ghost btn-xs" [title]="'RUEDAS.SUMMARY_OPEN' | translate" (click)="showSummary.set(true)">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+              </svg>
+              {{ 'RUEDAS.SUMMARY_OPEN' | translate }}
+            </button>
+          }
+          @if (loading()) {
+            <span class="loading loading-spinner loading-xs text-primary"></span>
+          }
+        </div>
       </div>
 
       @if (!loading() && timeline().length === 0) {
@@ -126,17 +137,25 @@ import { RuedaTimelineMonth } from '../../models/rueda.model';
         </div>
       }
     </div>
+
+    <app-rueda-summary-dialog
+      [show]="showSummary()"
+      [month]="current()"
+      [ruedaLabel]="ruedaLabel"
+      (closed)="showSummary.set(false)" />
   `,
 })
 export class RuedaTimelineComponent implements OnChanges {
   @Input() groupId = '';
   @Input() ruedaId = '';
+  @Input() ruedaLabel = '';
 
   private readonly service = inject(RuedasService);
 
   timeline = signal<RuedaTimelineMonth[]>([]);
   loading = signal(false);
   activeIndex = signal(0);
+  showSummary = signal(false);
 
   ngOnChanges(): void {
     if (this.ruedaId && this.groupId) {
