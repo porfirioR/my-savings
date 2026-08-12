@@ -122,7 +122,8 @@
     "LOAN_PAID_THROUGH": "Pagado hasta",
     "LOAN_NONE_PAID": "Todavía no pagó ninguna cuota",
     "LOAN_INSTALLMENTS_SUMMARY": "Cuotas",
-    "LOAN_INSTALLMENT_LABEL": "Cuota"
+    "LOAN_INSTALLMENT_LABEL": "Cuota",
+    "LOAN_REMAINING_CALC": "{{total}} − {{paid}} = {{remaining}} cuotas restantes × {{amount}} Gs = {{result}} Gs"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",

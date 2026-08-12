@@ -122,7 +122,8 @@
     "LOAN_PAID_THROUGH": "Paid through",
     "LOAN_NONE_PAID": "No installments paid yet",
     "LOAN_INSTALLMENTS_SUMMARY": "Installments",
-    "LOAN_INSTALLMENT_LABEL": "Installment"
+    "LOAN_INSTALLMENT_LABEL": "Installment",
+    "LOAN_REMAINING_CALC": "{{total}} − {{paid}} = {{remaining}} installments left × {{amount}} Gs = {{result}} Gs"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",

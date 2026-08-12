@@ -145,6 +145,15 @@ import { LocaleNumberPipe } from '../../../../core/pipes/locale-number.pipe';
                       </tbody>
                     </table>
                   }
+                  <p class="text-xs text-base-content/60 mt-3 text-right font-mono">
+                    {{ 'MEMBERS.LOAN_REMAINING_CALC' | translate:{
+                      total: detail.totalInstallments,
+                      paid: detail.paidInstallments,
+                      remaining: detail.remainingInstallments,
+                      amount: (detail.installmentAmount | localeNumber),
+                      result: (detail.remainingBalance | localeNumber)
+                    } }}
+                  </p>
                 </div>
               }
             }
