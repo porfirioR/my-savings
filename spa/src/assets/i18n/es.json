@@ -10,6 +10,7 @@
     "EDIT": "Editar",
     "ADD": "Agregar",
     "CLOSE": "Cerrar",
+    "TOTAL": "Total",
     "YES": "Sí",
     "NO": "No",
     "ACTIONS": "Acciones",
@@ -107,7 +108,11 @@
     "INCOMING_INSTALLMENTS_HINT": "El monto total de ingreso se divide en partes iguales entre esta cantidad de meses.",
     "INCOMING_MONTHLY_PREVIEW": "El nuevo miembro va a pagar {{amount}} Gs por mes.",
     "REPLACE_SUCCESS": "Reemplazo creado: se generaron {{count}} cuotas en el cronograma.",
-    "REPLACE_NO_ACTIVE_SLOT_ERROR": "Este miembro no tiene un turno activo en ninguna rueda, no se puede armar un reemplazo."
+    "REPLACE_NO_ACTIVE_SLOT_ERROR": "Este miembro no tiene un turno activo en ninguna rueda, no se puede armar un reemplazo.",
+    "SEARCH_CONTRIBUTIONS": "Buscar aportes",
+    "SEARCH_CONTRIBUTIONS_ERROR": "No se pudieron buscar los aportes",
+    "SHOW_DETAILS": "Ver detalle",
+    "HIDE_DETAILS": "Ocultar detalle"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",

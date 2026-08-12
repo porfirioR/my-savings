@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ContributionsAccess, MemberReplacementsAccess, MembersAccess, RuedasAccess } from '../../access/data/services';
 import {
+  AccumulatedContributionBreakdownItem,
+  AccumulatedContributionsModel,
   ContributionColumnModel,
   ContributionPeriodModel,
   ContributionsMatrixModel,
@@ -158,6 +160,32 @@ export class ContributionsManager {
   /** Called if a finalized member replacement reverts back to active (an installment got unmarked). */
   async clearIncomingReplacementContributions(memberId: string): Promise<void> {
     return this.contributionsAccess.deleteContributionsByMember(memberId);
+  }
+
+  /**
+   * Accumulated contributions for a member up to and including a given
+   * month/year - used to preview "Aportes acumulados" while processing an
+   * exit, before it's actually recorded. Manual periods and completed ruedas
+   * use their already-settled total (they predate the cutoff by definition);
+   * only the active rueda is recomputed fresh, capped at the given cutoff.
+   */
+  async calculateAccumulatedUpTo(groupId: string, memberId: string, month: number, year: number): Promise<AccumulatedContributionsModel> {
+    const matrix = await this.getMatrix(groupId);
+    const row = matrix.rows.find((r) => r.memberId === memberId);
+
+    const breakdown: AccumulatedContributionBreakdownItem[] = [];
+    let total = 0;
+
+    for (const column of matrix.columns) {
+      const amount = column.type === 'manual' || column.status === 'completed'
+        ? row?.values[column.id] ?? 0
+        : await this.contributionsAccess.sumPaidContributionsUpTo(column.id, memberId, month, year);
+
+      if (amount > 0) breakdown.push(new AccumulatedContributionBreakdownItem(column.id, column.label, amount));
+      total += amount;
+    }
+
+    return new AccumulatedContributionsModel(total, breakdown);
   }
 
   async updateRuedaLabel(ruedaId: string, label: string): Promise<void> {

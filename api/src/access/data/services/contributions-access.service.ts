@@ -149,6 +149,29 @@ export class ContributionsAccess extends BaseAccessService {
     this.throwIfError(error);
   }
 
+  /**
+   * Sum of one member's paid contribution_amount_due for a rueda up to and
+   * including an explicit month/year cutoff. Used to preview accumulated
+   * contributions while processing an exit, before the member's left_month
+   * is actually set - so the cutoff can't come from the members table yet.
+   */
+  async sumPaidContributionsUpTo(ruedaId: string, memberId: string, month: number, year: number): Promise<number> {
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('month, year, contribution_amount_due')
+      .eq('rueda_id', ruedaId)
+      .eq('member_id', memberId)
+      .eq('is_paid', true);
+
+    this.throwIfError(error);
+    let total = 0;
+    for (const row of (data as { month: number; year: number; contribution_amount_due: number }[]) ?? []) {
+      const isAfterCutoff = row.year > year || (row.year === year && row.month > month);
+      if (!isAfterCutoff) total += row.contribution_amount_due;
+    }
+    return total;
+  }
+
   /** Clears every stored contribution for one member (used when a finalized member replacement reverts to active). */
   async deleteContributionsByMember(memberId: string): Promise<void> {
     const { error } = await this.dbContext.from('member_contributions').delete().eq('member_id', memberId);

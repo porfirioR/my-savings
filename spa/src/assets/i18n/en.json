@@ -10,6 +10,7 @@
     "EDIT": "Edit",
     "ADD": "Add",
     "CLOSE": "Close",
+    "TOTAL": "Total",
     "YES": "Yes",
     "NO": "No",
     "ACTIONS": "Actions",
@@ -107,7 +108,11 @@
     "INCOMING_INSTALLMENTS_HINT": "The total entry amount is split evenly across this many months.",
     "INCOMING_MONTHLY_PREVIEW": "The new member will pay {{amount}} Gs per month.",
     "REPLACE_SUCCESS": "Replacement created: {{count}} installments were generated in the schedule.",
-    "REPLACE_NO_ACTIVE_SLOT_ERROR": "This member doesn't have an active slot in any rueda, a replacement can't be built."
+    "REPLACE_NO_ACTIVE_SLOT_ERROR": "This member doesn't have an active slot in any rueda, a replacement can't be built.",
+    "SEARCH_CONTRIBUTIONS": "Search contributions",
+    "SEARCH_CONTRIBUTIONS_ERROR": "Could not search contributions",
+    "SHOW_DETAILS": "Show details",
+    "HIDE_DETAILS": "Hide details"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",
