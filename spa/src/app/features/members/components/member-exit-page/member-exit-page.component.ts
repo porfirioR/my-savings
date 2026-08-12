@@ -31,7 +31,7 @@ import { LocaleNumberPipe } from '../../../../core/pipes/locale-number.pipe';
       <div class="card bg-base-200 border border-base-300 p-4 mb-5">
           <form [formGroup]="form">
             <p class="text-xs font-semibold uppercase text-base-content/40 mb-2">{{ 'MEMBERS.CONTRIBUTIONS_SECTION' | translate }}</p>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <fieldset class="fieldset">
                 <legend class="fieldset-legend">{{ 'MEMBERS.LEFT' | translate }} {{ 'PAYMENTS.MONTH' | translate }} <span class="text-error">*</span></legend>
                 <select class="select select-bordered w-full" formControlName="leftMonth">
@@ -42,18 +42,18 @@ import { LocaleNumberPipe } from '../../../../core/pipes/locale-number.pipe';
               </fieldset>
               <fieldset class="fieldset">
                 <legend class="fieldset-legend">{{ 'PAYMENTS.YEAR' | translate }} <span class="text-error">*</span></legend>
-                <input type="number" class="input input-bordered w-full" formControlName="leftYear"
-                  [class.input-error]="form.controls.leftYear.invalid && form.controls.leftYear.touched" />
+                <div class="flex gap-2">
+                  <input type="number" class="input input-bordered w-full" formControlName="leftYear"
+                    [class.input-error]="form.controls.leftYear.invalid && form.controls.leftYear.touched" />
+                  <button type="button" class="btn btn-outline whitespace-nowrap" [disabled]="searchingContributions()" (click)="searchAccumulated()">
+                    @if (searchingContributions()) { <span class="loading loading-spinner loading-xs"></span> }
+                    {{ 'MEMBERS.SEARCH_CONTRIBUTIONS' | translate }}
+                  </button>
+                </div>
                 @if (form.controls.leftYear.invalid && form.controls.leftYear.touched) {
                   <span class="text-error text-xs mt-1">{{ 'VALIDATION.YEAR_INVALID' | translate }}</span>
                 }
               </fieldset>
-              <div class="flex items-end">
-                <button type="button" class="btn btn-outline w-full" [disabled]="searchingContributions()" (click)="searchAccumulated()">
-                  @if (searchingContributions()) { <span class="loading loading-spinner loading-xs"></span> }
-                  {{ 'MEMBERS.SEARCH_CONTRIBUTIONS' | translate }}
-                </button>
-              </div>
             </div>
 
             @if (breakdown()) {
@@ -103,7 +103,7 @@ import { LocaleNumberPipe } from '../../../../core/pipes/locale-number.pipe';
               <div class="flex gap-2">
                 <input type="number" class="input input-bordered w-full" formControlName="remainingLoanBalance"
                   [class.input-error]="form.controls.remainingLoanBalance.invalid && form.controls.remainingLoanBalance.touched" />
-                <button type="button" class="btn btn-outline btn-sm whitespace-nowrap" [disabled]="searchingLoanBalance()" (click)="searchRemainingLoanBalance()">
+                <button type="button" class="btn btn-outline whitespace-nowrap" [disabled]="searchingLoanBalance()" (click)="searchRemainingLoanBalance()">
                   @if (searchingLoanBalance()) { <span class="loading loading-spinner loading-xs"></span> }
                   {{ 'MEMBERS.SEARCH_LOAN_BALANCE' | translate }}
                 </button>
@@ -127,41 +127,24 @@ import { LocaleNumberPipe } from '../../../../core/pipes/locale-number.pipe';
             @if (loanBalanceDetail(); as detail) {
               @if (showLoanDetail()) {
                 <div class="mt-3 overflow-x-auto">
-                  <table class="table table-xs w-full">
-                    <tbody>
-                      <tr>
-                        <td>{{ 'MEMBERS.LOAN_STARTS' | translate }}</td>
-                        <td class="text-right">
-                          @if (detail.startMonth && detail.startYear) {
-                            {{ 'MONTHS.' + detail.startMonth | translate }} {{ detail.startYear }}
-                          } @else {
-                            &mdash;
-                          }
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>{{ 'MEMBERS.LOAN_PAID_THROUGH' | translate }}</td>
-                        <td class="text-right">
-                          @if (detail.paidThroughMonth && detail.paidThroughYear) {
-                            {{ 'MONTHS.' + detail.paidThroughMonth | translate }} {{ detail.paidThroughYear }}
-                          } @else {
-                            {{ 'MEMBERS.LOAN_NONE_PAID' | translate }}
-                          }
-                        </td>
-                      </tr>
-                      <tr class="font-semibold border-t border-base-300">
-                        <td>{{ 'MEMBERS.LOAN_INSTALLMENTS_SUMMARY' | translate }}</td>
-                        <td class="text-right font-mono">
-                          {{ 'MEMBERS.LOAN_BALANCE_DETAIL' | translate:{
-                            paid: detail.paidInstallments,
-                            total: detail.totalInstallments,
-                            remaining: detail.remainingInstallments,
-                            amount: (detail.installmentAmount | localeNumber)
-                          } }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  @if (paidInstallmentRows().length === 0) {
+                    <p class="text-xs text-base-content/50">{{ 'MEMBERS.LOAN_NONE_PAID' | translate }}</p>
+                  } @else {
+                    <table class="table table-xs w-full">
+                      <tbody>
+                        @for (row of paidInstallmentRows(); track row.installmentNumber) {
+                          <tr>
+                            <td>{{ 'MONTHS.' + row.month | translate }} {{ row.year }} &mdash; {{ 'MEMBERS.LOAN_INSTALLMENT_LABEL' | translate }} {{ row.installmentNumber }}/{{ detail.totalInstallments }}</td>
+                            <td class="text-right font-mono">{{ row.amount | localeNumber }} Gs</td>
+                          </tr>
+                        }
+                        <tr class="font-semibold border-t border-base-300">
+                          <td>{{ 'APP.TOTAL' | translate }}</td>
+                          <td class="text-right font-mono">{{ (detail.paidInstallments * detail.installmentAmount) | localeNumber }} Gs</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  }
                 </div>
               }
             }
@@ -337,6 +320,23 @@ export class MemberExitPageComponent implements OnInit {
         this.errorMsg.set(backendErrorToastKey(err, 'MEMBERS.SEARCH_LOAN_BALANCE_ERROR'));
       },
     });
+  }
+
+  paidInstallmentRows(): { month: number; year: number; installmentNumber: number; amount: number }[] {
+    const detail = this.loanBalanceDetail();
+    if (!detail || !detail.startMonth || !detail.startYear || detail.paidInstallments <= 0) return [];
+
+    const rows: { month: number; year: number; installmentNumber: number; amount: number }[] = [];
+    for (let i = 0; i < detail.paidInstallments; i++) {
+      const offset = (detail.startMonth - 1) + i;
+      rows.push({
+        month: (offset % 12) + 1,
+        year: detail.startYear + Math.floor(offset / 12),
+        installmentNumber: i + 1,
+        amount: detail.installmentAmount,
+      });
+    }
+    return rows;
   }
 
   incomingMonthlyPreview(): number {

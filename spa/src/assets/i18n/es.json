@@ -121,7 +121,8 @@
     "LOAN_STARTS": "Las cuotas empiezan en",
     "LOAN_PAID_THROUGH": "Pagado hasta",
     "LOAN_NONE_PAID": "Todavía no pagó ninguna cuota",
-    "LOAN_INSTALLMENTS_SUMMARY": "Cuotas"
+    "LOAN_INSTALLMENTS_SUMMARY": "Cuotas",
+    "LOAN_INSTALLMENT_LABEL": "Cuota"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",
