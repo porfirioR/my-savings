@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
 import {
   CreateRuedaApiRequest,
   UpdateRuedaApiRequest,
 } from '../contracts/ruedas';
-import { RuedaModel, RuedaTimelineMonth } from '../../manager/contracts/ruedas';
+import { RemainingLoanBalanceModel, RuedaModel, RuedaTimelineMonth } from '../../manager/contracts/ruedas';
 import { RuedasManager } from '../../manager/services';
 
 @Controller('groups/:groupId/ruedas')
@@ -32,6 +32,16 @@ export class RuedasController {
   async calculateSuggestion(@Param('groupId') groupId: string): Promise<{ suggested: number }> {
     const res = await this.ruedasManager.calculateSuggestion(groupId);
     return { suggested: res.suggestedLoanAmount };
+  }
+
+  @Get('remaining-loan-balance/:memberId')
+  async calculateRemainingLoanBalance(
+    @Param('groupId') groupId: string,
+    @Param('memberId') memberId: string,
+    @Query('month') month: string,
+    @Query('year') year: string,
+  ): Promise<RemainingLoanBalanceModel> {
+    return this.ruedasManager.calculateRemainingLoanBalance(groupId, memberId, Number(month), Number(year));
   }
 
   @Get(':id')

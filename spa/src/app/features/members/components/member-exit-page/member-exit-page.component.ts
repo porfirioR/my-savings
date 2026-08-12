@@ -6,6 +6,8 @@ import { MembersService } from '../../services/members.service';
 import { MemberReplacementsService } from '../../../member-replacements/services/member-replacements.service';
 import { ContributionsService } from '../../../contributions/services/contributions.service';
 import { AccumulatedContributionBreakdownItem } from '../../../contributions/models/contribution.model';
+import { RuedasService } from '../../../ruedas/services/ruedas.service';
+import { RemainingLoanBalance } from '../../../ruedas/models/rueda.model';
 import { ExitMemberFormGroup, ReplacementFormGroup } from '../../../../core/forms';
 import { ToastService } from '../../../../core/services/toast.service';
 import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
@@ -28,6 +30,7 @@ import { LocaleNumberPipe } from '../../../../core/pipes/locale-number.pipe';
 
       <div class="card bg-base-200 border border-base-300 p-4 mb-5">
           <form [formGroup]="form">
+            <p class="text-xs font-semibold uppercase text-base-content/40 mb-2">{{ 'MEMBERS.CONTRIBUTIONS_SECTION' | translate }}</p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
               <fieldset class="fieldset">
                 <legend class="fieldset-legend">{{ 'MEMBERS.LEFT' | translate }} {{ 'PAYMENTS.MONTH' | translate }} <span class="text-error">*</span></legend>
@@ -83,25 +86,85 @@ import { LocaleNumberPipe } from '../../../../core/pipes/locale-number.pipe';
               </div>
             }
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <fieldset class="fieldset">
-                <legend class="fieldset-legend">{{ 'MEMBERS.ACCUMULATED_CONTRIBUTIONS' | translate }} <span class="text-error">*</span></legend>
-                <input type="number" class="input input-bordered w-full" formControlName="accumulatedContributions"
-                  [class.input-error]="form.controls.accumulatedContributions.invalid && form.controls.accumulatedContributions.touched" />
-                @if (form.controls.accumulatedContributions.invalid && form.controls.accumulatedContributions.touched) {
-                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
-                }
-              </fieldset>
+            <fieldset class="fieldset sm:w-1/2">
+              <legend class="fieldset-legend">{{ 'MEMBERS.ACCUMULATED_CONTRIBUTIONS' | translate }} <span class="text-error">*</span></legend>
+              <input type="number" class="input input-bordered w-full" formControlName="accumulatedContributions"
+                [class.input-error]="form.controls.accumulatedContributions.invalid && form.controls.accumulatedContributions.touched" />
+              @if (form.controls.accumulatedContributions.invalid && form.controls.accumulatedContributions.touched) {
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
+              }
+            </fieldset>
 
-              <fieldset class="fieldset">
-                <legend class="fieldset-legend">{{ 'MEMBERS.REMAINING_LOAN_BALANCE' | translate }} <span class="text-error">*</span></legend>
+            <div class="divider my-4"></div>
+
+            <p class="text-xs font-semibold uppercase text-base-content/40 mb-2">{{ 'MEMBERS.LOAN_SECTION' | translate }}</p>
+            <fieldset class="fieldset sm:w-1/2">
+              <legend class="fieldset-legend">{{ 'MEMBERS.REMAINING_LOAN_BALANCE' | translate }} <span class="text-error">*</span></legend>
+              <div class="flex gap-2">
                 <input type="number" class="input input-bordered w-full" formControlName="remainingLoanBalance"
                   [class.input-error]="form.controls.remainingLoanBalance.invalid && form.controls.remainingLoanBalance.touched" />
-                @if (form.controls.remainingLoanBalance.invalid && form.controls.remainingLoanBalance.touched) {
-                  <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
-                }
-              </fieldset>
-            </div>
+                <button type="button" class="btn btn-outline btn-sm whitespace-nowrap" [disabled]="searchingLoanBalance()" (click)="searchRemainingLoanBalance()">
+                  @if (searchingLoanBalance()) { <span class="loading loading-spinner loading-xs"></span> }
+                  {{ 'MEMBERS.SEARCH_LOAN_BALANCE' | translate }}
+                </button>
+              </div>
+              @if (form.controls.remainingLoanBalance.invalid && form.controls.remainingLoanBalance.touched) {
+                <span class="text-error text-xs mt-1">{{ 'VALIDATION.REQUIRED' | translate }}</span>
+              }
+            </fieldset>
+
+            @if (loanBalanceDetail()) {
+              <div class="flex justify-center mt-3">
+                <button type="button" class="btn btn-ghost btn-xs gap-1" (click)="showLoanDetail.set(!showLoanDetail())">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  {{ (showLoanDetail() ? 'MEMBERS.HIDE_DETAILS' : 'MEMBERS.SHOW_DETAILS') | translate }}
+                </button>
+              </div>
+            }
+
+            @if (loanBalanceDetail(); as detail) {
+              @if (showLoanDetail()) {
+                <div class="mt-3 overflow-x-auto">
+                  <table class="table table-xs w-full">
+                    <tbody>
+                      <tr>
+                        <td>{{ 'MEMBERS.LOAN_STARTS' | translate }}</td>
+                        <td class="text-right">
+                          @if (detail.startMonth && detail.startYear) {
+                            {{ 'MONTHS.' + detail.startMonth | translate }} {{ detail.startYear }}
+                          } @else {
+                            &mdash;
+                          }
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>{{ 'MEMBERS.LOAN_PAID_THROUGH' | translate }}</td>
+                        <td class="text-right">
+                          @if (detail.paidThroughMonth && detail.paidThroughYear) {
+                            {{ 'MONTHS.' + detail.paidThroughMonth | translate }} {{ detail.paidThroughYear }}
+                          } @else {
+                            {{ 'MEMBERS.LOAN_NONE_PAID' | translate }}
+                          }
+                        </td>
+                      </tr>
+                      <tr class="font-semibold border-t border-base-300">
+                        <td>{{ 'MEMBERS.LOAN_INSTALLMENTS_SUMMARY' | translate }}</td>
+                        <td class="text-right font-mono">
+                          {{ 'MEMBERS.LOAN_BALANCE_DETAIL' | translate:{
+                            paid: detail.paidInstallments,
+                            total: detail.totalInstallments,
+                            remaining: detail.remainingInstallments,
+                            amount: (detail.installmentAmount | localeNumber)
+                          } }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
           </form>
         </div>
 
@@ -187,6 +250,7 @@ export class MemberExitPageComponent implements OnInit {
   private readonly service = inject(MembersService);
   private readonly replacementsService = inject(MemberReplacementsService);
   private readonly contributionsService = inject(ContributionsService);
+  private readonly ruedasService = inject(RuedasService);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
 
@@ -199,6 +263,9 @@ export class MemberExitPageComponent implements OnInit {
   searchingContributions = signal(false);
   breakdown = signal<AccumulatedContributionBreakdownItem[] | null>(null);
   showBreakdown = signal(false);
+  searchingLoanBalance = signal(false);
+  loanBalanceDetail = signal<RemainingLoanBalance | null>(null);
+  showLoanDetail = signal(false);
   replaceEnabled = true;
   months = Array.from({ length: 12 }, (_, i) => i + 1);
 
@@ -250,6 +317,24 @@ export class MemberExitPageComponent implements OnInit {
       error: (err) => {
         this.searchingContributions.set(false);
         this.errorMsg.set(backendErrorToastKey(err, 'MEMBERS.SEARCH_CONTRIBUTIONS_ERROR'));
+      },
+    });
+  }
+
+  searchRemainingLoanBalance(): void {
+    if (this.form.controls.leftMonth.invalid || this.form.controls.leftYear.invalid) return;
+    const { leftMonth, leftYear } = this.form.getRawValue();
+    this.searchingLoanBalance.set(true);
+    this.ruedasService.getRemainingLoanBalance(this.groupId, this.memberId, leftMonth, leftYear).subscribe({
+      next: (result) => {
+        this.searchingLoanBalance.set(false);
+        this.form.controls.remainingLoanBalance.setValue(result.remainingBalance);
+        this.loanBalanceDetail.set(result);
+        this.showLoanDetail.set(false);
+      },
+      error: (err) => {
+        this.searchingLoanBalance.set(false);
+        this.errorMsg.set(backendErrorToastKey(err, 'MEMBERS.SEARCH_LOAN_BALANCE_ERROR'));
       },
     });
   }

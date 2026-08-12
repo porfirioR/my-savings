@@ -112,7 +112,16 @@
     "SEARCH_CONTRIBUTIONS": "Search contributions",
     "SEARCH_CONTRIBUTIONS_ERROR": "Could not search contributions",
     "SHOW_DETAILS": "Show details",
-    "HIDE_DETAILS": "Hide details"
+    "HIDE_DETAILS": "Hide details",
+    "SEARCH_LOAN_BALANCE": "Search balance",
+    "SEARCH_LOAN_BALANCE_ERROR": "Could not search the loan balance",
+    "LOAN_BALANCE_DETAIL": "{{paid}}/{{total}} installments paid — {{remaining}} left × {{amount}} Gs",
+    "CONTRIBUTIONS_SECTION": "Contributions",
+    "LOAN_SECTION": "Loan",
+    "LOAN_STARTS": "Installments start on",
+    "LOAN_PAID_THROUGH": "Paid through",
+    "LOAN_NONE_PAID": "No installments paid yet",
+    "LOAN_INSTALLMENTS_SUMMARY": "Installments"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",

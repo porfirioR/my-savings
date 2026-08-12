@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RuedasAccess } from '../../access/data/services';
+import { PaymentsAccess, RuedasAccess } from '../../access/data/services';
 import { RuedaAccessModel, RuedaSlotAccessModel } from '../../access/contracts/ruedas';
 import { calculateInstallment, toReferenceUuid } from '../../utility/helpers';
-import { CreateRuedaRequest, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest } from '../contracts/ruedas';
+import { CreateRuedaRequest, RemainingLoanBalanceModel, RuedaModel, RuedaSlotModel, RuedaTimelineMonth, RuedaTimelinePayment, UpdateRuedaRequest } from '../contracts/ruedas';
 import { RuedaMonthlyPaymentEntity } from '../../access/data/entities';
 import { CashBoxManager } from './cash-box-manager.service';
 import { ContributionsManager } from './contributions-manager.service';
@@ -12,6 +12,7 @@ import { ContributionsManager } from './contributions-manager.service';
 export class RuedasManager {
   constructor(
     private readonly ruedasAccess: RuedasAccess,
+    private readonly paymentsAccess: PaymentsAccess,
     private readonly cashBoxManager: CashBoxManager,
     private readonly contributionsManager: ContributionsManager,
   ) {}
@@ -362,5 +363,65 @@ export class RuedasManager {
     projectedMonthlyIncome: number;
   }> {
     return this.ruedasAccess.calculateSuggestion(groupId);
+  }
+
+  /**
+   * Remaining loan balance for a member up to and including a given
+   * month/year cutoff - used to preview "Saldo préstamo restante" while
+   * processing an exit, before it's actually recorded. Looks at the rueda
+   * where the member actually received their disbursement: if the current
+   * active rueda is 'continua' and the member hasn't reached their own slot
+   * yet, that's the previous rueda in the chain, not the current one. Only
+   * the installment portion counts here, never the contribution.
+   */
+  async calculateRemainingLoanBalance(groupId: string, memberId: string, month: number, year: number): Promise<RemainingLoanBalanceModel> {
+    const empty = new RemainingLoanBalanceModel(0, 0, 0, 0, 0);
+
+    const activeSlot = await this.ruedasAccess.findActiveSlotByMember(groupId, memberId);
+    if (!activeSlot) return empty;
+
+    const currentRueda = await this.ruedasAccess.findById(activeSlot.ruedaId);
+    let sourceRueda = currentRueda;
+
+    if (currentRueda.type === 'continua' && currentRueda.previousRuedaId) {
+      const prevRueda = await this.ruedasAccess.findById(currentRueda.previousRuedaId);
+      if (prevRueda.slots?.some((s) => s.memberId === memberId)) {
+        sourceRueda = prevRueda;
+      }
+    }
+
+    const memberSlot = sourceRueda.slots?.find((s) => s.memberId === memberId);
+    if (!memberSlot) return empty;
+
+    const installmentAmount = memberSlot.installmentAmount;
+    const totalInstallments = sourceRueda.slots?.length ?? 0;
+
+    const relevantRuedas = sourceRueda.id === currentRueda.id ? [currentRueda] : [sourceRueda, currentRueda];
+    const paidInstallments = await this.paymentsAccess.countPaidInstallmentsUpTo(
+      memberId,
+      relevantRuedas.map((r) => ({ ruedaId: r.id, assumeFullyPaid: r.status === 'completed' })),
+      month,
+      year,
+    );
+    const remainingInstallments = Math.max(0, totalInstallments - paidInstallments);
+    const remainingBalance = remainingInstallments * installmentAmount;
+
+    // Cuota 1 falls the month after the member received their disbursement.
+    const startOffset = memberSlot.loanMonth;
+    const startMonth = (startOffset % 12) + 1;
+    const startYear = memberSlot.loanYear + Math.floor(startOffset / 12);
+
+    let paidThroughMonth: number | null = null;
+    let paidThroughYear: number | null = null;
+    if (paidInstallments > 0) {
+      const paidThroughOffset = (startMonth - 1) + (paidInstallments - 1);
+      paidThroughMonth = (paidThroughOffset % 12) + 1;
+      paidThroughYear = startYear + Math.floor(paidThroughOffset / 12);
+    }
+
+    return new RemainingLoanBalanceModel(
+      remainingBalance, installmentAmount, totalInstallments, paidInstallments, remainingInstallments,
+      startMonth, startYear, paidThroughMonth, paidThroughYear,
+    );
   }
 }

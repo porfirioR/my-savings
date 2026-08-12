@@ -112,7 +112,16 @@
     "SEARCH_CONTRIBUTIONS": "Buscar aportes",
     "SEARCH_CONTRIBUTIONS_ERROR": "No se pudieron buscar los aportes",
     "SHOW_DETAILS": "Ver detalle",
-    "HIDE_DETAILS": "Ocultar detalle"
+    "HIDE_DETAILS": "Ocultar detalle",
+    "SEARCH_LOAN_BALANCE": "Buscar saldo",
+    "SEARCH_LOAN_BALANCE_ERROR": "No se pudo buscar el saldo del préstamo",
+    "LOAN_BALANCE_DETAIL": "{{paid}}/{{total}} cuotas pagadas — quedan {{remaining}} × {{amount}} Gs",
+    "CONTRIBUTIONS_SECTION": "Aportes",
+    "LOAN_SECTION": "Préstamo",
+    "LOAN_STARTS": "Las cuotas empiezan en",
+    "LOAN_PAID_THROUGH": "Pagado hasta",
+    "LOAN_NONE_PAID": "Todavía no pagó ninguna cuota",
+    "LOAN_INSTALLMENTS_SUMMARY": "Cuotas"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",

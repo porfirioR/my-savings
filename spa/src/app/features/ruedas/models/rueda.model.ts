@@ -77,6 +77,18 @@ export interface CreateRuedaRequest {
   slots: { position: number; memberId: string; loanAmount?: number; previousLoanAmount?: number; }[];
 }
 
+export interface RemainingLoanBalance {
+  remainingBalance: number;
+  installmentAmount: number;
+  totalInstallments: number;
+  paidInstallments: number;
+  remainingInstallments: number;
+  startMonth: number | null;
+  startYear: number | null;
+  paidThroughMonth: number | null;
+  paidThroughYear: number | null;
+}
+
 export interface UpdateRuedaRequest {
   type?: 'new' | 'continua';
   loanAmount?: number;
