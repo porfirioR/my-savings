@@ -14,14 +14,6 @@
     "YES": "Sí",
     "NO": "No",
     "ACTIONS": "Acciones",
-    "WRONG_USER_TITLE": "Acceso no permitido",
-    "LOGGED_IN_AS": "Iniciaste sesión como",
-    "WRONG_USER_MESSAGE": "pero esta aplicación solo está disponible para el usuario autorizado.",
-    "LOGGING_OUT_IN": "Cerrando sesión en",
-    "LOGOUT_NOW": "Cerrar sesión ahora",
-    "SESSION_EXPIRED_TITLE": "Sesión finalizada",
-    "SESSION_EXPIRED_MESSAGE": "Tu sesión expiró o hubo un problema de conexión.",
-    "SESSION_EXPIRED_RETRY": "Volvé a iniciar sesión para continuar.",
     "LOGIN": "Iniciar sesión",
     "LOGOUT": "Cerrar sesión",
     "LIGHT_MODE": "Modo claro",
@@ -31,6 +23,12 @@
     "TITLE": "Acceso denegado",
     "LOGGED_IN_AS": "Sesión iniciada como",
     "MESSAGE": "pero no tenés permisos para acceder."
+  },
+  "LOGIN": {
+    "EMAIL": "Correo electrónico",
+    "PASSWORD": "Contraseña",
+    "SUBMIT": "Ingresar",
+    "UNAUTHORIZED_ERROR": "Ese correo no tiene acceso a esta aplicación."
   },
   "MONTHS": {
     "1": "Enero", "2": "Febrero", "3": "Marzo", "4": "Abril",

@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -14,11 +15,11 @@ import { AuthService } from '../../core/services/auth.service';
           <h2 class="card-title justify-center text-xl">{{ 'UNAUTHORIZED.TITLE' | translate }}</h2>
           @if (auth.user(); as user) {
             <p class="text-base-content/60 text-sm">
-              {{ 'UNAUTHORIZED.LOGGED_IN_AS' | translate }} <strong>{{ user.userDetails }}</strong> {{ 'UNAUTHORIZED.MESSAGE' | translate }}
+              {{ 'UNAUTHORIZED.LOGGED_IN_AS' | translate }} <strong>{{ user.email }}</strong> {{ 'UNAUTHORIZED.MESSAGE' | translate }}
             </p>
           }
           <div class="card-actions flex-col gap-2">
-            <button class="btn btn-error btn-sm w-full" (click)="auth.logout()">
+            <button class="btn btn-error btn-sm w-full" (click)="logout()">
               {{ 'APP.LOGOUT' | translate }}
             </button>
           </div>
@@ -29,4 +30,10 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class UnauthorizedComponent {
   auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  async logout(): Promise<void> {
+    await this.auth.logout();
+    this.router.navigate(['/login']);
+  }
 }

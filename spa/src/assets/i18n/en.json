@@ -14,14 +14,6 @@
     "YES": "Yes",
     "NO": "No",
     "ACTIONS": "Actions",
-    "WRONG_USER_TITLE": "Access not allowed",
-    "LOGGED_IN_AS": "You're logged in as",
-    "WRONG_USER_MESSAGE": "but this application is only available for the authorized user.",
-    "LOGGING_OUT_IN": "Logging out in",
-    "LOGOUT_NOW": "Log out now",
-    "SESSION_EXPIRED_TITLE": "Session ended",
-    "SESSION_EXPIRED_MESSAGE": "Your session expired or there was a connection problem.",
-    "SESSION_EXPIRED_RETRY": "Log in again to continue.",
     "LOGIN": "Log in",
     "LOGOUT": "Log out",
     "LIGHT_MODE": "Light mode",
@@ -31,6 +23,12 @@
     "TITLE": "Access denied",
     "LOGGED_IN_AS": "Logged in as",
     "MESSAGE": "but you don't have permission to access."
+  },
+  "LOGIN": {
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "SUBMIT": "Sign in",
+    "UNAUTHORIZED_ERROR": "That email doesn't have access to this application."
   },
   "MONTHS": {
     "1": "January", "2": "February", "3": "March", "4": "April",

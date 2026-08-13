@@ -1,79 +1,72 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, timeout } from 'rxjs';
-import { ALLOWED_USER } from '../constants/auth.const';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface SwaUser {
-  userId: string;
-  userDetails: string;
-  identityProvider: string;
-  userRoles: string[];
+export interface AppUser {
+  id: string;
+  email: string;
 }
-
-export type AuthAlert = 'session_expired' | 'wrong_user' | null;
-
-const DEV_USER: SwaUser = {
-  userId: 'local-dev',
-  userDetails: ALLOWED_USER,
-  identityProvider: 'github',
-  userRoles: ['authenticated'],
-};
-
-const DEV_LOGGED_OUT_KEY = 'dev_logged_out';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
+  private readonly supabase: SupabaseClient = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
 
-  user = signal<SwaUser | null>(null);
+  user = signal<AppUser | null>(null);
+  accessToken = signal<string | null>(null);
   checked = signal(false);
-  authAlert = signal<AuthAlert>(null);
 
   async loadUser(): Promise<void> {
-    if (!environment.production) {
-      const loggedOut = localStorage.getItem(DEV_LOGGED_OUT_KEY) === '1';
-      this.user.set(loggedOut ? null : DEV_USER);
-      this.checked.set(true);
-      return;
-    }
-    try {
-      const response = await firstValueFrom(
-        this.http
-          .get<{ clientPrincipal: SwaUser | null }>('/.auth/me')
-          .pipe(timeout(8000)),
-      );
-      this.user.set(response.clientPrincipal);
-    } catch {
+    const { data } = await this.supabase.auth.getSession();
+    await this.applySession(data.session?.access_token ?? null, data.session?.user ?? null);
+    this.checked.set(true);
+  }
+
+  /** Returns an error message key/string on failure, or null on success. */
+  async login(email: string, password: string): Promise<string | null> {
+    const { data, error } = await this.supabase.auth.signInWithPassword({ email, password });
+    if (error) return error.message;
+
+    const ok = await this.applySession(data.session?.access_token ?? null, data.user);
+    this.checked.set(true);
+    return ok ? null : 'UNAUTHORIZED';
+  }
+
+  async logout(): Promise<void> {
+    await this.supabase.auth.signOut();
+    this.user.set(null);
+    this.accessToken.set(null);
+  }
+
+  private async applySession(token: string | null, supabaseUser: Pick<User, 'id' | 'email'> | null): Promise<boolean> {
+    if (!token || !supabaseUser) {
       this.user.set(null);
-      this.authAlert.set('session_expired');
-    } finally {
-      this.checked.set(true);
+      this.accessToken.set(null);
+      return false;
     }
+
+    // Set the token first so the auth interceptor attaches it to the /auth/me check below.
+    this.accessToken.set(token);
+    const authorized = await this.verifyAuthorized();
+    if (!authorized) {
+      await this.supabase.auth.signOut();
+      this.user.set(null);
+      this.accessToken.set(null);
+      return false;
+    }
+
+    this.user.set({ id: supabaseUser.id, email: supabaseUser.email ?? '' });
+    return true;
   }
 
-  isAuthorized(): boolean {
-    const u = this.user();
-    return !!u && u.userDetails === ALLOWED_USER;
-  }
-
-  login(): void {
-    if (!environment.production) {
-      localStorage.removeItem(DEV_LOGGED_OUT_KEY);
-      this.authAlert.set(null);
-      window.location.href = '/';
-      return;
+  private async verifyAuthorized(): Promise<boolean> {
+    try {
+      await firstValueFrom(this.http.get(`${environment.apiUrl}/auth/me`));
+      return true;
+    } catch {
+      return false;
     }
-    const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.href = `/.auth/login/github?post_login_redirect_uri=${returnUrl}`;
-  }
-
-  logout(): void {
-    if (!environment.production) {
-      localStorage.setItem(DEV_LOGGED_OUT_KEY, '1');
-      window.location.href = '/';
-      return;
-    }
-    window.location.href = '/.auth/logout';
   }
 }
