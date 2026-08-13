@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
 import {
   CreateContributionPeriodApiRequest,
   UpdateContributionPeriodApiRequest,
   UpdateRuedaLabelApiRequest,
   UpsertManualContributionApiRequest,
 } from '../contracts/contributions';
-import { ContributionPeriodModel, ContributionsMatrixModel, UpsertManualContributionRequest } from '../../manager/contracts/contributions';
+import { AccumulatedContributionsModel, ContributionPeriodModel, ContributionsMatrixModel, UpsertManualContributionRequest } from '../../manager/contracts/contributions';
 import { ContributionsManager } from '../../manager/services';
 
 @Controller('groups/:groupId/contributions')
@@ -15,6 +15,16 @@ export class ContributionsController {
   @Get()
   getMatrix(@Param('groupId') groupId: string): Promise<ContributionsMatrixModel> {
     return this.contributionsManager.getMatrix(groupId);
+  }
+
+  @Get('accumulated/:memberId')
+  getAccumulated(
+    @Param('groupId') groupId: string,
+    @Param('memberId') memberId: string,
+    @Query('month') month: string,
+    @Query('year') year: string,
+  ): Promise<AccumulatedContributionsModel> {
+    return this.contributionsManager.calculateAccumulatedUpTo(groupId, memberId, Number(month), Number(year));
   }
 
   @Get('periods')

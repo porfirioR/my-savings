@@ -1,16 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MemberReplacementsService } from '../../services/member-replacements.service';
 import { MemberReplacementSchedule } from '../../models/member-replacement.model';
 import { ToastService } from '../../../../core/services/toast.service';
 import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
+import { LocaleNumberPipe } from '../../../../core/pipes/locale-number.pipe';
 
 @Component({
   selector: 'app-replacement-list',
   standalone: true,
-  imports: [DecimalPipe, TranslateModule],
+  imports: [LocaleNumberPipe, TranslateModule],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
@@ -47,11 +47,11 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                 <div class="grid grid-cols-2 gap-3 mb-3">
                   <div class="bg-base-100 rounded-lg p-3">
                     <p class="text-xs text-base-content/50 mb-0.5">{{ 'REPLACEMENTS.OUTGOING_MONTHLY' | translate }}</p>
-                    <p class="font-semibold text-sm text-error">{{ r.outgoingMonthlyAmount | number:'1.0-0' }} Gs</p>
+                    <p class="font-semibold text-sm text-error">{{ r.outgoingMonthlyAmount | localeNumber }} Gs</p>
                   </div>
                   <div class="bg-base-100 rounded-lg p-3">
                     <p class="text-xs text-base-content/50 mb-0.5">{{ 'REPLACEMENTS.INCOMING_TOTAL' | translate }}</p>
-                    <p class="font-semibold text-sm text-success">{{ r.incomingTotalAmount | number:'1.0-0' }} Gs ({{ r.incomingInstallments }})</p>
+                    <p class="font-semibold text-sm text-success">{{ r.incomingTotalAmount | localeNumber }} Gs ({{ r.incomingInstallments }})</p>
                   </div>
                 </div>
                 <button class="btn btn-ghost btn-xs gap-1" (click)="toggleExpand(r.id)">
@@ -83,10 +83,13 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                             <tr>
                               <td>{{ 'MONTHS.' + s.month | translate }} {{ s.year }}</td>
                               <td class="text-right">
-                                <input type="number" class="input input-bordered input-xs w-24 text-right"
-                                  [value]="s.outgoingAmount"
-                                  [disabled]="s.outgoingPaid"
-                                  (change)="onAmountChange(r.id, s, 'outgoing', $event)" />
+                                @if (s.outgoingPaid) {
+                                  <span class="font-mono text-sm pr-1">{{ s.outgoingAmount | localeNumber }}</span>
+                                } @else {
+                                  <input type="number" class="input input-bordered input-xs w-24 text-right"
+                                    [value]="s.outgoingAmount"
+                                    (change)="onAmountChange(r.id, s, 'outgoing', $event)" />
+                                }
                               </td>
                               <td class="text-center">
                                 <input type="checkbox" class="checkbox checkbox-xs checkbox-error"
@@ -96,10 +99,13 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                               </td>
                               <td class="text-right">
                                 {{ s.installmentNumber }}/{{ scheduleTotal() }} &mdash;
-                                <input type="number" class="input input-bordered input-xs w-24 text-right inline-block"
-                                  [value]="s.incomingAmount"
-                                  [disabled]="s.incomingPaid"
-                                  (change)="onAmountChange(r.id, s, 'incoming', $event)" />
+                                @if (s.incomingPaid) {
+                                  <span class="font-mono text-sm pl-1">{{ s.incomingAmount | localeNumber }}</span>
+                                } @else {
+                                  <input type="number" class="input input-bordered input-xs w-24 text-right inline-block"
+                                    [value]="s.incomingAmount"
+                                    (change)="onAmountChange(r.id, s, 'incoming', $event)" />
+                                }
                               </td>
                               <td class="text-center">
                                 <input type="checkbox" class="checkbox checkbox-xs checkbox-success"

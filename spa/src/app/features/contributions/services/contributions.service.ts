@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import {
+  AccumulatedContributions,
   ContributionPeriod,
   ContributionsMatrix,
   CreateContributionPeriodRequest,
@@ -52,5 +53,9 @@ export class ContributionsService {
     return this.api.put<void>(`groups/${groupId}/contributions/rueda-label/${ruedaId}`, { label }).pipe(
       tap(() => this.loadMatrix(groupId)),
     );
+  }
+
+  getAccumulated(groupId: string, memberId: string, month: number, year: number): Observable<AccumulatedContributions> {
+    return this.api.get<AccumulatedContributions>(`groups/${groupId}/contributions/accumulated/${memberId}`, { month, year });
   }
 }

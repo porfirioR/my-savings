@@ -149,17 +149,58 @@ export class ContributionsAccess extends BaseAccessService {
     this.throwIfError(error);
   }
 
-  /** Live sum of paid contribution_amount_due per member for an active rueda (never persisted). */
+  /**
+   * Sum of one member's paid contribution_amount_due for a rueda up to and
+   * including an explicit month/year cutoff. Used to preview accumulated
+   * contributions while processing an exit, before the member's left_month
+   * is actually set - so the cutoff can't come from the members table yet.
+   */
+  async sumPaidContributionsUpTo(ruedaId: string, memberId: string, month: number, year: number): Promise<number> {
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('month, year, contribution_amount_due')
+      .eq('rueda_id', ruedaId)
+      .eq('member_id', memberId)
+      .eq('is_paid', true);
+
+    this.throwIfError(error);
+    let total = 0;
+    for (const row of (data as { month: number; year: number; contribution_amount_due: number }[]) ?? []) {
+      const isAfterCutoff = row.year > year || (row.year === year && row.month > month);
+      if (!isAfterCutoff) total += row.contribution_amount_due;
+    }
+    return total;
+  }
+
+  /** Clears every stored contribution for one member (used when a finalized member replacement reverts to active). */
+  async deleteContributionsByMember(memberId: string): Promise<void> {
+    const { error } = await this.dbContext.from('member_contributions').delete().eq('member_id', memberId);
+    this.throwIfError(error);
+  }
+
+  /**
+   * Sum of paid contribution_amount_due per member for a rueda, capped at each
+   * member's exit month (if they left the group). Used both for the live total
+   * of an active rueda and to snapshot a completed one, so an exited member's
+   * contribution stops accumulating the moment they left instead of assuming
+   * they paid every month like an active member.
+   */
   async sumPaidContributionsByRueda(ruedaId: string): Promise<Record<string, number>> {
     const { data, error } = await this.dbContext
       .from('rueda_monthly_payments')
-      .select('member_id, contribution_amount_due')
+      .select('member_id, month, year, contribution_amount_due, members(left_month, left_year)')
       .eq('rueda_id', ruedaId)
       .eq('is_paid', true);
 
     this.throwIfError(error);
     const totals: Record<string, number> = {};
-    for (const row of (data as { member_id: string; contribution_amount_due: number }[]) ?? []) {
+    for (const row of (data as any[]) ?? []) {
+      const leftMonth = row.members?.left_month;
+      const leftYear = row.members?.left_year;
+      if (leftMonth != null && leftYear != null) {
+        const isAfterExit = row.year > leftYear || (row.year === leftYear && row.month > leftMonth);
+        if (isAfterExit) continue;
+      }
       totals[row.member_id] = (totals[row.member_id] ?? 0) + row.contribution_amount_due;
     }
     return totals;

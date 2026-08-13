@@ -54,6 +54,47 @@ export class PaymentsAccess extends BaseAccessService {
     return (data as any[]).map((e) => this.mapToModel(e));
   }
 
+  /**
+   * Count of a member's paid loan installments (rows with an actual
+   * installment_amount_due, not contribution-only) across a given set of
+   * ruedas, up to and including an explicit month/year cutoff. Used to
+   * preview "Saldo préstamo restante" while processing an exit, before it's
+   * actually recorded.
+   *
+   * Ruedas passed with assumeFullyPaid=true (i.e. already 'completed') count
+   * every installment row regardless of its is_paid flag - old completed
+   * ruedas (especially the first one, migrated before this app tracked
+   * monthly payments consistently) often have incomplete/incorrect is_paid
+   * data, but a completed rueda means every member finished paying it by
+   * definition. Only still-active ruedas rely on the real flag.
+   */
+  async countPaidInstallmentsUpTo(
+    memberId: string,
+    ruedas: { ruedaId: string; assumeFullyPaid: boolean }[],
+    month: number,
+    year: number,
+  ): Promise<number> {
+    if (ruedas.length === 0) return 0;
+    const ruedaIds = ruedas.map((r) => r.ruedaId);
+    const fullyPaidRuedaIds = new Set(ruedas.filter((r) => r.assumeFullyPaid).map((r) => r.ruedaId));
+
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('rueda_id, month, year, is_paid')
+      .eq('member_id', memberId)
+      .in('rueda_id', ruedaIds)
+      .gt('installment_amount_due', 0);
+
+    if (error) throw new Error(error.message);
+    let count = 0;
+    for (const row of (data as { rueda_id: string; month: number; year: number; is_paid: boolean }[]) ?? []) {
+      const isAfterCutoff = row.year > year || (row.year === year && row.month > month);
+      if (isAfterCutoff) continue;
+      if (row.is_paid || fullyPaidRuedaIds.has(row.rueda_id)) count++;
+    }
+    return count;
+  }
+
   async findLatestByMember(ruedaId: string, memberId: string): Promise<PaymentAccessModel | null> {
     const { data, error } = await this.dbContext
       .from('rueda_monthly_payments')

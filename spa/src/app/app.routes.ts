@@ -60,6 +60,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'members/:memberId/exit',
+        loadComponent: () =>
+          import('./features/members/components/member-exit-page/member-exit-page.component').then(
+            m => m.MemberExitPageComponent,
+          ),
+      },
+      {
         path: 'parallel-loans',
         loadComponent: () =>
           import('./features/parallel-loans/components/parallel-loan-list/parallel-loan-list.component').then(

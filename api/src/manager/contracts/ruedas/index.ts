@@ -3,3 +3,4 @@ export * from './rueda-slot-model';
 export * from './rueda-timeline';
 export * from './create-rueda-request';
 export * from './update-rueda-request';
+export * from './remaining-loan-balance-model';

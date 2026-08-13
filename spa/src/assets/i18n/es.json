@@ -10,6 +10,7 @@
     "EDIT": "Editar",
     "ADD": "Agregar",
     "CLOSE": "Cerrar",
+    "TOTAL": "Total",
     "YES": "Sí",
     "NO": "No",
     "ACTIONS": "Acciones",
@@ -107,7 +108,22 @@
     "INCOMING_INSTALLMENTS_HINT": "El monto total de ingreso se divide en partes iguales entre esta cantidad de meses.",
     "INCOMING_MONTHLY_PREVIEW": "El nuevo miembro va a pagar {{amount}} Gs por mes.",
     "REPLACE_SUCCESS": "Reemplazo creado: se generaron {{count}} cuotas en el cronograma.",
-    "REPLACE_NO_ACTIVE_SLOT_ERROR": "Este miembro no tiene un turno activo en ninguna rueda, no se puede armar un reemplazo."
+    "REPLACE_NO_ACTIVE_SLOT_ERROR": "Este miembro no tiene un turno activo en ninguna rueda, no se puede armar un reemplazo.",
+    "SEARCH_CONTRIBUTIONS": "Buscar aportes",
+    "SEARCH_CONTRIBUTIONS_ERROR": "No se pudieron buscar los aportes",
+    "SHOW_DETAILS": "Ver detalle",
+    "HIDE_DETAILS": "Ocultar detalle",
+    "SEARCH_LOAN_BALANCE": "Buscar saldo",
+    "SEARCH_LOAN_BALANCE_ERROR": "No se pudo buscar el saldo del préstamo",
+    "LOAN_BALANCE_DETAIL": "{{paid}}/{{total}} cuotas pagadas — quedan {{remaining}} × {{amount}} Gs",
+    "CONTRIBUTIONS_SECTION": "Aportes",
+    "LOAN_SECTION": "Préstamo",
+    "LOAN_STARTS": "Las cuotas empiezan en",
+    "LOAN_PAID_THROUGH": "Pagado hasta",
+    "LOAN_NONE_PAID": "Todavía no pagó ninguna cuota",
+    "LOAN_INSTALLMENTS_SUMMARY": "Cuotas",
+    "LOAN_INSTALLMENT_LABEL": "Cuota",
+    "LOAN_REMAINING_CALC": "{{total}} − {{paid}} = {{remaining}} cuotas restantes × {{amount}} Gs = {{result}} Gs"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",
@@ -269,6 +285,7 @@
     "CATEGORY_member_exit": "Salida de miembro",
     "CATEGORY_adjustment": "Ajuste",
     "GROUP_PARALLEL_LOANS": "Préstamos paralelos",
+    "GROUP_MEMBER_CHANGES": "Salidas e ingresos de miembros",
     "GROUP_OTHERS": "Otros"
   },
   "CONTRIBUTIONS": {

@@ -52,3 +52,14 @@ export interface UpsertManualContributionRequest {
   amount: number;
   description?: string;
 }
+
+export interface AccumulatedContributionBreakdownItem {
+  columnId: string;
+  label: string;
+  amount: number;
+}
+
+export interface AccumulatedContributions {
+  total: number;
+  breakdown: AccumulatedContributionBreakdownItem[];
+}

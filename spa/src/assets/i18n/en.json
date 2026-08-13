@@ -10,6 +10,7 @@
     "EDIT": "Edit",
     "ADD": "Add",
     "CLOSE": "Close",
+    "TOTAL": "Total",
     "YES": "Yes",
     "NO": "No",
     "ACTIONS": "Actions",
@@ -107,7 +108,22 @@
     "INCOMING_INSTALLMENTS_HINT": "The total entry amount is split evenly across this many months.",
     "INCOMING_MONTHLY_PREVIEW": "The new member will pay {{amount}} Gs per month.",
     "REPLACE_SUCCESS": "Replacement created: {{count}} installments were generated in the schedule.",
-    "REPLACE_NO_ACTIVE_SLOT_ERROR": "This member doesn't have an active slot in any rueda, a replacement can't be built."
+    "REPLACE_NO_ACTIVE_SLOT_ERROR": "This member doesn't have an active slot in any rueda, a replacement can't be built.",
+    "SEARCH_CONTRIBUTIONS": "Search contributions",
+    "SEARCH_CONTRIBUTIONS_ERROR": "Could not search contributions",
+    "SHOW_DETAILS": "Show details",
+    "HIDE_DETAILS": "Hide details",
+    "SEARCH_LOAN_BALANCE": "Search balance",
+    "SEARCH_LOAN_BALANCE_ERROR": "Could not search the loan balance",
+    "LOAN_BALANCE_DETAIL": "{{paid}}/{{total}} installments paid — {{remaining}} left × {{amount}} Gs",
+    "CONTRIBUTIONS_SECTION": "Contributions",
+    "LOAN_SECTION": "Loan",
+    "LOAN_STARTS": "Installments start on",
+    "LOAN_PAID_THROUGH": "Paid through",
+    "LOAN_NONE_PAID": "No installments paid yet",
+    "LOAN_INSTALLMENTS_SUMMARY": "Installments",
+    "LOAN_INSTALLMENT_LABEL": "Installment",
+    "LOAN_REMAINING_CALC": "{{total}} − {{paid}} = {{remaining}} installments left × {{amount}} Gs = {{result}} Gs"
   },
   "RUEDAS": {
     "TITLE": "Ruedas",
@@ -269,6 +285,7 @@
     "CATEGORY_member_exit": "Member exit",
     "CATEGORY_adjustment": "Adjustment",
     "GROUP_PARALLEL_LOANS": "Parallel loans",
+    "GROUP_MEMBER_CHANGES": "Member exits & entries",
     "GROUP_OTHERS": "Others"
   },
   "CONTRIBUTIONS": {

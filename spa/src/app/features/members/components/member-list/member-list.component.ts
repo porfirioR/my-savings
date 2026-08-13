@@ -1,16 +1,15 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MembersService } from '../../services/members.service';
 import { Member } from '../../models/member.model';
 import { AddMemberDialogComponent } from '../add-member-dialog/add-member-dialog.component';
 import { EditMemberDialogComponent } from '../edit-member-dialog/edit-member-dialog.component';
-import { ExitMemberDialogComponent } from '../exit-member-dialog/exit-member-dialog.component';
 
 @Component({
   selector: 'app-member-list',
   standalone: true,
-  imports: [TranslateModule, AddMemberDialogComponent, EditMemberDialogComponent, ExitMemberDialogComponent],
+  imports: [TranslateModule, AddMemberDialogComponent, EditMemberDialogComponent],
   template: `
     <div>
       <div class="flex items-center justify-between mb-2">
@@ -71,7 +70,7 @@ import { ExitMemberDialogComponent } from '../exit-member-dialog/exit-member-dia
                         </svg>
                       </button>
                       @if (m.isActive) {
-                        <button class="btn btn-ghost btn-xs text-warning hover:text-warning" (click)="openExitModal(m.id)">
+                        <button class="btn btn-ghost btn-xs text-warning hover:text-warning" (click)="goToExit(m.id)">
                           {{ 'MEMBERS.EXIT' | translate }}
                         </button>
                       }
@@ -97,25 +96,17 @@ import { ExitMemberDialogComponent } from '../exit-member-dialog/exit-member-dia
       [member]="selectedMember()"
       (closed)="showEditModal.set(false)"
       (saved)="showEditModal.set(false)" />
-
-    <app-exit-member-dialog
-      [show]="showExitModal()"
-      [groupId]="groupId"
-      [memberId]="selectedMemberId()"
-      (closed)="showExitModal.set(false)"
-      (saved)="onExitSaved()" />
   `,
 })
 export class MemberListComponent implements OnInit {
   readonly service = inject(MembersService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   groupId = '';
   showAddModal = signal(false);
   showEditModal = signal(false);
-  showExitModal = signal(false);
   selectedMember = signal<Member | null>(null);
-  selectedMemberId = signal('');
 
   sortedMembers = computed(() =>
     [...this.service.members()].sort((a, b) =>
@@ -137,12 +128,7 @@ export class MemberListComponent implements OnInit {
     this.showEditModal.set(true);
   }
 
-  openExitModal(memberId: string): void {
-    this.selectedMemberId.set(memberId);
-    this.showExitModal.set(true);
-  }
-
-  onExitSaved(): void {
-    this.service.loadByGroup(this.groupId);
+  goToExit(memberId: string): void {
+    this.router.navigate(['/groups', this.groupId, 'members', memberId, 'exit']);
   }
 }
