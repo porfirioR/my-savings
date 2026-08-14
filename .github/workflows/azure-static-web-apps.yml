@@ -25,6 +25,15 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Inject Supabase config
+        working-directory: spa
+        run: |
+          sed -i "s|__SUPABASE_URL__|${SUPABASE_URL}|g" src/environments/environment.prod.ts
+          sed -i "s|__SUPABASE_ANON_KEY__|${SUPABASE_ANON_KEY}|g" src/environments/environment.prod.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
       - name: Build SPA
         working-directory: spa
         run: |
