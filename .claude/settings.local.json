@@ -66,7 +66,13 @@
       "Bash(npx ng *)",
       "Bash(docker exec -i supabase_db_my-savings psql -U postgres -d postgres -c ' *)",
       "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" \"http://localhost:3000/api/groups/e53be7bf-9225-422b-ba20-fc1060a5b1b4/ruedas/remaining-loan-balance/aa07be32-fc1a-4c4c-bb52-bba9b93f3e01?month=8&year=2026\")",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/PorfirioPerez/Documents/GitHub/my-savings/spa/src/assets/i18n/es.json','utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/PorfirioPerez/Documents/GitHub/my-savings/spa/src/assets/i18n/en.json','utf8'\\)\\); console.log\\('OK'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/PorfirioPerez/Documents/GitHub/my-savings/spa/src/assets/i18n/es.json','utf8'\\)\\); JSON.parse\\(require\\('fs'\\).readFileSync\\('C:/Users/PorfirioPerez/Documents/GitHub/my-savings/spa/src/assets/i18n/en.json','utf8'\\)\\); console.log\\('OK'\\)\")",
+      "Bash(curl -s http://127.0.0.1:54321/health)",
+      "Bash(curl -s -X POST http://127.0.0.1:54321/auth/v1/token?grant_type=password -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' -H 'Content-Type: application/json' -d '{\"email\":\"test@local.dev\",\"password\":\"wrongpass\"}')",
+      "Bash(curl -s -X POST http://127.0.0.1:54321/auth/v1/token?grant_type=password -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' -H 'Content-Type: application/json' -d '{\"email\":\"test@local.dev\",\"password\":\"test1234\"}')",
+      "Bash(powershell -Command \"Get-CimInstance Win32_Process -Filter \\\\\"ProcessId=528\\\\\" | Select-Object ProcessId,CommandLine\")",
+      "Bash(powershell -Command \"Stop-Process -Id 528 -Force\")",
+      "Bash(curl -s http://localhost:3000/api/auth/me -o /dev/null -w \"status:%{http_code}\\\\n\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\PorfirioPerez\\Documents\\GitHub\\my-savings\\spa\\spa\\src\\app\\features\\ruedas\\components"

@@ -28,7 +28,11 @@
     "EMAIL": "Email",
     "PASSWORD": "Password",
     "SUBMIT": "Sign in",
-    "UNAUTHORIZED_ERROR": "That email doesn't have access to this application."
+    "UNAUTHORIZED_ERROR": "That email doesn't have access to this application.",
+    "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "GENERIC_ERROR": "Couldn't sign in. Please try again.",
+    "SUCCESS": "Signed in.",
+    "LOGOUT_SUCCESS": "Signed out."
   },
   "MONTHS": {
     "1": "January", "2": "February", "3": "March", "4": "April",

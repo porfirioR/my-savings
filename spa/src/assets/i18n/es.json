@@ -28,7 +28,11 @@
     "EMAIL": "Correo electrónico",
     "PASSWORD": "Contraseña",
     "SUBMIT": "Ingresar",
-    "UNAUTHORIZED_ERROR": "Ese correo no tiene acceso a esta aplicación."
+    "UNAUTHORIZED_ERROR": "Ese correo no tiene acceso a esta aplicación.",
+    "INVALID_CREDENTIALS": "Correo o contraseña incorrectos.",
+    "GENERIC_ERROR": "No se pudo iniciar sesión. Intentá de nuevo.",
+    "SUCCESS": "Sesión iniciada.",
+    "LOGOUT_SUCCESS": "Sesión cerrada."
   },
   "MONTHS": {
     "1": "Enero", "2": "Febrero", "3": "Marzo", "4": "Abril",

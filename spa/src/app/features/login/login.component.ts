@@ -12,6 +12,10 @@ import { AuthService } from '../../core/services/auth.service';
     <div class="min-h-screen flex items-center justify-center bg-base-200">
       <div class="card w-96 bg-base-100 shadow-xl">
         <div class="card-body gap-3">
+          <div class="flex flex-col items-center gap-2 mb-2">
+            <img src="assets/icons/icon-192x192.png" alt="" class="h-16 w-16 rounded-xl" />
+            <span class="text-lg font-bold tracking-tight">{{ 'APP.TITLE' | translate }}</span>
+          </div>
           <h2 class="card-title justify-center text-xl mb-2">{{ 'APP.LOGIN' | translate }}</h2>
 
           <form [formGroup]="form" (ngSubmit)="submit()">
@@ -65,11 +69,17 @@ export class LoginComponent {
 
     this.submitting.set(false);
     if (error) {
-      this.errorMsg.set(error === 'UNAUTHORIZED' ? this.translate.instant('LOGIN.UNAUTHORIZED_ERROR') : error);
+      this.errorMsg.set(this.translate.instant(this.errorKey(error)));
       return;
     }
 
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     this.router.navigateByUrl(returnUrl || '/groups');
+  }
+
+  private errorKey(error: string): string {
+    if (error === 'UNAUTHORIZED') return 'LOGIN.UNAUTHORIZED_ERROR';
+    if (error === 'Invalid login credentials') return 'LOGIN.INVALID_CREDENTIALS';
+    return 'LOGIN.GENERIC_ERROR';
   }
 }

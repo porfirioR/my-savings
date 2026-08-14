@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ToastService } from './toast.service';
 
 export interface AppUser {
   id: string;
@@ -12,6 +13,7 @@ export interface AppUser {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly toast = inject(ToastService);
   private readonly supabase: SupabaseClient = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
 
   user = signal<AppUser | null>(null);
@@ -31,6 +33,7 @@ export class AuthService {
 
     const ok = await this.applySession(data.session?.access_token ?? null, data.user);
     this.checked.set(true);
+    if (ok) this.toast.success('LOGIN.SUCCESS');
     return ok ? null : 'UNAUTHORIZED';
   }
 
@@ -38,6 +41,7 @@ export class AuthService {
     await this.supabase.auth.signOut();
     this.user.set(null);
     this.accessToken.set(null);
+    this.toast.success('LOGIN.LOGOUT_SUCCESS');
   }
 
   private async applySession(token: string | null, supabaseUser: Pick<User, 'id' | 'email'> | null): Promise<boolean> {
