@@ -8,6 +8,13 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/login/login.component').then(
+        m => m.LoginComponent,
+      ),
+  },
+  {
     path: 'unauthorized',
     loadComponent: () =>
       import('./features/unauthorized/unauthorized.component').then(

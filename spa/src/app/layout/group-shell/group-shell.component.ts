@@ -219,12 +219,12 @@ export class GroupShellComponent implements OnInit {
     const groupId = this.route.snapshot.paramMap.get('groupId')!;
     this.api.get<Group>(`groups/${groupId}`).subscribe({
       next: g => this.group.set(g),
-      error: () => this.auth.authAlert.set('session_expired'),
     });
   }
 
-  logout(): void {
-    this.auth.logout();
+  async logout(): Promise<void> {
+    await this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
   createRueda(): void {

@@ -1,18 +1,34 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
-  return next(req).pipe(
+  const router = inject(Router);
+
+  const token = auth.accessToken();
+  const authReq = token && req.url.startsWith(environment.apiUrl)
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : req;
+
+  return next(authReq).pipe(
     catchError(err => {
-      // status 0 covers the SWA case where an expired session gets redirected
-      // to the identity provider's cross-origin login flow, which the browser
-      // reports as a CORS-blocked opaque network error rather than a 401.
-      if ((err.status === 401 || err.status === 403 || err.status === 0) && !req.url.includes('/.auth/')) {
-        auth.authAlert.set('session_expired');
+      // The /auth/me check itself is expected to 401/403 for an unauthorized
+      // account - let AuthService.login()/loadUser() handle that inline
+      // instead of bouncing the whole app around while it's mid-check.
+      if (req.url.includes('/auth/me')) {
+        return throwError(() => err);
       }
+
+      if (err.status === 401) {
+        auth.logout().then(() => router.navigate(['/login']));
+      } else if (err.status === 403) {
+        auth.logout().then(() => router.navigate(['/unauthorized']));
+      }
+
       return throwError(() => err);
     }),
   );

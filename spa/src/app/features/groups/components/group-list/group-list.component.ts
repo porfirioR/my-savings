@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { GroupsService } from '../../services/groups.service';
 import { Group } from '../../models/group.model';
@@ -114,6 +114,7 @@ export class GroupListComponent implements OnInit {
   readonly service = inject(GroupsService);
   readonly theme = inject(ThemeService);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   showCreateDialog = signal(false);
   deletingGroup = signal<Group | null>(null);
 
@@ -125,7 +126,8 @@ export class GroupListComponent implements OnInit {
     this.deletingGroup.set(group);
   }
 
-  logout(): void {
-    this.auth.logout();
+  async logout(): Promise<void> {
+    await this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }

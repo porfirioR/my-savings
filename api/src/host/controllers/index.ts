@@ -1,3 +1,4 @@
+export * from './auth.controller';
 export * from './cash-box.controller';
 export * from './contributions.controller';
 export * from './groups.controller';
