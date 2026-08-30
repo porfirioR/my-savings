@@ -105,6 +105,22 @@ export class MemberReplacementsManager {
       ),
     );
 
+    // Hand the rueda slot and every payment row after the exit month over to
+    // the incoming member. The exit month itself and earlier stay with the
+    // outgoing member (they paid through their exit); from the next month on,
+    // the rueda's payments/timeline/disbursement all point at the incoming
+    // member. Months not generated yet just pick up the new slot member when
+    // their list is generated. The buy-in schedule below stays a separate
+    // tracker (Reemplazos screen + caja) and no longer moves the slot.
+    await this.ruedasAccess.reassignSlotMember(slot.ruedaId, slot.slotPosition, incomingMember.id);
+    await this.paymentsAccess.reassignSlotPaymentsAfter(
+      slot.ruedaId,
+      slot.slotPosition,
+      incomingMember.id,
+      req.leftMonth,
+      req.leftYear,
+    );
+
     const base = Math.floor(req.incomingTotalAmount / req.incomingInstallments);
     const remainder = req.incomingTotalAmount - base * req.incomingInstallments;
     const scheduleRows: CreateMemberReplacementScheduleAccessRequest[] = [];
@@ -161,15 +177,16 @@ export class MemberReplacementsManager {
     }
 
     if (side === 'incoming') {
+      // The slot handover already happened at create() time. This block only
+      // tracks the buy-in schedule's own status and freezes/unfreezes the
+      // incoming member's contribution distribution once it's fully paid.
       const schedule = await this.replacementsAccess.findScheduleByReplacement(row.replacementId);
       const allIncomingPaid = schedule.every((s) => s.incomingPaid);
 
       if (allIncomingPaid && replacement.status !== 'completed') {
-        await this.ruedasAccess.reassignSlotMember(replacement.ruedaId, replacement.slotPosition, replacement.incomingMemberId);
         await this.replacementsAccess.updateStatus(replacement.id, 'completed');
         await this.contributionsManager.finalizeIncomingReplacement(replacement);
       } else if (!allIncomingPaid && replacement.status === 'completed') {
-        await this.ruedasAccess.reassignSlotMember(replacement.ruedaId, replacement.slotPosition, replacement.outgoingMemberId);
         await this.replacementsAccess.updateStatus(replacement.id, 'active');
         await this.contributionsManager.clearIncomingReplacementContributions(replacement.incomingMemberId);
       }

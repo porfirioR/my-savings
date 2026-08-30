@@ -199,6 +199,44 @@ export class PaymentsAccess extends BaseAccessService {
     return (data as any[]).map((e) => this.mapToModel(e));
   }
 
+  /**
+   * Hands a slot's already-generated payment rows over to a new member, for
+   * every month strictly after the given cutoff (the outgoing member's exit
+   * month). The cutoff month and everything before it stay with whoever is
+   * currently on the rows - the outgoing member paid through their exit.
+   * Rows are matched by installment_number, which generateMonthlyPayments
+   * always sets to the slot_position. Returns how many rows were reassigned.
+   */
+  async reassignSlotPaymentsAfter(
+    ruedaId: string,
+    slotPosition: number,
+    newMemberId: string,
+    afterMonth: number,
+    afterYear: number,
+  ): Promise<number> {
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('id, month, year')
+      .eq('rueda_id', ruedaId)
+      .eq('installment_number', slotPosition);
+
+    if (error) throw new Error(error.message);
+
+    const ids = (data as { id: string; month: number; year: number }[])
+      .filter((r) => r.year > afterYear || (r.year === afterYear && r.month > afterMonth))
+      .map((r) => r.id);
+
+    if (ids.length === 0) return 0;
+
+    const { error: updateError } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .update({ member_id: newMemberId })
+      .in('id', ids);
+
+    if (updateError) throw new Error(updateError.message);
+    return ids.length;
+  }
+
   async getDisbursementInfo(
     ruedaId: string,
     month: number,
