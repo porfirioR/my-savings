@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import {
   AuthController,
-  AuthDebugController,
   CashBoxController,
   ContributionsController,
   GroupsController,
@@ -17,7 +16,6 @@ import { ManagerModule } from '../manager/manager.module';
   imports: [ManagerModule],
   controllers: [
     AuthController,
-    AuthDebugController,
     CashBoxController,
     ContributionsController,
     GroupsController,

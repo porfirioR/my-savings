@@ -17,48 +17,29 @@ export class SupabaseAuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    // TEMPORAL: endpoint de diagnostico abierto.
-    if (typeof request.url === 'string' && request.url.includes('__authdbg')) {
-      return true;
-    }
-
-    // Azure Static Web Apps overwrites `Authorization` with its own internal
-    // token when it proxies /api/* to the Functions backend, so the Supabase
-    // token travels on a custom header. `Authorization` is kept as a fallback
-    // for local dev where there is no SWA in between.
+    // Azure Static Web Apps overwrites the `Authorization` header with its own
+    // internal token when it proxies /api/* to the Functions backend, so the
+    // Supabase access token travels on a custom header. `Authorization` is kept
+    // as a fallback for local runs where there is no SWA in between.
     const customToken: string | undefined = request.headers['x-sb-token'];
     const authHeader: string | undefined = request.headers['authorization'];
     const token =
       (typeof customToken === 'string' && customToken.length > 0 ? customToken : undefined) ??
       (authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : undefined);
 
-    if (!token) {
-      const headerNames = Object.keys(request.headers ?? {}).join(',');
-      throw new UnauthorizedException(`AUTHDBG no-token | headers=[${headerNames}]`);
-    }
+    if (!token) throw new UnauthorizedException();
 
-    const client = this.dbContext.getConnection();
-    let userId: string | undefined;
-    let userEmail: string | undefined;
+    // Verify the token locally against the project's JWKS (asymmetric ES256
+    // signing key). getClaims caches the JWKS, so there is no per-request
+    // round-trip to GoTrue.
+    const { data, error } = await this.dbContext.getConnection().auth.getClaims(token);
+    if (error || !data?.claims) throw new UnauthorizedException();
 
-    try {
-      const { data, error } = await client.auth.getClaims(token);
-      if (error || !data?.claims) {
-        throw new UnauthorizedException(`AUTHDBG getClaims-fail | ${(error as any)?.message ?? 'no-claims'}`);
-      }
-      userId = data.claims.sub;
-      userEmail = (data.claims as any).email;
-    } catch (e: any) {
-      if (e instanceof UnauthorizedException) throw e;
-      throw new UnauthorizedException(`AUTHDBG getClaims-threw | ${e?.name}: ${e?.message}`);
-    }
-
+    const email = data.claims.email as string | undefined;
     const allowedEmail = this.config.get<string>(ALLOWED_EMAIL);
-    if (userEmail !== allowedEmail) {
-      throw new ForbiddenException(`AUTHDBG email-mismatch | token='${userEmail}' | allowed='${allowedEmail}'`);
-    }
+    if (email !== allowedEmail) throw new ForbiddenException();
 
-    request.user = { id: userId, email: userEmail };
+    request.user = { id: data.claims.sub, email };
     return true;
   }
 }
