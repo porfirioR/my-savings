@@ -36,25 +36,37 @@ export class SupabaseAuthGuard implements CanActivate {
       );
     }
 
-    let data: any;
-    let error: any;
+    // Verify the token locally against the project's JWKS (asymmetric ES256
+    // signing key). getClaims fetches /auth/v1/.well-known/jwks.json once and
+    // caches it - no per-request round-trip to GoTrue, and it works with the
+    // current asymmetric signing key where the /auth/v1/user endpoint was
+    // rejecting the signature.
+    const client = this.dbContext.getConnection();
+    let userId: string | undefined;
+    let userEmail: string | undefined;
+
     try {
-      ({ data, error } = await this.dbContext.getConnection().auth.getUser(token));
+      const { data, error } = await client.auth.getClaims(token);
+      if (error || !data?.claims) {
+        throw new UnauthorizedException(
+          `AUTHDBG getClaims-fail | msg=${(error as any)?.message ?? 'no-claims'} | url=${process.env.SUPABASE_URL} | keyKind=${keyKind}`,
+        );
+      }
+      userId = data.claims.sub;
+      userEmail = (data.claims as any).email;
     } catch (e: any) {
-      throw new UnauthorizedException(`AUTHDBG getUser-threw | ${e?.name}: ${e?.message} | url=${process.env.SUPABASE_URL} | keyKind=${keyKind}`);
-    }
-    if (error || !data?.user) {
+      if (e instanceof UnauthorizedException) throw e;
       throw new UnauthorizedException(
-        `AUTHDBG getUser-fail | status=${error?.status ?? '?'} | msg=${error?.message ?? 'no-user'} | url=${process.env.SUPABASE_URL} | keyKind=${keyKind} | nodeEnv=${process.env.NODE_ENV}`,
+        `AUTHDBG getClaims-threw | ${e?.name}: ${e?.message} | url=${process.env.SUPABASE_URL} | keyKind=${keyKind}`,
       );
     }
 
     const allowedEmail = this.config.get<string>(ALLOWED_EMAIL);
-    if (data.user.email !== allowedEmail) {
-      throw new ForbiddenException(`AUTHDBG email-mismatch | token='${data.user.email}' | allowed='${allowedEmail}'`);
+    if (userEmail !== allowedEmail) {
+      throw new ForbiddenException(`AUTHDBG email-mismatch | token='${userEmail}' | allowed='${allowedEmail}'`);
     }
 
-    request.user = { id: data.user.id, email: data.user.email };
+    request.user = { id: userId, email: userEmail };
     return true;
   }
 }
