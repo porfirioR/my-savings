@@ -10,8 +10,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
 
   const token = auth.accessToken();
+  // Azure Static Web Apps overwrites the `Authorization` header with its own
+  // internal token when it proxies /api/* to the Functions backend, so the
+  // Supabase token has to travel in a header SWA leaves alone. `Authorization`
+  // is kept too for local dev (no SWA in between).
   const authReq = token && req.url.startsWith(environment.apiUrl)
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}`, 'X-Sb-Token': token } })
     : req;
 
   return next(authReq).pipe(

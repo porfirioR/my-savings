@@ -24,7 +24,7 @@ async function bootstrap() {
   app.enableCors({
     origin: spaUrl ? spaUrl.split(',').map((x) => x.trim()) : '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Sb-Token'],
     credentials: true,
   });
 

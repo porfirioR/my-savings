@@ -16,8 +16,14 @@ export class SupabaseAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
+    // Azure Static Web Apps clobbers `Authorization` with its own token when it
+    // proxies to the Functions backend, so the Supabase token comes in on a
+    // custom header. Fall back to `Authorization` for local dev.
+    const customToken: string | undefined = request.headers['x-sb-token'];
     const authHeader: string | undefined = request.headers['authorization'];
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : undefined;
+    const token =
+      (typeof customToken === 'string' && customToken.length > 0 ? customToken : undefined) ??
+      (authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : undefined);
 
     // --- DEBUG TEMPORAL: el motivo va en el body de la respuesta. Revertir despues. ---
     const rawKey = process.env.SUPABASE_KEY ?? '';
