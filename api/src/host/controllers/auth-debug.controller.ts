@@ -1,8 +1,6 @@
 import { Controller, Get, Query, Req } from '@nestjs/common';
 import { Request } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { DbContextService } from '../../access/data/services';
-import { ALLOWED_EMAIL } from '../../utility/constants/environment.const';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * TEMPORAL - diagnostico de auth en produccion. Volcado completo en una sola
@@ -10,17 +8,15 @@ import { ALLOWED_EMAIL } from '../../utility/constants/environment.const';
  * env vars visibles, runtime, alcance del JWKS y resultado de getClaims/getUser
  * contra el token real. Borrar este controller cuando el login funcione.
  *
+ * No inyecta nada del arbol de modulos (crea su propio cliente) para no depender
+ * del scope de DI de HostModule.
+ *
  * Uso:
  *   GET /api/__authdbg           -> usa el token que llegue en los headers
  *   GET /api/__authdbg?token=... -> fuerza a probar ese JWT (pegar el real del navegador)
  */
 @Controller('__authdbg')
 export class AuthDebugController {
-  constructor(
-    private readonly config: ConfigService,
-    private readonly dbContext: DbContextService,
-  ) {}
-
   private decode(jwt?: string): any {
     if (!jwt || typeof jwt !== 'string') return { present: false };
     const parts = jwt.split('.');
@@ -48,6 +44,7 @@ export class AuthDebugController {
   async dump(@Req() req: Request, @Query('token') qToken?: string): Promise<any> {
     const h: Record<string, any> = { ...(req.headers as any) };
 
+    const url = process.env.SUPABASE_URL ?? '';
     const rawKey = process.env.SUPABASE_KEY ?? '';
     const keyKind = rawKey.startsWith('sb_secret_')
       ? 'sb_secret'
@@ -57,9 +54,10 @@ export class AuthDebugController {
           ? 'jwt'
           : `other(${rawKey.slice(0, 6)})`;
 
-    const bearer = typeof h['authorization'] === 'string' && h['authorization'].startsWith('Bearer ')
-      ? h['authorization'].slice(7)
-      : undefined;
+    const bearer =
+      typeof h['authorization'] === 'string' && h['authorization'].startsWith('Bearer ')
+        ? h['authorization'].slice(7)
+        : undefined;
     const xSb = typeof h['x-sb-token'] === 'string' ? h['x-sb-token'] : undefined;
 
     const chosen = qToken || xSb || bearer;
@@ -68,18 +66,19 @@ export class AuthDebugController {
     const out: any = {
       env: {
         NODE_ENV: process.env.NODE_ENV ?? null,
-        SUPABASE_URL: process.env.SUPABASE_URL ?? null,
+        SUPABASE_URL: url || null,
         SUPABASE_KEY_kind: keyKind,
         SUPABASE_KEY_len: rawKey.length,
         SUPABASE_KEY_first10: rawKey.slice(0, 10),
         SUPABASE_KEY_last4: rawKey.slice(-4),
-        ALLOWED_EMAIL: this.config.get<string>(ALLOWED_EMAIL) ?? null,
+        ALLOWED_EMAIL: process.env.ALLOWED_EMAIL ?? null,
         SPA_URL: process.env.SPA_URL ?? null,
         PORT: process.env.PORT ?? null,
       },
       runtime: {
         node: process.version,
         webCryptoSubtle: typeof (globalThis as any).crypto?.subtle,
+        fetch: typeof (globalThis as any).fetch,
       },
       headerNames: Object.keys(h),
       candidateTokens: {
@@ -95,21 +94,25 @@ export class AuthDebugController {
 
     // JWKS reachability from inside the Function
     try {
-      const url = `${process.env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
-      const resp = await fetch(url, { headers: { apikey: rawKey } });
+      const jwksUrl = `${url}/auth/v1/.well-known/jwks.json`;
+      const resp = await fetch(jwksUrl, { headers: { apikey: rawKey } });
       let body: any = null;
       try {
         body = await resp.json();
       } catch {
         body = '<non-json>';
       }
-      out.jwks = { url, status: resp.status, keys: body?.keys?.map((k: any) => ({ kid: k.kid, alg: k.alg, kty: k.kty })) ?? body };
+      out.jwks = {
+        url: jwksUrl,
+        status: resp.status,
+        keys: body?.keys?.map((k: any) => ({ kid: k.kid, alg: k.alg, kty: k.kty })) ?? body,
+      };
     } catch (e: any) {
       out.jwks = { threw: `${e?.name}: ${e?.message}` };
     }
 
-    if (chosen) {
-      const client = this.dbContext.getConnection();
+    if (chosen && url && rawKey) {
+      const client = createClient(url, rawKey, { auth: { persistSession: false } });
       try {
         const r: any = await client.auth.getClaims(chosen);
         out.getClaims = { error: r?.error?.message ?? null, claims: r?.data?.claims ?? null };
@@ -118,7 +121,11 @@ export class AuthDebugController {
       }
       try {
         const r = await client.auth.getUser(chosen);
-        out.getUser = { error: r.error?.message ?? null, email: r.data?.user?.email ?? null, id: r.data?.user?.id ?? null };
+        out.getUser = {
+          error: r.error?.message ?? null,
+          email: r.data?.user?.email ?? null,
+          id: r.data?.user?.id ?? null,
+        };
       } catch (e: any) {
         out.getUser = { threw: `${e?.name}: ${e?.message}` };
       }
