@@ -36,6 +36,28 @@ export class SupabaseAuthGuard implements CanActivate {
       );
     }
 
+    // Decode (NO verificar) para ver que es el token realmente.
+    const b64urlToJson = (s: string): any => {
+      try {
+        const pad = s.length % 4 === 0 ? '' : '='.repeat(4 - (s.length % 4));
+        return JSON.parse(Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/') + pad, 'base64').toString('utf8'));
+      } catch {
+        return null;
+      }
+    };
+    const parts = token.split('.');
+    const jh = b64urlToJson(parts[0] ?? '') ?? {};
+    const jp = b64urlToJson(parts[1] ?? '') ?? {};
+    const nowSec = Math.floor(Date.now() / 1000);
+    const tokenDbg =
+      `parts=${parts.length} alg=${jh.alg} kid=${jh.kid} typ=${jh.typ} ` +
+      `iss=${jp.iss} aud=${jp.aud} email=${jp.email} role=${jp.role} ` +
+      `exp=${jp.exp}(${jp.exp ? jp.exp - nowSec : '?'}s) iat=${jp.iat}`;
+
+    if (request.query?.dbg === 'token') {
+      throw new UnauthorizedException(`AUTHDBG token-decoded | ${tokenDbg}`);
+    }
+
     // Verify the token locally against the project's JWKS (asymmetric ES256
     // signing key). getClaims fetches /auth/v1/.well-known/jwks.json once and
     // caches it - no per-request round-trip to GoTrue, and it works with the
@@ -49,7 +71,7 @@ export class SupabaseAuthGuard implements CanActivate {
       const { data, error } = await client.auth.getClaims(token);
       if (error || !data?.claims) {
         throw new UnauthorizedException(
-          `AUTHDBG getClaims-fail | msg=${(error as any)?.message ?? 'no-claims'} | url=${process.env.SUPABASE_URL} | keyKind=${keyKind}`,
+          `AUTHDBG getClaims-fail | msg=${(error as any)?.message ?? 'no-claims'} | ${tokenDbg} | keyKind=${keyKind}`,
         );
       }
       userId = data.claims.sub;
