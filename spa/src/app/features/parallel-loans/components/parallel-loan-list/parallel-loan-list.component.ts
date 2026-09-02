@@ -241,6 +241,5 @@ export class ParallelLoanListComponent implements OnInit {
   closePaymentsModal(): void {
     this.showPaymentsModal.set(false);
     this.selectedLoan.set(null);
-    this.service.loadByGroup(this.groupId);
   }
 }

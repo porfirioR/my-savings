@@ -93,9 +93,9 @@ export class ParallelLoansAccess extends BaseAccessService {
     if (error) throw new Error(error.message);
     const loan = this.mapToModel(data as any);
 
-    // Generate payment schedule
+    // Generate payment schedule: first installment falls the month AFTER the loan start
     const schedule = Array.from({ length: req.totalInstallments }, (_, i) => {
-      const totalOffset = req.startMonth - 1 + i;
+      const totalOffset = req.startMonth + i;
       return {
         parallel_loan_id: loan.id,
         month: (totalOffset % 12) + 1,
@@ -152,7 +152,7 @@ export class ParallelLoansAccess extends BaseAccessService {
     if (error) throw new Error(error.message);
 
     const schedule = Array.from({ length: req.totalInstallments }, (_, i) => {
-      const totalOffset = req.startMonth - 1 + i;
+      const totalOffset = req.startMonth + i;
       return {
         parallel_loan_id: id,
         month: (totalOffset % 12) + 1,
@@ -210,8 +210,9 @@ export class ParallelLoansAccess extends BaseAccessService {
     const memberName = loan?.members
       ? `${loan.members.first_name} ${loan.members.last_name}`
       : '';
+    // Schedule starts the month after start_month, so the first installment is #1
     const installmentNumber =
-      (payment.year - loan.start_year) * 12 + (payment.month - loan.start_month) + 1;
+      (payment.year - loan.start_year) * 12 + (payment.month - loan.start_month);
 
     return { payment: this.mapPayment(payment), memberName, installmentNumber, totalInstallments: total };
   }
