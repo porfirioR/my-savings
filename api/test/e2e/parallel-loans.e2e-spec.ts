@@ -153,6 +153,11 @@ describe('ParallelLoansController (e2e)', () => {
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body).toHaveLength(4);
       expect(res.body[0].status).toBe('pending');
+      // First installment falls the month after the loan start (Jan 2025 -> Feb 2025)
+      expect(res.body[0].month).toBe(2);
+      expect(res.body[0].year).toBe(2025);
+      expect(res.body[3].month).toBe(5);
+      expect(res.body[3].year).toBe(2025);
 
       await deleteTestGroup(group.id);
     });

@@ -86,6 +86,7 @@ export class LoanPaymentsDialogComponent implements OnChanges {
   @Input() groupId = '';
   @Input() loan: ParallelLoan | null = null;
   @Output() closed = new EventEmitter<void>();
+  @Output() changed = new EventEmitter<void>();
 
   readonly service = inject(ParallelLoansService);
   private readonly toast = inject(ToastService);
@@ -106,6 +107,7 @@ export class LoanPaymentsDialogComponent implements OnChanges {
     this.service.markPayment(this.groupId, this.loan.id, paymentId).subscribe({
       next: () => {
         this.toggling.set('');
+        this.changed.emit();
         this.toast.success('TOAST.PAYMENT_REGISTERED');
       },
       error: () => {
@@ -130,6 +132,7 @@ export class LoanPaymentsDialogComponent implements OnChanges {
     this.service.unmarkPayment(this.groupId, this.loan.id, paymentId).subscribe({
       next: () => {
         this.toggling.set('');
+        this.changed.emit();
         this.toast.success('TOAST.PAYMENT_REVERTED');
       },
       error: () => {

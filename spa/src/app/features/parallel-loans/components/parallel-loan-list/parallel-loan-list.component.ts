@@ -183,6 +183,7 @@ import { LoanPaymentsDialogComponent } from '../loan-payments-dialog/loan-paymen
       [show]="showPaymentsModal()"
       [groupId]="groupId"
       [loan]="selectedLoan()"
+      (changed)="paymentsChanged.set(true)"
       (closed)="closePaymentsModal()" />
   `,
 })
@@ -194,6 +195,7 @@ export class ParallelLoanListComponent implements OnInit {
   groupId = '';
   showLoanDialog = signal(false);
   showPaymentsModal = signal(false);
+  paymentsChanged = signal(false);
   editingLoan = signal<ParallelLoan | null>(null);
   selectedLoan = signal<ParallelLoan | null>(null);
 
@@ -235,12 +237,17 @@ export class ParallelLoanListComponent implements OnInit {
 
   openPaymentsModal(loan: ParallelLoan): void {
     this.selectedLoan.set(loan);
+    this.paymentsChanged.set(false);
     this.showPaymentsModal.set(true);
   }
 
   closePaymentsModal(): void {
     this.showPaymentsModal.set(false);
     this.selectedLoan.set(null);
-    this.service.loadByGroup(this.groupId);
+    // Only refresh the list if a payment was actually marked/reverted inside the dialog
+    if (this.paymentsChanged()) {
+      this.service.loadByGroup(this.groupId);
+      this.paymentsChanged.set(false);
+    }
   }
 }
