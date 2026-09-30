@@ -33,7 +33,7 @@ interface ValidMonth {
           <!-- Rueda selector -->
           <select class="select select-bordered select-sm" [ngModel]="selectedRuedaId()" (ngModelChange)="onRuedaChange($event)">
             <option value="">-- Rueda --</option>
-            @for (r of ruedasService.ruedas(); track r.id) {
+            @for (r of activeRuedas(); track r.id) {
               <option [value]="r.id">{{ r | ruedaLabel }}</option>
             }
           </select>
@@ -235,6 +235,11 @@ export class PaymentListComponent implements OnInit {
   toggling = signal('');
   revertError = signal(false);
   activeMonthIndex = signal(0);
+
+  /** Only active ruedas can have payments generated or reviewed here */
+  activeRuedas = computed<Rueda[]>(() =>
+    this.ruedasService.ruedas().filter(r => r.status === 'active')
+  );
 
   /** The selected rueda object */
   selectedRueda = computed<Rueda | null>(() =>

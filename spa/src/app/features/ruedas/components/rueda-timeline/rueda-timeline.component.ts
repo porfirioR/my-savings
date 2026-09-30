@@ -162,10 +162,27 @@ export class RuedaTimelineComponent implements OnChanges {
       this.loading.set(true);
       this.activeIndex.set(0);
       this.service.getTimeline(this.groupId, this.ruedaId).subscribe({
-        next: data => { this.timeline.set(data); this.loading.set(false); },
+        next: data => {
+          this.timeline.set(data);
+          this.loading.set(false);
+          this.activeIndex.set(this.findCurrentMonthIndex(data));
+        },
         error: () => this.loading.set(false),
       });
     }
+  }
+
+  /** Index of the current calendar month, or the closest past one if the rueda hasn't reached it yet */
+  private findCurrentMonthIndex(data: RuedaTimelineMonth[]): number {
+    if (data.length === 0) return 0;
+    const now = new Date();
+    const nowKey = now.getFullYear() * 12 + (now.getMonth() + 1);
+    let bestIdx = 0;
+    for (let i = 0; i < data.length; i++) {
+      const key = data[i].calendarYear * 12 + data[i].calendarMonth;
+      if (key <= nowKey) bestIdx = i;
+    }
+    return bestIdx;
   }
 
   isJuntaNewRueda = computed(() => {
