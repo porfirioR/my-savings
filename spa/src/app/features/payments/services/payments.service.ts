@@ -38,6 +38,18 @@ export class PaymentsService {
     );
   }
 
+  resetMonth(groupId: string, ruedaId: string, req: GeneratePaymentsRequest): Observable<void> {
+    return this.api.post<void>(`groups/${groupId}/ruedas/${ruedaId}/payments/reset`, req).pipe(
+      tap(() => this.payments.set([])),
+    );
+  }
+
+  markAllPaid(groupId: string, ruedaId: string, req: GeneratePaymentsRequest): Observable<MonthlyPayment[]> {
+    return this.api.post<MonthlyPayment[]>(`groups/${groupId}/ruedas/${ruedaId}/payments/mark-all-paid`, req).pipe(
+      tap(data => this.payments.set(data)),
+    );
+  }
+
   markPaid(groupId: string, ruedaId: string, paymentId: string): Observable<void> {
     return this.api.post<void>(`groups/${groupId}/ruedas/${ruedaId}/payments/${paymentId}/mark-paid`, {}).pipe(
       tap(() => this.payments.update(list =>

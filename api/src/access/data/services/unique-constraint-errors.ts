@@ -7,6 +7,7 @@
 export const UNIQUE_CONSTRAINT_ERRORS: Record<string, string> = {
   members_group_id_position_active_key: 'POSITION_ACTIVE_TAKEN',
   ruedas_group_id_rueda_number_key: 'RUEDA_NUMBER_TAKEN',
+  ruedas_one_active_per_group: 'RUEDA_ALREADY_ACTIVE',
   rueda_slots_rueda_id_slot_position_key: 'SLOT_POSITION_TAKEN',
   rueda_slots_rueda_id_member_id_key: 'MEMBER_ALREADY_IN_RUEDA',
   rueda_monthly_payments_rueda_id_member_id_month_year_key: 'PAYMENT_ALREADY_EXISTS',

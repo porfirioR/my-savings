@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { GeneratePaymentsApiRequest } from '../contracts/payments';
+import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { GeneratePaymentsApiRequest, PaymentsMonthApiRequest } from '../contracts/payments';
 import { MarkPaymentRequest, PaymentModel } from '../../manager/contracts/payments';
 import { PaymentsManager } from '../../manager/services';
 
@@ -26,6 +26,23 @@ export class PaymentsController {
     @Body() body: GeneratePaymentsApiRequest,
   ): Promise<PaymentModel[]> {
     return this.paymentsManager.generateMonthlyPayments({ ...body, ruedaId });
+  }
+
+  @Post('reset')
+  @HttpCode(204)
+  async resetMonth(
+    @Param('ruedaId') ruedaId: string,
+    @Body() body: PaymentsMonthApiRequest,
+  ): Promise<void> {
+    return this.paymentsManager.resetMonth(ruedaId, body.month, body.year);
+  }
+
+  @Post('mark-all-paid')
+  async markAllPaid(
+    @Param('ruedaId') ruedaId: string,
+    @Body() body: PaymentsMonthApiRequest,
+  ): Promise<PaymentModel[]> {
+    return this.paymentsManager.markAllPaid(ruedaId, body.month, body.year);
   }
 
   @Post(':id/mark-paid')

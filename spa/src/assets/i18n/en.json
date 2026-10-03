@@ -209,7 +209,8 @@
     "ERROR_COMPLETE_HAS_PENDING": "There are pending payments. Mark all payments as paid before completing the rueda.",
     "SIMULATOR_TITLE": "View detailed flow",
     "SIMULATOR_EMPTY": "Configure the rueda to see the simulation.",
-    "SIMULATOR_WARNING": "Caution: cash box will go negative in some months. Consider increasing contribution or reducing loan amount."
+    "SIMULATOR_WARNING": "Caution: cash box will go negative in some months. Consider increasing contribution or reducing loan amount.",
+    "ERROR_ALREADY_ACTIVE": "This group already has an active rueda. Complete it before activating another one."
   },
   "RUEDA_SIMULATOR": {
     "MEMBERS": "Members",
@@ -249,7 +250,7 @@
     "PAYMENT_TYPE_PREVIOUS": "Previous Rueda",
     "PAYMENT_TYPE_CONTRIBUTION": "Contribution Only",
     "SELECT_RUEDA": "Select a rueda to view payments.",
-    "ALL_PAID_WARNING": "All payments for this month are already marked as paid. The list cannot be regenerated.",
+    "ALL_PAID_WARNING": "All payments for this month are already marked as paid. The month is closed.",
     "REVERT_COMPLETED_ERROR": "Payments cannot be reverted on a completed rueda.",
     "EMPTY": "No payments for this month. Generate the list first.",
     "SUMMARY": "Summary",
@@ -258,7 +259,16 @@
     "TYPE": "Type",
     "PAID_SUFFIX": "paid",
     "PENDING_SUFFIX": "pending",
-    "REVERT_PAYMENT": "Revert payment"
+    "REVERT_PAYMENT": "Revert payment",
+    "RESET_ALL": "Revert all",
+    "MARK_ALL": "Mark all",
+    "CONFIRM_GENERATE_TITLE": "Generate the payment list?",
+    "CONFIRM_GENERATE_BODY": "The payment list for {{period}} will be generated for every member of the rueda, and the month's disbursement will be recorded in the cash box automatically.",
+    "CONFIRM_RESET_TITLE": "Revert the whole month?",
+    "CONFIRM_RESET_BODY": "The payment list for {{period}} will be deleted, including the {{paid}} payments already marked, along with the disbursement recorded in the cash box. You will need to generate the list again from scratch.",
+    "CONFIRM_MARK_ALL_TITLE": "Mark all as paid?",
+    "CONFIRM_MARK_ALL_BODY": "The {{pending}} pending payments for {{period}} ({{amount}} Gs) will be marked as paid. The month will be closed and the collection recorded in the cash box.",
+    "CONFIRM_IRREVERSIBLE": "This action changes several records at once."
   },
   "CASH_BOX": {
     "TITLE": "Cash Box",
@@ -396,7 +406,16 @@
     "REPLACEMENT_MARKED_PAID": "Movement recorded in cash box",
     "REPLACEMENT_MARKED_UNPAID": "Movement reverted from cash box",
     "REPLACEMENT_MARK_ERROR": "Could not record the movement",
-    "REPLACEMENT_UPDATE_ERROR": "Could not update the amount"
+    "REPLACEMENT_UPDATE_ERROR": "Could not update the amount",
+    "RUEDA_ALREADY_ACTIVE": "This group already has an active rueda. Only one can be active at a time.",
+    "PAYMENTS_LIST_EXISTS": "This month already has a generated list. Revert all to generate it again.",
+    "PAYMENTS_LIST_NOT_FOUND": "This month does not have a generated list yet.",
+    "MONTH_ALREADY_CLOSED": "All payments for this month are already paid.",
+    "RUEDA_NOT_ACTIVE": "Only active ruedas can be operated on.",
+    "PAYMENTS_RESET": "Month payments reverted successfully",
+    "PAYMENTS_RESET_ERROR": "Could not revert the month payments",
+    "PAYMENTS_ALL_MARKED": "All payments for the month were registered",
+    "PAYMENTS_MARK_ALL_ERROR": "Could not register all payments"
   },
   "REPLACEMENTS": {
     "TITLE": "Replacements",
