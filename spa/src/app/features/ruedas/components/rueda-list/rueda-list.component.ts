@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,7 +38,7 @@ import { RuedaLabelPipe } from '../../pipes/rueda-label.pipe';
         </div>
       } @else {
         <div class="grid gap-4">
-          @for (r of service.ruedas(); track r.id) {
+          @for (r of sortedRuedas(); track r.id) {
             <div class="card bg-base-200 border border-base-300">
               <div class="card-body p-5">
                 <!-- Card header: number + status + actions -->
@@ -192,6 +192,18 @@ export class RuedaListComponent implements OnInit {
   showDeleteConfirm = signal(false);
   selectedRueda = signal<Rueda | null>(null);
   timelineRuedaId = signal<string | null>(null);
+
+  private static readonly STATUS_ORDER: Record<Rueda['status'], number> = {
+    active: 0,
+    pending: 1,
+    completed: 2,
+  };
+
+  sortedRuedas = computed(() =>
+    [...this.service.ruedas()].sort((a, b) =>
+      RuedaListComponent.STATUS_ORDER[a.status] - RuedaListComponent.STATUS_ORDER[b.status]
+    ),
+  );
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
