@@ -209,7 +209,8 @@
     "ERROR_COMPLETE_HAS_PENDING": "Hay pagos pendientes. Marcá todos los pagos como pagados antes de completar la rueda.",
     "SIMULATOR_TITLE": "Ver flujo detallado",
     "SIMULATOR_EMPTY": "Configurá la rueda para ver la simulación.",
-    "SIMULATOR_WARNING": "Cuidado: la caja llegará a números rojos en algunos meses. Considerá aumentar el aporte o reducir el monto del préstamo."
+    "SIMULATOR_WARNING": "Cuidado: la caja llegará a números rojos en algunos meses. Considerá aumentar el aporte o reducir el monto del préstamo.",
+    "ERROR_ALREADY_ACTIVE": "Ya hay una rueda activa en este grupo. Completala antes de activar otra."
   },
   "RUEDA_SIMULATOR": {
     "MEMBERS": "Miembros",
@@ -249,7 +250,7 @@
     "PAYMENT_TYPE_PREVIOUS": "Rueda Anterior",
     "PAYMENT_TYPE_CONTRIBUTION": "Solo Aporte",
     "SELECT_RUEDA": "Seleccioná una rueda para ver los pagos.",
-    "ALL_PAID_WARNING": "Todos los pagos de este mes ya están registrados como pagados. No se puede regenerar la lista.",
+    "ALL_PAID_WARNING": "Todos los pagos de este mes ya están registrados como pagados. El mes está cerrado.",
     "REVERT_COMPLETED_ERROR": "No se pueden revertir pagos de una rueda completada.",
     "EMPTY": "No hay pagos para este mes. Generá la lista primero.",
     "SUMMARY": "Resumen",
@@ -258,7 +259,16 @@
     "TYPE": "Tipo",
     "PAID_SUFFIX": "pagos",
     "PENDING_SUFFIX": "pendientes",
-    "REVERT_PAYMENT": "Revertir pago"
+    "REVERT_PAYMENT": "Revertir pago",
+    "RESET_ALL": "Revertir todo",
+    "MARK_ALL": "Marcar todos",
+    "CONFIRM_GENERATE_TITLE": "¿Generar la lista de pagos?",
+    "CONFIRM_GENERATE_BODY": "Se generará la lista de pagos de {{period}} para todos los miembros de la rueda y se registrará automáticamente el desembolso del mes en la caja.",
+    "CONFIRM_RESET_TITLE": "¿Revertir todo el mes?",
+    "CONFIRM_RESET_BODY": "Se borrará la lista de pagos de {{period}}, incluidos los {{paid}} pagos ya marcados, y el desembolso registrado en la caja. Después vas a tener que generar la lista de nuevo desde cero.",
+    "CONFIRM_MARK_ALL_TITLE": "¿Marcar todos como pagados?",
+    "CONFIRM_MARK_ALL_BODY": "Se marcarán como pagados los {{pending}} pagos pendientes de {{period}} ({{amount}} Gs). El mes quedará cerrado y la recaudación se registrará en la caja.",
+    "CONFIRM_IRREVERSIBLE": "Esta acción modifica varios registros a la vez."
   },
   "CASH_BOX": {
     "TITLE": "Caja",
@@ -396,7 +406,16 @@
     "REPLACEMENT_MARKED_PAID": "Movimiento registrado en caja",
     "REPLACEMENT_MARKED_UNPAID": "Movimiento revertido de caja",
     "REPLACEMENT_MARK_ERROR": "No se pudo registrar el movimiento",
-    "REPLACEMENT_UPDATE_ERROR": "No se pudo actualizar el monto"
+    "REPLACEMENT_UPDATE_ERROR": "No se pudo actualizar el monto",
+    "RUEDA_ALREADY_ACTIVE": "Ya hay una rueda activa en este grupo. Solo puede haber una a la vez.",
+    "PAYMENTS_LIST_EXISTS": "Este mes ya tiene una lista generada. Revertí todo para generarla de nuevo.",
+    "PAYMENTS_LIST_NOT_FOUND": "Este mes todavía no tiene una lista generada.",
+    "MONTH_ALREADY_CLOSED": "Todos los pagos de este mes ya están pagados.",
+    "RUEDA_NOT_ACTIVE": "Solo se puede operar sobre ruedas activas.",
+    "PAYMENTS_RESET": "Pagos del mes revertidos correctamente",
+    "PAYMENTS_RESET_ERROR": "No se pudieron revertir los pagos del mes",
+    "PAYMENTS_ALL_MARKED": "Todos los pagos del mes fueron registrados",
+    "PAYMENTS_MARK_ALL_ERROR": "No se pudieron registrar todos los pagos"
   },
   "REPLACEMENTS": {
     "TITLE": "Reemplazos",

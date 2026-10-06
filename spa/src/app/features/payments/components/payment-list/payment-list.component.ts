@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, effect, untracked } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
+import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
 import { PaymentsService } from '../../services/payments.service';
 import { RuedasService } from '../../../ruedas/services/ruedas.service';
 import { Rueda } from '../../../ruedas/models/rueda.model';
@@ -15,6 +17,8 @@ interface ValidMonth {
   label: string;
   index: number; // 1-based position within rueda (1 = junta + mes 1, 2..N = mes 2..N)
 }
+
+type BulkAction = 'generate' | 'reset' | 'markAll';
 
 @Component({
   selector: 'app-payment-list',
@@ -58,11 +62,24 @@ interface ValidMonth {
             </div>
           }
 
-          <button class="btn btn-outline btn-sm ml-auto" (click)="generate()"
-            [disabled]="!selectedRuedaId() || !currentValidMonth() || generating() || allPaid() || selectedRueda()?.status !== 'active' || isJuntaNewRueda()">
-            @if (generating()) { <span class="loading loading-spinner loading-xs"></span> }
-            {{ 'PAYMENTS.GENERATE' | translate }}
-          </button>
+          <!-- Month actions -->
+          <div class="flex flex-wrap gap-2 ml-auto">
+            <button class="btn btn-outline btn-sm" (click)="confirmAction.set('generate')"
+              [disabled]="!canGenerate()">
+              @if (bulkAction() === 'generate') { <span class="loading loading-spinner loading-xs"></span> }
+              {{ 'PAYMENTS.GENERATE' | translate }}
+            </button>
+            <button class="btn btn-outline btn-error btn-sm" (click)="confirmAction.set('reset')"
+              [disabled]="!canBulkEdit()">
+              @if (bulkAction() === 'reset') { <span class="loading loading-spinner loading-xs"></span> }
+              {{ 'PAYMENTS.RESET_ALL' | translate }}
+            </button>
+            <button class="btn btn-success btn-sm" (click)="confirmAction.set('markAll')"
+              [disabled]="!canBulkEdit()">
+              @if (bulkAction() === 'markAll') { <span class="loading loading-spinner loading-xs"></span> }
+              {{ 'PAYMENTS.MARK_ALL' | translate }}
+            </button>
+          </div>
         </div>
         @if (selectedRueda() && selectedRueda()?.status !== 'active') {
           <div class="mt-3 alert alert-warning py-2 px-3 text-sm">
@@ -220,6 +237,50 @@ interface ValidMonth {
           </div>
         }
       }
+
+      <!-- Bulk action confirm dialog -->
+      @if (confirmAction(); as action) {
+        @if (currentValidMonth(); as cm) {
+          <div class="modal modal-open">
+            <div class="modal-box">
+              <h3 class="font-bold text-lg mb-2">
+                @switch (action) {
+                  @case ('generate') { {{ 'PAYMENTS.CONFIRM_GENERATE_TITLE' | translate }} }
+                  @case ('reset') { {{ 'PAYMENTS.CONFIRM_RESET_TITLE' | translate }} }
+                  @case ('markAll') { {{ 'PAYMENTS.CONFIRM_MARK_ALL_TITLE' | translate }} }
+                }
+              </h3>
+              <p class="text-sm text-base-content/70">
+                @switch (action) {
+                  @case ('generate') {
+                    {{ 'PAYMENTS.CONFIRM_GENERATE_BODY' | translate: { period: periodLabel(cm) } }}
+                  }
+                  @case ('reset') {
+                    {{ 'PAYMENTS.CONFIRM_RESET_BODY' | translate: { period: periodLabel(cm), paid: service.summary.paidCount } }}
+                  }
+                  @case ('markAll') {
+                    {{ 'PAYMENTS.CONFIRM_MARK_ALL_BODY' | translate: { period: periodLabel(cm), pending: service.summary.pendingCount, amount: (service.summary.totalPending | number:'1.0-0') } }}
+                  }
+                }
+              </p>
+              @if (action !== 'generate') {
+                <p class="text-xs text-warning mt-3">{{ 'PAYMENTS.CONFIRM_IRREVERSIBLE' | translate }}</p>
+              }
+              <div class="modal-action">
+                <button class="btn btn-ghost" (click)="confirmAction.set(null)">{{ 'APP.CANCEL' | translate }}</button>
+                <button class="btn"
+                  [class.btn-primary]="action === 'generate'"
+                  [class.btn-error]="action === 'reset'"
+                  [class.btn-success]="action === 'markAll'"
+                  (click)="runConfirmedAction()">
+                  {{ 'APP.CONFIRM' | translate }}
+                </button>
+              </div>
+            </div>
+            <div class="modal-backdrop" (click)="confirmAction.set(null)"></div>
+          </div>
+        }
+      }
     </div>
   `,
 })
@@ -229,9 +290,13 @@ export class PaymentListComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
 
+  private readonly translate = inject(TranslateService);
+
   private groupId = '';
+  private autoSelectDone = false;
   selectedRuedaId = signal('');
-  generating = signal(false);
+  bulkAction = signal<BulkAction | null>(null);
+  confirmAction = signal<BulkAction | null>(null);
   toggling = signal('');
   revertError = signal(false);
   activeMonthIndex = signal(0);
@@ -279,6 +344,33 @@ export class PaymentListComponent implements OnInit {
     if (!rueda) return false;
     return rueda.type === 'continua' && this.activeMonthIndex() === this.validMonths().length - 1;
   });
+
+  /** Month actions need an active rueda and a real payment month (not the next rueda's junta). */
+  private canActOnMonth = computed(() =>
+    !!this.currentValidMonth()
+    && this.selectedRueda()?.status === 'active'
+    && !this.isJuntaNewRueda()
+    && !this.service.loading()
+    && !this.bulkAction()
+  );
+
+  /** The list can only be generated once per month; "Revertir todo" is the way to start over. */
+  canGenerate = computed(() => this.canActOnMonth() && this.service.payments().length === 0);
+
+  /** Revert / mark all only make sense while at least one payment is still pending. */
+  canBulkEdit = computed(() => this.canActOnMonth() && this.service.payments().length > 0 && !this.allPaid());
+
+  constructor() {
+    // Pre-select the group's active rueda (or the most recent one) once ruedas load.
+    effect(() => {
+      const ruedas = this.ruedasService.ruedas().filter(r => r.groupId === this.groupId);
+      if (this.autoSelectDone || this.ruedasService.loading() || ruedas.length === 0) return;
+      this.autoSelectDone = true;
+      const active = ruedas.find(r => r.status === 'active');
+      const latest = ruedas.reduce((a, b) => (b.ruedaNumber > a.ruedaNumber ? b : a));
+      untracked(() => this.onRuedaChange((active ?? latest).id));
+    });
+  }
 
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
@@ -329,19 +421,50 @@ export class PaymentListComponent implements OnInit {
     this.service.loadByMonth(this.groupId, this.selectedRuedaId(), cm.month, cm.year);
   }
 
-  generate(): void {
+  periodLabel(cm: ValidMonth): string {
+    return `${this.translate.instant('MONTHS.' + cm.month)} ${cm.year}`;
+  }
+
+  runConfirmedAction(): void {
+    const action = this.confirmAction();
     const cm = this.currentValidMonth();
-    if (!this.selectedRuedaId() || !cm) return;
-    this.generating.set(true);
-    this.service.generate(this.groupId, this.selectedRuedaId(), { month: cm.month, year: cm.year }).subscribe({
-      next: () => {
-        this.generating.set(false);
-        this.load();
-        this.toast.success('TOAST.PAYMENTS_GENERATED');
+    this.confirmAction.set(null);
+    if (!action || !this.selectedRuedaId() || !cm) return;
+
+    const req = { month: cm.month, year: cm.year };
+    const config: Record<BulkAction, { request: Observable<unknown>; success: string; error: string }> = {
+      generate: {
+        request: this.service.generate(this.groupId, this.selectedRuedaId(), req),
+        success: 'TOAST.PAYMENTS_GENERATED',
+        error: 'TOAST.PAYMENTS_GENERATE_ERROR',
       },
-      error: () => {
-        this.generating.set(false);
-        this.toast.error('TOAST.PAYMENTS_GENERATE_ERROR');
+      reset: {
+        request: this.service.resetMonth(this.groupId, this.selectedRuedaId(), req),
+        success: 'TOAST.PAYMENTS_RESET',
+        error: 'TOAST.PAYMENTS_RESET_ERROR',
+      },
+      markAll: {
+        request: this.service.markAllPaid(this.groupId, this.selectedRuedaId(), req),
+        success: 'TOAST.PAYMENTS_ALL_MARKED',
+        error: 'TOAST.PAYMENTS_MARK_ALL_ERROR',
+      },
+    };
+    const { request, success, error } = config[action];
+
+    this.revertError.set(false);
+    this.bulkAction.set(action);
+    request.subscribe({
+      next: () => {
+        this.bulkAction.set(null);
+        this.load();
+        // Marking everything may auto-complete the rueda
+        if (action === 'markAll') this.ruedasService.loadByGroup(this.groupId);
+        this.toast.success(success);
+      },
+      error: (err) => {
+        this.bulkAction.set(null);
+        this.load();
+        this.toast.error(backendErrorToastKey(err, error));
       },
     });
   }

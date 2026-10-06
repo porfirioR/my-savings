@@ -370,6 +370,49 @@ export class PaymentsAccess extends BaseAccessService {
     return { groupId: rueda.group_id, endMonth, endYear };
   }
 
+  async countByRuedaAndMonth(
+    ruedaId: string,
+    month: number,
+    year: number,
+  ): Promise<{ total: number; paid: number }> {
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .select('is_paid')
+      .eq('rueda_id', ruedaId)
+      .eq('month', month)
+      .eq('year', year);
+
+    if (error) throw new Error(error.message);
+    const rows = (data as { is_paid: boolean }[]) ?? [];
+    return { total: rows.length, paid: rows.filter((r) => r.is_paid).length };
+  }
+
+  async deleteByRuedaAndMonth(ruedaId: string, month: number, year: number): Promise<void> {
+    const { error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .delete()
+      .eq('rueda_id', ruedaId)
+      .eq('month', month)
+      .eq('year', year);
+
+    if (error) throw new Error(error.message);
+  }
+
+  /** Marks only the still-unpaid rows of the month as paid, in a single statement. */
+  async markAllPendingPaid(ruedaId: string, month: number, year: number): Promise<number> {
+    const { data, error } = await this.dbContext
+      .from('rueda_monthly_payments')
+      .update({ is_paid: true, paid_at: new Date().toISOString() })
+      .eq('rueda_id', ruedaId)
+      .eq('month', month)
+      .eq('year', year)
+      .eq('is_paid', false)
+      .select('id');
+
+    if (error) throw new Error(error.message);
+    return (data as { id: string }[] | null)?.length ?? 0;
+  }
+
   async markPayment(
     id: string,
     req: MarkPaymentAccessRequest,

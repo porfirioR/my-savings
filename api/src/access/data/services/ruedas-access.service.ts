@@ -178,8 +178,20 @@ export class RuedasAccess extends BaseAccessService {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    this.throwIfError(error);
     return this.mapToModel(data as RuedaEntity);
+  }
+
+  async hasOtherActive(groupId: string, excludeId: string): Promise<boolean> {
+    const { count, error } = await this.dbContext
+      .from('ruedas')
+      .select('id', { count: 'exact', head: true })
+      .eq('group_id', groupId)
+      .eq('status', 'active')
+      .neq('id', excludeId);
+
+    if (error) throw new Error(error.message);
+    return (count ?? 0) > 0;
   }
 
   async upsertSlots(ruedaId: string, slots: CreateRuedaSlotAccessRequest[]): Promise<RuedaSlotAccessModel[]> {

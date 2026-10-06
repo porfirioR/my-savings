@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { PaymentAccessModel } from '../../access/contracts/payments';
 import { PaymentsAccess, RuedasAccess } from '../../access/data/services';
 import { GeneratePaymentsRequest, MarkPaymentRequest, PaymentModel } from '../contracts/payments';
@@ -38,6 +38,14 @@ export class PaymentsManager {
     };
   }
 
+  private collectionReferenceId(ruedaId: string, month: number, year: number): string {
+    return toReferenceUuid(`rueda:${ruedaId}:${month}/${year}`);
+  }
+
+  private disbursementReferenceId(ruedaId: string, month: number, year: number): string {
+    return toReferenceUuid(`disburse:${ruedaId}:${month}/${year}`);
+  }
+
   async findByRuedaAndMonth(
     ruedaId: string,
     month: number,
@@ -48,44 +56,92 @@ export class PaymentsManager {
   }
 
   async generateMonthlyPayments(req: GeneratePaymentsRequest): Promise<PaymentModel[]> {
+    // A month's list can only be generated once. To start over, the whole
+    // month must be reverted first (resetMonth), which also cleans the caja.
+    const existing = await this.paymentsAccess.countByRuedaAndMonth(req.ruedaId, req.month, req.year);
+    if (existing.total > 0) throw new ConflictException('PAYMENTS_LIST_EXISTS');
+
     const result = await this.paymentsAccess.generateMonthlyPayments(req);
-
-    const disbursement = await this.paymentsAccess.getDisbursementInfo(req.ruedaId, req.month, req.year);
-    if (disbursement) {
-      const referenceId = toReferenceUuid(`disburse:${req.ruedaId}:${req.month}/${req.year}`);
-      const already = await this.cashBoxManager.existsByReference(disbursement.groupId, referenceId);
-      if (!already) {
-        await this.cashBoxManager.createMovement(
-          new CreateCashMovementRequest(
-            disbursement.groupId,
-            'out',
-            'automatic',
-            'rueda_disbursement',
-            disbursement.loanAmount,
-            req.month,
-            req.year,
-            `Rueda ${disbursement.ruedaNumber} - Desembolso ${req.month}/${req.year}`,
-            referenceId,
-          ),
-        );
-      }
-    }
-
+    await this.ensureDisbursement(req.ruedaId, req.month, req.year);
     return result.map((m) => this.mapToModel(m));
   }
 
+  /**
+   * Reverts a whole month: deletes every payment row (paid or not) and the
+   * automatic caja movements tied to it (disbursement and, defensively,
+   * collection). Only allowed while the month is not fully paid.
+   */
+  async resetMonth(ruedaId: string, month: number, year: number): Promise<void> {
+    const rueda = await this.ruedasAccess.findById(ruedaId);
+    await this.assertMonthHasPending(rueda.status, ruedaId, month, year);
+
+    await this.paymentsAccess.deleteByRuedaAndMonth(ruedaId, month, year);
+    await this.cashBoxManager.deleteByReferenceIds(rueda.groupId, [
+      this.disbursementReferenceId(ruedaId, month, year),
+      this.collectionReferenceId(ruedaId, month, year),
+    ]);
+  }
+
+  /** Marks every still-pending payment of the month as paid and closes the month. */
+  async markAllPaid(ruedaId: string, month: number, year: number): Promise<PaymentModel[]> {
+    const rueda = await this.ruedasAccess.findById(ruedaId);
+    await this.assertMonthHasPending(rueda.status, ruedaId, month, year);
+
+    await this.paymentsAccess.markAllPendingPaid(ruedaId, month, year);
+    await this.onPaymentsMarkedPaid(ruedaId, month, year);
+
+    return this.findByRuedaAndMonth(ruedaId, month, year);
+  }
+
   async markPayment(id: string, req: MarkPaymentRequest): Promise<PaymentModel> {
+    if (!req.isPaid) {
+      // Unmarking a payment of a completed rueda reopens it (see onPaymentUnmarked).
+      // Check up front that it can become active again, so nothing is changed
+      // if another rueda of the group already took the active spot.
+      const payment = await this.paymentsAccess.findById(id);
+      const rueda = await this.ruedasAccess.findById(payment.ruedaId);
+      if (rueda.status === 'completed' && (await this.ruedasAccess.hasOtherActive(rueda.groupId, rueda.id))) {
+        throw new BadRequestException('RUEDA_ALREADY_ACTIVE');
+      }
+    }
+
     const result = await this.paymentsAccess.markPayment(id, req);
-    const referenceId = toReferenceUuid(`rueda:${result.ruedaId}:${result.month}/${result.year}`);
 
     if (req.isPaid) {
-      const completion = await this.paymentsAccess.checkMonthCompletion(
-        result.ruedaId,
-        result.month,
-        result.year,
-      );
+      await this.onPaymentsMarkedPaid(result.ruedaId, result.month, result.year);
+    } else {
+      await this.onPaymentUnmarked(result.ruedaId, result.month, result.year);
+    }
 
-      if (completion?.allPaid && completion.groupId && completion.totalCollected > 0) {
+    return this.mapToModel(result);
+  }
+
+  /** Bulk month actions need an active rueda and a generated list with at least one pending payment. */
+  private async assertMonthHasPending(
+    ruedaStatus: string,
+    ruedaId: string,
+    month: number,
+    year: number,
+  ): Promise<void> {
+    if (ruedaStatus !== 'active') throw new BadRequestException('RUEDA_NOT_ACTIVE');
+
+    const counts = await this.paymentsAccess.countByRuedaAndMonth(ruedaId, month, year);
+    if (counts.total === 0) throw new BadRequestException('PAYMENTS_LIST_NOT_FOUND');
+    if (counts.paid === counts.total) throw new BadRequestException('MONTH_ALREADY_CLOSED');
+  }
+
+  /**
+   * After one or more payments of a month are marked paid: if the month is now
+   * fully paid, record the collection in caja (and make sure the disbursement
+   * exists), then auto-complete the rueda if every month is fully paid.
+   */
+  private async onPaymentsMarkedPaid(ruedaId: string, month: number, year: number): Promise<void> {
+    const completion = await this.paymentsAccess.checkMonthCompletion(ruedaId, month, year);
+
+    if (completion?.allPaid && completion.groupId && completion.totalCollected > 0) {
+      const referenceId = this.collectionReferenceId(ruedaId, month, year);
+      const already = await this.cashBoxManager.existsByReference(completion.groupId, referenceId);
+      if (!already) {
         await this.cashBoxManager.createMovement(
           new CreateCashMovementRequest(
             completion.groupId,
@@ -93,71 +149,71 @@ export class PaymentsManager {
             'automatic',
             'rueda_collection',
             completion.totalCollected,
-            result.month,
-            result.year,
-            `Rueda ${completion.ruedaNumber} - Recaudación ${result.month}/${result.year}`,
+            month,
+            year,
+            `Rueda ${completion.ruedaNumber} - Recaudación ${month}/${year}`,
             referenceId,
           ),
         );
-
-        // Safety net: ensure the disbursement exists for this month.
-        // generateMonthlyPayments creates it, but if it was missed (silent error,
-        // regeneration skipped, etc.) we guarantee it here when the month closes.
-        const disbursement = await this.paymentsAccess.getDisbursementInfo(
-          result.ruedaId,
-          result.month,
-          result.year,
-        );
-        if (disbursement) {
-          const disbRefId = toReferenceUuid(`disburse:${result.ruedaId}:${result.month}/${result.year}`);
-          const disbExists = await this.cashBoxManager.existsByReference(disbursement.groupId, disbRefId);
-          if (!disbExists) {
-            await this.cashBoxManager.createMovement(
-              new CreateCashMovementRequest(
-                disbursement.groupId,
-                'out',
-                'automatic',
-                'rueda_disbursement',
-                disbursement.loanAmount,
-                result.month,
-                result.year,
-                `Rueda ${disbursement.ruedaNumber} - Desembolso ${result.month}/${result.year}`,
-                disbRefId,
-              ),
-            );
-          }
-        }
       }
 
-      // Auto-complete the rueda if every month across all slots is fully paid
-      const ruedaDone = await this.paymentsAccess.checkRuedaFullyPaid(result.ruedaId);
-      if (ruedaDone) {
-        await this.ruedasAccess.update(result.ruedaId, {
-          status: 'completed',
-          ...(ruedaDone.endMonth ? { endMonth: ruedaDone.endMonth, endYear: ruedaDone.endYear ?? undefined } : {}),
-        });
-        await this.contributionsManager.snapshotCompletedRueda(result.ruedaId);
-      }
-    } else {
-      const completion = await this.paymentsAccess.checkMonthCompletion(
-        result.ruedaId,
-        result.month,
-        result.year,
-      );
-
-      if (completion?.groupId) {
-        await this.cashBoxManager.deleteByReference(completion.groupId, referenceId);
-      }
-
-      // If unmarking this payment un-completes an already-completed rueda,
-      // revert its status and drop the stored contribution snapshot.
-      const rueda = await this.ruedasAccess.findById(result.ruedaId);
-      if (rueda.status === 'completed') {
-        await this.ruedasAccess.update(result.ruedaId, { status: 'active' });
-        await this.contributionsManager.clearRuedaContributions(result.ruedaId);
-      }
+      // Safety net: ensure the disbursement exists for this month.
+      // generateMonthlyPayments creates it, but if it was missed (silent error,
+      // etc.) we guarantee it here when the month closes.
+      await this.ensureDisbursement(ruedaId, month, year);
     }
 
-    return this.mapToModel(result);
+    // Auto-complete the rueda if every month across all slots is fully paid
+    const ruedaDone = await this.paymentsAccess.checkRuedaFullyPaid(ruedaId);
+    if (ruedaDone) {
+      await this.ruedasAccess.update(ruedaId, {
+        status: 'completed',
+        ...(ruedaDone.endMonth ? { endMonth: ruedaDone.endMonth, endYear: ruedaDone.endYear ?? undefined } : {}),
+      });
+      await this.contributionsManager.snapshotCompletedRueda(ruedaId);
+    }
+  }
+
+  /** After a payment is unmarked: drop the month's collection and reopen the rueda if needed. */
+  private async onPaymentUnmarked(ruedaId: string, month: number, year: number): Promise<void> {
+    const completion = await this.paymentsAccess.checkMonthCompletion(ruedaId, month, year);
+
+    if (completion?.groupId) {
+      await this.cashBoxManager.deleteByReference(
+        completion.groupId,
+        this.collectionReferenceId(ruedaId, month, year),
+      );
+    }
+
+    // If unmarking this payment un-completes an already-completed rueda,
+    // revert its status and drop the stored contribution snapshot.
+    const rueda = await this.ruedasAccess.findById(ruedaId);
+    if (rueda.status === 'completed') {
+      await this.ruedasAccess.update(ruedaId, { status: 'active' });
+      await this.contributionsManager.clearRuedaContributions(ruedaId);
+    }
+  }
+
+  private async ensureDisbursement(ruedaId: string, month: number, year: number): Promise<void> {
+    const disbursement = await this.paymentsAccess.getDisbursementInfo(ruedaId, month, year);
+    if (!disbursement) return;
+
+    const referenceId = this.disbursementReferenceId(ruedaId, month, year);
+    const already = await this.cashBoxManager.existsByReference(disbursement.groupId, referenceId);
+    if (already) return;
+
+    await this.cashBoxManager.createMovement(
+      new CreateCashMovementRequest(
+        disbursement.groupId,
+        'out',
+        'automatic',
+        'rueda_disbursement',
+        disbursement.loanAmount,
+        month,
+        year,
+        `Rueda ${disbursement.ruedaNumber} - Desembolso ${month}/${year}`,
+        referenceId,
+      ),
+    );
   }
 }

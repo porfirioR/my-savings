@@ -156,7 +156,12 @@ export class RuedasManager {
 
     let previousStatus: string | undefined;
     if (req.status !== undefined) {
-      previousStatus = (await this.ruedasAccess.findById(id)).status;
+      const current = await this.ruedasAccess.findById(id);
+      previousStatus = current.status;
+      if (req.status === 'active' && previousStatus !== 'active') {
+        const otherActive = await this.ruedasAccess.hasOtherActive(current.groupId, id);
+        if (otherActive) throw new BadRequestException('RUEDA_ALREADY_ACTIVE');
+      }
     }
 
     if (req.slots?.some((s) => s.memberId)) {

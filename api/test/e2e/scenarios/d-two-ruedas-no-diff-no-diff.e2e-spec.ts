@@ -10,7 +10,7 @@
  */
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from '../helpers/app.helper';
-import { createGroup, createMembers, createRueda, generateAndPayAll, getCashBox } from '../helpers/api.helper';
+import { createGroup, createMembers, completeRueda, createRueda, generateAndPayAll, getCashBox } from '../helpers/api.helper';
 import { deleteTestGroup } from '../helpers/cleanup.helper';
 
 describe('Scenario D — two ruedas, no diff + no diff', () => {
@@ -34,11 +34,14 @@ describe('Scenario D — two ruedas, no diff + no diff', () => {
     const rueda1 = await createRueda(app, groupId, members, {
       loanAmount: 225_000, contributionAmount: 15_000, startMonth: 1, startYear: 2024,
     });
+    await generateAndPayAll(app, groupId, rueda1.id, 1, 2024);
+    // Only one rueda can be active per group: close rueda 1 before activating rueda 2
+    await completeRueda(app, groupId, rueda1.id);
+
     const rueda2 = await createRueda(app, groupId, members, {
       loanAmount: 225_000, contributionAmount: 15_000, startMonth: 2, startYear: 2024,
     });
 
-    await generateAndPayAll(app, groupId, rueda1.id, 1, 2024);
     await generateAndPayAll(app, groupId, rueda2.id, 2, 2024);
 
     const { movements, balance } = await getCashBox(app, groupId);

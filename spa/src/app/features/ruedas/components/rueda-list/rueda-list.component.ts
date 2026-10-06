@@ -10,6 +10,7 @@ import { EditRuedaDialogComponent } from '../edit-rueda-dialog/edit-rueda-dialog
 import { RuedaTimelineComponent } from '../rueda-timeline/rueda-timeline.component';
 import { ToastService } from '../../../../core/services/toast.service';
 import { RuedaLabelPipe } from '../../pipes/rueda-label.pipe';
+import { backendErrorToastKey } from '../../../../core/services/backend-error.util';
 
 @Component({
   selector: 'app-rueda-list',
@@ -104,7 +105,8 @@ import { RuedaLabelPipe } from '../../pipes/rueda-label.pipe';
                   </button>
                   @if (r.status === 'pending') {
                     <button class="btn btn-success btn-sm"
-                      [disabled]="updating() === r.id"
+                      [disabled]="updating() === r.id || hasActiveRueda()"
+                      [title]="hasActiveRueda() ? ('RUEDAS.ERROR_ALREADY_ACTIVE' | translate) : ''"
                       (click)="changeStatus(r.id, 'active')">
                       @if (updating() === r.id) { <span class="loading loading-spinner loading-xs"></span> }
                       @else { {{ 'RUEDAS.ACTIVATE' | translate }} }
@@ -177,6 +179,9 @@ export class RuedaListComponent implements OnInit {
   private autoCreate = false;
   updating = signal('');
   deleting = signal('');
+
+  /** Only one rueda can be active per group at a time. */
+  hasActiveRueda = computed(() => this.service.ruedas().some(r => r.status === 'active'));
 
   constructor() {
     effect(() => {
@@ -264,9 +269,9 @@ export class RuedaListComponent implements OnInit {
         this.updating.set('');
         this.toast.success(status === 'active' ? 'TOAST.RUEDA_ACTIVATED' : 'TOAST.RUEDA_COMPLETED');
       },
-      error: () => {
+      error: (err) => {
         this.updating.set('');
-        this.toast.error('TOAST.RUEDA_STATUS_ERROR');
+        this.toast.error(backendErrorToastKey(err, 'TOAST.RUEDA_STATUS_ERROR'));
       },
     });
   }

@@ -89,6 +89,11 @@ export async function activateRueda(app: INestApplication, groupId: string, rued
   expect(res.status).toBe(200);
 }
 
+export async function completeRueda(app: INestApplication, groupId: string, ruedaId: string) {
+  const res = await api(app).put(`/api/groups/${groupId}/ruedas/${ruedaId}`, { status: 'completed' });
+  expect(res.status).toBe(200);
+}
+
 // ─── Payments ─────────────────────────────────────────────────────────────────
 export async function generateAndPayAll(
   app: INestApplication,
