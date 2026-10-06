@@ -94,6 +94,17 @@ export class PaymentsManager {
   }
 
   async markPayment(id: string, req: MarkPaymentRequest): Promise<PaymentModel> {
+    if (!req.isPaid) {
+      // Unmarking a payment of a completed rueda reopens it (see onPaymentUnmarked).
+      // Check up front that it can become active again, so nothing is changed
+      // if another rueda of the group already took the active spot.
+      const payment = await this.paymentsAccess.findById(id);
+      const rueda = await this.ruedasAccess.findById(payment.ruedaId);
+      if (rueda.status === 'completed' && (await this.ruedasAccess.hasOtherActive(rueda.groupId, rueda.id))) {
+        throw new BadRequestException('RUEDA_ALREADY_ACTIVE');
+      }
+    }
+
     const result = await this.paymentsAccess.markPayment(id, req);
 
     if (req.isPaid) {
