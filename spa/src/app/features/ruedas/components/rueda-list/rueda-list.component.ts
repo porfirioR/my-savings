@@ -96,13 +96,22 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                     <p class="font-semibold text-sm text-info">{{ r.contributionAmount | number:'1.0-0' }} Gs</p>
                   </div>
                 </div>
-                <div class="flex items-center justify-between mt-4">
-                  <button class="btn btn-ghost btn-xs gap-1" (click)="toggleTimeline(r.id)">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <!-- Centered timeline toggle -->
+                <div class="divider my-3">
+                  <button class="btn btn-ghost btn-sm gap-1.5 font-semibold" (click)="toggleTimeline(r.id)"
+                    [attr.aria-expanded]="timelineRuedaId() === r.id">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     {{ 'RUEDAS.TIMELINE' | translate }}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform"
+                      [class.rotate-180]="timelineRuedaId() === r.id"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
                   </button>
+                </div>
+                <div class="flex justify-end">
                   @if (r.status === 'pending') {
                     <button class="btn btn-success btn-sm"
                       [disabled]="updating() === r.id || hasActiveRueda()"
@@ -114,7 +123,7 @@ import { backendErrorToastKey } from '../../../../core/services/backend-error.ut
                   }
                 </div>
                 @if (timelineRuedaId() === r.id) {
-                  <app-rueda-timeline [groupId]="groupId" [ruedaId]="r.id" [ruedaLabel]="r | ruedaLabel" />
+                  <app-rueda-timeline [groupId]="groupId" [ruedaId]="r.id" [ruedaLabel]="r | ruedaLabel" [ruedaStatus]="r.status" />
                 }
               </div>
             </div>
@@ -190,7 +199,20 @@ export class RuedaListComponent implements OnInit {
         this.openCreate();
       }
     });
+
+    // Auto-open the timeline of the active rueda (or the first one) once ruedas load,
+    // so the user doesn't have to click "Cronograma" every time.
+    effect(() => {
+      if (this.timelineAutoOpened || this.service.loading()) return;
+      const ruedas = this.sortedRuedas();
+      if (ruedas.length === 0) return;
+      this.timelineAutoOpened = true;
+      if (this.timelineRuedaId() === null) {
+        this.timelineRuedaId.set(ruedas[0].id);
+      }
+    });
   }
+  private timelineAutoOpened = false;
   showCreateModal = signal(false);
   showNoMembersWarning = signal(false);
   showEditModal = signal(false);

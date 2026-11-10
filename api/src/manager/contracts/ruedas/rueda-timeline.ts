@@ -11,6 +11,8 @@ export interface RuedaTimelinePayment {
   isPaid: boolean;
   /** True if a payment record exists (whether paid or not). */
   hasPaymentRecord: boolean;
+  /** Id of the monthly payment record (null if not generated yet). */
+  paymentId: string | null;
 }
 
 export interface RuedaTimelineMonth {
