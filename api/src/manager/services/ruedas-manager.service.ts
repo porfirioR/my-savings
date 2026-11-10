@@ -265,6 +265,7 @@ export class RuedasManager {
             cuotaNumber,
             isPaid,
             hasPaymentRecord,
+            paymentId: paymentRecord?.id ?? null,
           });
           totalCollected += amount;
 
@@ -281,6 +282,7 @@ export class RuedasManager {
               cuotaNumber: 0,
               isPaid,
               hasPaymentRecord,
+              paymentId: paymentRecord?.id ?? null,
             });
             totalCollected += rueda.contributionAmount;
           } else {
@@ -296,6 +298,7 @@ export class RuedasManager {
               cuotaNumber,
               isPaid,
               hasPaymentRecord,
+              paymentId: paymentRecord?.id ?? null,
             });
             totalCollected += amount;
           }
@@ -341,6 +344,7 @@ export class RuedasManager {
           cuotaNumber,
           isPaid: paymentRecord?.is_paid ?? false,
           hasPaymentRecord: !!paymentRecord,
+          paymentId: paymentRecord?.id ?? null,
         });
         totalCollected += amount;
       }

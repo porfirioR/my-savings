@@ -1,11 +1,14 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CashBoxService } from '../../services/cash-box.service';
 import { CashMovement } from '../../models/cash-box.model';
 import { AddMovementDialogComponent } from '../add-movement-dialog/add-movement-dialog.component';
 import { ToastService } from '../../../../core/services/toast.service';
+import { RuedasService } from '../../../ruedas/services/ruedas.service';
+import { Rueda } from '../../../ruedas/models/rueda.model';
+import { RuedaLabelPipe } from '../../../ruedas/pipes/rueda-label.pipe';
 
 @Component({
   selector: 'app-cash-box',
@@ -62,7 +65,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               <input type="checkbox" />
               <div class="collapse-title font-medium bg-base-200">
                 <div class="flex items-center justify-between">
-                  <span>{{ group[0].startsWith('Rueda ') ? group[0] : (group[0] | translate) }}</span>
+                  <span>{{ groupTitle(group[0]) }}</span>
                   <div class="flex gap-4 text-sm mr-8">
                     <span class="text-success">+ {{ group[1].totalIn | number:'1.0-0' }} Gs</span>
                     <span class="text-error">- {{ group[1].totalOut | number:'1.0-0' }} Gs</span>
@@ -93,7 +96,7 @@ import { ToastService } from '../../../../core/services/toast.service';
                               {{ (m.type === 'in' ? 'CASH_BOX.TYPE_IN' : 'CASH_BOX.TYPE_OUT') | translate }}
                             </span>
                           </td>
-                          <td>{{ m.description }}</td>
+                          <td>{{ describe(m) }}</td>
                           <td class="text-base-content/60">
                             {{ m.category ? ('CASH_BOX.CATEGORY_' + m.category | translate) : '-' }}
                           </td>
@@ -145,6 +148,9 @@ export class CashBoxComponent implements OnInit {
   readonly service = inject(CashBoxService);
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
+  private readonly ruedasService = inject(RuedasService);
+  private readonly translate = inject(TranslateService);
+  private readonly ruedaLabel = new RuedaLabelPipe();
 
   groupId = '';
   showModal = signal(false);
@@ -191,10 +197,37 @@ export class CashBoxComponent implements OnInit {
     });
   });
 
+  /** Group's ruedas indexed by number, to show their custom name instead of "Rueda N". */
+  private ruedaByNumber = computed(() => {
+    const map = new Map<number, Rueda>();
+    for (const r of this.ruedasService.ruedas()) {
+      if (r.groupId === this.groupId) map.set(r.ruedaNumber, r);
+    }
+    return map;
+  });
+
+  private ruedaLabelFor(num: number): string | null {
+    const rueda = this.ruedaByNumber().get(num);
+    return rueda ? this.ruedaLabel.transform(rueda) : null;
+  }
+
+  groupTitle(key: string): string {
+    const match = key.match(/^Rueda (\d+)$/);
+    if (match) return this.ruedaLabelFor(+match[1]) ?? key;
+    return this.translate.instant(key);
+  }
+
+  /** Automatic movements store "Rueda N - ..." in their description; swap in the custom name. */
+  describe(m: CashMovement): string {
+    if (!m.description) return '';
+    return m.description.replace(/^Rueda (\d+)(?=\s|$)/, (orig, n) => this.ruedaLabelFor(+n) ?? orig);
+  }
+
   ngOnInit(): void {
     this.groupId = this.route.snapshot.parent?.paramMap.get('groupId') ?? '';
     this.service.loadBalance(this.groupId);
     this.service.loadMovements(this.groupId);
+    this.ruedasService.loadByGroup(this.groupId);
   }
 
   openCreateModal(): void {

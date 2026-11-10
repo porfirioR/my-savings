@@ -51,6 +51,7 @@ export interface RuedaTimelinePayment {
   cuotaNumber: number;
   isPaid: boolean;
   hasPaymentRecord: boolean;
+  paymentId: string | null;
 }
 
 export interface RuedaTimelineMonth {
